@@ -7,12 +7,15 @@ const express = require('express');
 const app = express();
 const port = 3000;
 
-// 3. 기본 라우트 설정 (선택)
+// 3. 파일 서빙
+app.use(express.static('public'))
+
+// 4. 기본 라우트 설정 (선택)
 app.get('/', (req, res) => {
-    res = resdirect('/index.html');
+    res.redirect('/index.html');
 });
 
-// 4. 서버 시작
+// 5. 서버 시작
 app.listen(port, () => {
     console.log(`Server is running on port ${port}`);
 });

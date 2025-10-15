@@ -1,0 +1,104 @@
+/* CSS 공통 스타일 */
+
+/* CSS 변수 정의 (색상, 크기 등) */
+:root {
+  /* 색상 변수 */
+  --primary-color: #7F6AEE;        /* 메인 보라색 (활성화 버튼) */
+  --primary-light: #ACA0EB;        /* 연한 보라색 (비활성화 버튼) */
+  --gray-light: #D9D9D9;           /* 연한 회색 */
+  --gray-medium: #999;             /* 중간 회색 */
+  --gray-dark: #333;               /* 진한 회색 (텍스트) */
+  --white: #FFFFFF;                /* 흰색 */
+  --background-dark: #1a1a1a;      /* 어두운 배경 */
+  --error-color: #ff4444;          /* 에러 빨간색 */
+  
+  /* 크기 변수 */
+  --mobile-width: 428px;           /* 모바일 컨테이너 최대 너비 */
+  --header-height: 80px;           /* 헤더 높이 */
+  --border-radius: 8px;            /* 둥근 모서리 */
+  
+  /* 폰트 크기 */
+  --font-large: 24px;              /* 큰 제목 */
+  --font-medium: 18px;             /* 중간 제목 */
+  --font-regular: 16px;            /* 본문 */
+  --font-small: 14px;              /* 작은 텍스트 */
+}
+
+/* body 전체 설정 */
+body {
+  width: 100%;
+  min-height: 100vh;              /* 최소 높이 = 화면 전체 */
+  background-color: var(--background-dark);
+}
+
+/* 전체 배경 (어두운 배경 + 중앙 정렬) */
+.app-background {
+  display: flex;                   /* Flexbox 사용 */
+  justify-content: center;         /* 가로 중앙 정렬 */
+  align-items: center;             /* 세로 중앙 정렬 */
+  min-height: 100vh;              /* 최소 높이 = 화면 전체 */
+  background: url('../../assets/images/background.png');
+  background-size: 100vw 100vh;
+  background-color: var(--background-dark);
+}
+
+/* 모바일 컨테이너 (중앙 흰색 박스) */
+.mobile-container {
+  width: 100%;
+  max-width: var(--mobile-width);  /* 최대 너비 428px */
+  min-height: 100vh;              /* 최소 높이 = 화면 전체 */
+  background-color: var(--white);
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);  /* 그림자 */
+  display: flex;
+  flex-direction: column;          /* 세로 방향 배치 */
+}
+
+/* 헤더 스타일 */
+.page-header {
+  width: 100%;
+  height: var(--header-height);
+  display: flex;
+  justify-content: center;         /* 가로 중앙 */
+  align-items: center;             /* 세로 중앙 */
+  border-bottom: 1px solid #E0E0E0;  /* 하단 테두리 */
+}
+
+.header-title {
+  font-size: var(--font-large);
+  font-weight: 700;                /* 굵게 */
+  color: var(--gray-dark);
+}
+
+/* 메인 콘텐츠 영역 */
+.main-content {
+  flex: 1;                         /* 남은 공간 모두 차지 */
+  display: flex;
+  flex-direction: column;
+  padding: 40px 20px;              /* 내부 여백 */
+}
+
+/* Flexbox 중앙 정렬 */
+.flex-center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* 텍스트 중앙 정렬 */
+.text-center {
+  text-align: center;
+}
+
+/* 숨김 */
+.hidden {
+  display: none;
+}
+
+/* 에러 메시지 스타일 */
+.error-message {
+  display: block;                  /* 블록 요소로 */
+  margin-top: 8px;
+  font-size: var(--font-small);
+  color: var(--error-color);
+  min-height: 20px;               /* 최소 높이 (레이아웃 안 흔들림) */
+}

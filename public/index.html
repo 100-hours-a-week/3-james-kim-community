@@ -1,0 +1,70 @@
+<!-- /public/index.html -->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>커뮤니티 - 로그인</title>
+
+    <!-- CSS 로드 -->
+    <link rel="stylesheet" href="./css/reset.css">
+    <link rel="stylesheet" href="./css/common.css">
+    <link rel="stylesheet" href="./css/pages/login.css">
+</head>
+<body>
+    <!-- 전체 배경 (건물 이미지) -->
+    <div class="app-background">
+
+        <!-- 중앙 컨텐츠 컨테이너 (모바일 친화적 UI) -->
+        <div class="mobile-container">
+
+            <!-- Header: "커뮤니티" 타이틀 -->
+            <header class="page-header">
+                <h1 class="header-title">커뮤니티</h1>
+            </header>
+            
+            <!-- 메인 콘텐츠 영역 "흰색 영역" -->
+            <main class="main-content">
+
+                <!-- 로그인 섹션 -->
+                <section class="login-section">
+                    <h2 class="section-title">로그인</h2>
+                    
+                    <!-- 로그인 폼 -->
+                    <form class="login-form" id="loginForm">
+                        <!-- 이메일 입력 -->
+                        <div class="form-group">
+                            <label for="email" class="form-label">이메일</label>
+                            <input type="email" id="email" name="email"
+                                   class="form-input" placeholder="이메일을 입력하세요" required>
+                            
+                            <!-- 에러 메시지 표시 (제어는 JS)-->
+                            <span class="error-message" id="emailError"></span>
+                        </div>
+                    
+                        <!-- 비밀번호 입력 -->
+                        <div class="form-group">
+                            <label for="password" class="form-label">비밀번호</label>
+                            <input type="password" id="password" name="password"
+                                   class="form-input" placeholder="비밀번호를 입력하세요" required>
+                            
+                            <!-- 에러 메시지 표시 (제어는 JS)-->
+                            <span class="error-message" id="passwordError"></span>
+                        </div>
+                        
+                        <!-- 로그인 버튼 -->
+                        <button type="submit" class="btn-login" id="loginButton">로그인</button>
+                    </form>
+
+                    <div class="signup-link">
+                        <a href="/pages/signup.html" class="link-text">회원가입</a>
+                    </div>
+                </section>
+            </main>
+        </div>
+    </div>
+
+    <!-- 로그인 JS 로드 -->
+    <script type="module" src="./js/pages/login.js"></script>
+</body>
+</html>
