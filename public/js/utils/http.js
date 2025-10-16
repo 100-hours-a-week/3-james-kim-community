@@ -167,4 +167,120 @@ async function getWithAuth(url, token) {
     }
 }
 
-export { get, getWithAuth, post, postFormData };
+// POST 요청 (인증 필요 - 헤더 JWT 토큰)
+async function postWithAuth(url, data, token) {
+    try {
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify(data),
+        });
+
+        const result = await response.json();
+
+        if (!response.ok) {
+            throw {
+                status: response.status,
+                message: result.message || '요청에 실패했습니다.',
+                data: result.data
+            };
+        }
+
+        return result;
+
+    } catch (error) {
+        console.error('HTTP POST (인증) 요청 실패:', error);
+
+        if (!error.status) {
+            throw {
+                status: 0,
+                message: '서버에 연결할 수 없습니다. 네트워크를 확인해주세요.',
+                data: null
+            };
+        }
+
+        throw error;
+    }
+}
+
+// PUT 요청 (인증 필요 - 헤더 JWT 토큰)
+async function putWithAuth(url, data, token) {
+    try {
+        const response = await fetch(url, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify(data),
+        });
+
+        const result = await response.json();
+
+        if (!response.ok) {
+            throw {
+                status: response.status,
+                message: result.message || '요청에 실패했습니다.',
+                data: result.data
+            };
+        }
+
+        return result;
+
+    } catch (error) {
+        console.error('HTTP PUT (인증) 요청 실패:', error);
+
+        if (!error.status) {
+            throw {
+                status: 0,
+                message: '서버에 연결할 수 없습니다. 네트워크를 확인해주세요.',
+                data: null
+            };
+        }
+
+        throw error;
+    }
+}
+
+// DELETE 요청 (인증 필요 - 헤더 JWT 토큰)
+async function deleteWithAuth(url, token) {
+    try {
+        const response = await fetch(url, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+        });
+
+        const result = await response.json();
+
+        if (!response.ok) {
+            throw {
+                status: response.status,
+                message: result.message || '요청에 실패했습니다.',
+                data: result.data
+            };
+        }
+
+        return result;
+
+    } catch (error) {
+        console.error('HTTP DELETE (인증) 요청 실패:', error);
+
+        if (!error.status) {
+            throw {
+                status: 0,
+                message: '서버에 연결할 수 없습니다. 네트워크를 확인해주세요.',
+                data: null
+            };
+        }
+
+        throw error;
+    }
+}
+
+export { get, post, postFormData, getWithAuth, postWithAuth, putWithAuth, deleteWithAuth };

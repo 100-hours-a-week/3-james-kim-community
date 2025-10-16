@@ -19,7 +19,14 @@ const API_ENDPOINTS = {
 
     // 게시글 관련
     POSTS: `${API_BASE_URL}/posts`,
-    POST_DETAIL: (postId) => `${API_BASE_URL}/posts/${postsId}`,
+    POST_DETAIL: (postId) => `${API_BASE_URL}/posts/${postId}`,
+    POST_DELETE: (postId) => `${API_BASE_URL}/posts/${postId}`,
+    POST_LIKE: (postId) => `${API_BASE_URL}/posts/${postId}/like`,
+
+    // 댓글 관련
+    COMMENTS: (postId) => `${API_BASE_URL}/posts/${postId}/comments`,
+    COMMENT_DETAIL: (postId, commentId) => `${API_BASE_URL}/posts/${postId}/comments/${commentId}`,
+
 };
 
 export { API_BASE_URL, API_ENDPOINTS };

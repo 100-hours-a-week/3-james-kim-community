@@ -2,7 +2,7 @@
 // public/js/services/postService.js
 // 게시글 API 서비스
 
-import { getWithAuth } from "../utils/http.js";
+import { getWithAuth, deleteWithAuth } from "../utils/http.js";
 import { API_ENDPOINTS } from "../config/api.js";
 import { getAccessToken } from "../utils/storage.js";
 
@@ -52,4 +52,80 @@ async function getPosts(lastSeenId = null, limit = 10) {
     }
 }
 
-export { getPosts };
+// 게시글 상세 조회
+async function getPostDetail(postId) {
+    try {
+        const token = getAccessToken();
+
+        if (!token) {
+            throw new Error('로그인이 필요합니다.');
+        }
+
+        const url = API_ENDPOINTS.POST_DETAIL(postId);
+        console.log('게시글 상세 조회:', url);
+        
+        const result = await getWithAuth(url, token);
+        
+        console.log('게시글 상세 조회 성공:', result);
+        return result.data;
+
+    } catch (error) {
+        console.error('게시글 상세 조회 실패:', error);
+        
+        let userMessage = '게시글을 불러올 수 없습니다.';
+        
+        if (error.status === 401) {
+            userMessage = '로그인이 만료되었습니다.';
+        } else if (error.status === 404) {
+            userMessage = '존재하지 않는 게시글입니다.';
+        } else if (error.status === 500) {
+            userMessage = '서버 오류가 발생했습니다.';
+        }
+        
+        throw {
+            status: error.status,
+            message: userMessage,
+            originalMessage: error.message
+        };
+    }
+}
+
+// 게시글 삭제
+async function deletePost(postId) {
+    try {
+        const token = getAccessToken();
+
+        if (!token) {
+            throw new Error('로그인이 필요합니다.');
+        }
+
+        const url = API_ENDPOINTS.POST_DETAIL(postId);
+        console.log('게시글 삭제:', url);
+        
+        await deleteWithAuth(url, token);
+        
+        console.log('게시글 삭제 성공');
+        return true;
+
+    } catch (error) {
+        console.error('게시글 삭제 실패:', error);
+        
+        let userMessage = '게시글 삭제에 실패했습니다.';
+        
+        if (error.status === 401) {
+            userMessage = '로그인이 만료되었습니다.';
+        } else if (error.status === 403) {
+            userMessage = '게시글 삭제 권한이 없습니다.';
+        } else if (error.status === 404) {
+            userMessage = '존재하지 않는 게시글입니다.';
+        }
+        
+        throw {
+            status: error.status,
+            message: userMessage,
+            originalMessage: error.message
+        };
+    }
+}
+
+export { getPosts, getPostDetail, deletePost };

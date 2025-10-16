@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>게시글 상세 - 아무말 대잔치</title>
+    
+    <!-- CSS 임포트 -->
+    <link rel="stylesheet" href="../css/reset.css">
+    <link rel="stylesheet" href="../css/common.css">
+    <link rel="stylesheet" href="../css/pages/post-detail.css">
+</head>
+<body>
+    <!-- 전체 어두운 배경 -->
+    <div class="app-background">
+        <!-- 모바일 컨테이너 (중앙 흰색 박스) -->
+        <div class="mobile-container">
+
+            <!-- 헤더 영역: 뒤로 가기, 커뮤니티 타이틀, 프로필 메뉴 드롭다운 -->
+            <header class="page-header">
+                <!-- 뒤로가기 버튼 -->
+                <button class="btn-back" id="btnBack" aria-label="뒤로가기">
+                    <span class="icon-back">&lt;</span>
+                </button>
+
+                <!-- 커뮤니티 이름 -->
+                <h1 class="header-title">아무 말 대잔치</h1>
+
+                <!-- 프로필 메뉴 드롭다운-->
+                <div class="profile-menu">
+                    <button class="profile-button" id="profileButton" aria-label="프로필 메뉴">
+                        <div class="profile-placeholder" id="profileImage"></div>
+                    </button>
+
+                    <!-- 드롭다운 (기본: 숨김) -->
+                    <div class="dropdown-menu hidden" id="dropdownMenu">
+                        <a href="/pages/edit-profile.html" class="dropdown-item">회원정보수정</a>
+                        <a href="/pages/change-password.html" class="dropdown-item">비밀번호수정</a>
+                        <button class="dropdown-item" id="btnLogout">로그아웃</button>
+                    </div>
+                </div>
+            </header>
+
+            <!-- 메인 콘텐츠 영역 -->
+            <main class="main-content">
+                
+                <!-- 게시글 헤더 섹션: 제목, 작성자 정보, 수정/삭제 버튼 영역 -->
+                <section class="post-header-section">
+                    <!-- 제목 -->
+                    <h2 class="post-title" id="postTitle">게시글 제목이 여기에 표시됩니다</h2>
+                    
+                    <!-- 작성자 정보 + 수정/삭제 버튼 -->
+                    <div class="post-meta">
+                        <div class="author-info">
+                            <!-- 작성자 프로필 이미지 (기본: placeholder) -->
+                            <div class="author-image-placeholder" id="authorImage"></div>
+                            
+                            <!-- 작성자 이름 + 작성 시간 -->
+                            <div class="author-details">
+                                <span class="author-name" id="authorName">작성자명</span>
+                                <span class="post-date" id="postDate">2025-01-01 12:00:00</span>
+                            </div>
+                        </div>
+                        
+                        <!-- 수정/삭제 버튼 (작성자 본인일 경우만 표시) -->
+                        <div class="post-actions hidden" id="postActions">
+                            <button class="btn-action" id="btnEdit">수정</button>
+                            <button class="btn-action" id="btnDelete">삭제</button>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 게시글 본문 섹션: 이미지(있을 경우), 본문 내용 -->
+                <section class="post-body-section">
+                    <!-- 이미지 (있을 경우만 표시) -->
+                    <div class="post-image-wrapper hidden" id="postImageWrapper">
+                        <img class="post-image" id="postImage" src="" alt="게시글 이미지">
+                    </div>
+                    
+                    <!-- 본문 내용 -->
+                    <div class="post-content" id="postContent">
+                        게시글 내용이 여기에 표시됩니다.
+                    </div>
+                </section>
+
+                <!-- 통계 섹션: 좋아요수, 조회수, 댓글수 -->
+                <section class="post-stats-section">
+                    <div class="stat-item">
+                        <span class="stat-label">좋아요</span>
+                        <span class="stat-value" id="likeCount">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">조회수</span>
+                        <span class="stat-value" id="viewCount">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">댓글</span>
+                        <span class="stat-value" id="commentCount">0</span>
+                    </div>
+                </section>
+
+                <!-- 댓글 섹션: 댓글 작성 textarea, 등록 버튼 -->
+                <section class="comment-input-section">
+                    <textarea 
+                        class="comment-textarea" 
+                        id="commentTextarea" 
+                        placeholder="댓글을 남겨보세요"
+                        maxlength="500"
+                    ></textarea>
+                    <button class="btn-comment-submit" id="btnCommentSubmit" disabled>
+                        댓글 등록
+                    </button>
+                </section>
+
+                <!-- 댓글 목록 섹션: 인피니티 스크롤링, 댓글 카드들 동적 생성 -->
+                <section class="comments-section">
+                    <ul class="comments-list" id="commentsList">
+                        <!-- 댓글 카드들이 JavaScript로 동적 생성 -->
+                    </ul>
+                    
+                    <!-- 로딩 인디케이터 -->
+                    <div class="loading-indicator hidden" id="commentsLoading">
+                        <p>댓글을 불러오는 중...</p>
+                    </div>
+                    
+                    <!-- 더 이상 댓글 없음 -->
+                    <div class="no-more-comments hidden" id="noMoreComments">
+                        <p>마지막 댓글입니다</p>
+                    </div>
+                </section>
+            </main>
+        </div>
+    </div>
+
+    <!-- 게시글 삭제 확인 모달 -->
+    <div class="modal-overlay hidden" id="deletePostModal">
+        <div class="modal-container">
+            <h3 class="modal-title">게시글을 삭제하시겠습니까?</h3>
+            <p class="modal-message">삭제한 내용은 복구 할 수 없습니다.</p>
+            <div class="modal-buttons">
+                <button class="btn-modal btn-cancel" id="btnCancelDeletePost">취소</button>
+                <button class="btn-modal btn-confirm" id="btnConfirmDeletePost">확인</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 댓글 삭제 확인 모달 -->
+    <div class="modal-overlay hidden" id="deleteCommentModal">
+        <div class="modal-container">
+            <h3 class="modal-title">댓글을 삭제하시겠습니까?</h3>
+            <p class="modal-message">삭제한 내용은 복구 할 수 없습니다.</p>
+            <div class="modal-buttons">
+                <button class="btn-modal btn-cancel" id="btnCancelDeleteComment">취소</button>
+                <button class="btn-modal btn-confirm" id="btnConfirmDeleteComment">확인</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 게시글 상세 JS 로드 -->
+    <script type="module" src="../js/pages/post-detail.js"></script>
+</body>
+</html>
