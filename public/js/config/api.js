@@ -16,6 +16,10 @@ const API_ENDPOINTS = {
 
     // 이미지 관련
     UPLOAD_IMAGE: `${API_BASE_URL}/images`,
+
+    // 게시글 관련
+    POSTS: `${API_BASE_URL}/posts`,
+    POST_DETAIL: (postId) => `${API_BASE_URL}/posts/${postsId}`,
 };
 
 export { API_BASE_URL, API_ENDPOINTS };

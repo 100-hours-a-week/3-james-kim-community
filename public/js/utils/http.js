@@ -128,4 +128,43 @@ async function postFormData(url, formData) {
     }
 }
 
-export { get, post, postFormData };
+// GET 요청 (인증 필요 - 헤더 JWT 토큰)
+async function getWithAuth(url, token) {
+    try {
+        const response = await fetch(url, {
+            method: 'GET',
+            headers: {
+                // 로그인한 이후로는 토큰으로 사용자 검증
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+        });
+
+        const result = await response.json();
+
+        if (!response.ok) {
+            throw {
+                status: response.status,
+                message: result.message || '요청에 실패했습니다.',
+                data: result.data
+            };
+        }
+
+        return result;
+
+    } catch (error) {
+        console.error('HTTP GET (인증) 요청 실패:', error);
+
+        if (!error.status) {
+            throw {
+                status: 0,
+                message: '서버에 연결할 수 없습니다. 네트워크를 확인해주세요.',
+                data: null
+            };
+        }
+
+        throw error;
+    }
+}
+
+export { get, getWithAuth, post, postFormData };
