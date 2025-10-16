@@ -1,7 +1,7 @@
 // public/js/services/authService.js
-// 인증 API 서비스 - 로그인 API 호출
+// 인증 API 서비스 - 로그인, 중복 체크 API 호출
 
-import { post } from "../utils/http.js";
+import { get, post } from "../utils/http.js";
 import { API_ENDPOINTS } from "../config/api.js";
 
 async function login(email, password) {
@@ -41,4 +41,54 @@ async function login(email, password) {
     }
 }
 
-export { login };
+async function checkEmailDuplicate(email) {
+    try {
+        const url = `${API_ENDPOINTS.CHECK_EMAIL}?email=${encodeURIComponent(email)}`;
+        const result = await get(url);
+        
+        console.log('이메일 중복 체크 결과:', result);
+
+        return result.data.available;
+        
+    } catch (error) {
+        console.error('이메일 중복 체크 실패:', error);
+        
+        // 409 Conflict는 중복을 의미
+        if (error.status === 409) {
+            return false;  
+        }
+        
+        throw {
+            status: error.status,
+            message: '이메일 중복 확인에 실패했습니다.',
+            originalMessage: error.message
+        };
+    }
+}
+
+async function checkNicknameDuplicate(nickname) {
+    try {
+        const url = `${API_ENDPOINTS.CHECK_NICKNAME}?nickname=${encodeURIComponent(nickname)}`;
+        const result = await get(url);
+        
+        console.log('닉네임 중복 체크 결과:', result);
+
+        return result.data.available;
+        
+    } catch (error) {
+        console.error('닉네임 중복 체크 실패:', error);
+        
+        // 409 Conflict는 중복을 의미
+        if (error.status === 409) {
+            return false; 
+        }
+        
+        throw {
+            status: error.status,
+            message: '닉네임 중복 확인에 실패했습니다.',
+            originalMessage: error.message
+        };
+    }
+}
+
+export { login, checkEmailDuplicate, checkNicknameDuplicate };

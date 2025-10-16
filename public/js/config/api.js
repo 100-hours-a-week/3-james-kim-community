@@ -6,7 +6,16 @@ const API_BASE_URL = 'http://localhost:8080/api';
 
 // 로그인 API 엔드포인트
 const API_ENDPOINTS = {
+    // 인증 관련
     LOGIN: `${API_BASE_URL}/auth`,
+    CHECK_EMAIL: `${API_BASE_URL}/auth/check-email`,
+    CHECK_NICKNAME: `${API_BASE_URL}/auth/check-nickname`,
+
+    // 사용자 관련
+    SIGNUP: `${API_BASE_URL}/users`,
+
+    // 이미지 관련
+    UPLOAD_IMAGE: `${API_BASE_URL}/images`,
 };
 
 export { API_BASE_URL, API_ENDPOINTS };

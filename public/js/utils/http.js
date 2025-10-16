@@ -1,7 +1,50 @@
 // public/js/utils/http.js
 // HTTP 요청 함수 (fetch)
 
-// POST 요청 (로그인)
+// GET 요청 (중복 체크)
+async function get(url) {
+    try {
+
+        // 1. fetch로 GET 요청
+        const response = await fetch(url, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
+
+        // 2. 응답을 JSON으로 파싱
+        const result = await response.json();
+
+        // 3. HTTP 상태 코드 체크
+        if (!response.ok) {
+            throw {
+                status: response.status,
+                message: result.message || '요청에 실패했습니다.',
+                data: result.data
+            };
+        }
+
+        return result;
+
+    } catch (error) {
+
+        // 에러 처리
+        console.error('HTTP GET 요청 실패:', error);
+
+        if (!error.status) {
+            throw {
+                status: 0,
+                message: '서버에 연결할 수 없습니다. 네트워크를 확인해주세요.',
+                data: null
+            };
+        }
+
+        throw error;
+    }
+}
+
+// POST 요청 (로그인, 회원가입)
 async function post(url, data) {
     try {
 
@@ -32,7 +75,7 @@ async function post(url, data) {
     } catch (error) {
 
         // 에러 처리
-        console.error('HTTP 요청 실패:', error);
+        console.error('HTTP POST 요청 실패:', error);
 
         if (!error.status) {
             throw {
@@ -47,4 +90,42 @@ async function post(url, data) {
     }
 }
 
-export { post };
+// 파일 업로드 (FormData)
+async function postFormData(url, formData) {
+    try {
+
+        const response = await fetch(url, {
+            method: 'POST',
+            // FormData는 Content-Type을 자동으로 설정하므로 headers 생략
+            body: formData,
+        });
+
+        const result = await response.json();
+
+        if (!response.ok) {
+            throw {
+                status: response.status,
+                message: result.message || '요청에 실패했습니다.',
+                data: result.data
+            };
+        }
+
+        return result;
+
+    } catch (error) {
+
+        console.error('HTTP FormData 요청 실패:', error);
+
+        if (!error.status) {
+            throw {
+                status: 0,
+                message: '서버에 연결할 수 없습니다. 네트워크를 확인해주세요.',
+                data: null
+            };
+        }
+
+        throw error;
+    }
+}
+
+export { get, post, postFormData };
