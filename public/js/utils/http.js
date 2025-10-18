@@ -206,6 +206,45 @@ async function postWithAuth(url, data, token) {
     }
 }
 
+// PATCH 요청 (인증 필요 - 헤더 JWT 토큰)
+async function patchWithAuth(url, data, token) {
+    try {
+        const response = await fetch(url, {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify(data),
+        });
+
+        const result = await response.json();
+
+        if (!response.ok) {
+            throw {
+                status: response.status,
+                message: result.message || '요청에 실패했습니다.',
+                data: result.data
+            };
+        }
+
+        return result;
+
+    } catch (error) {
+        console.error('HTTP PATCH (인증) 요청 실패:', error);
+
+        if (!error.status) {
+            throw {
+                status: 0,
+                message: '서버에 연결할 수 없습니다. 네트워크를 확인해주세요.',
+                data: null
+            };
+        }
+
+        throw error;
+    }
+}
+
 // PUT 요청 (인증 필요 - 헤더 JWT 토큰)
 async function putWithAuth(url, data, token) {
     try {
@@ -283,4 +322,4 @@ async function deleteWithAuth(url, token) {
     }
 }
 
-export { get, post, postFormData, getWithAuth, postWithAuth, putWithAuth, deleteWithAuth };
+export { get, post, postFormData, getWithAuth, postWithAuth, patchWithAuth, putWithAuth, deleteWithAuth };

@@ -1,0 +1,120 @@
+<!-- /public/pages/post-edit.html -->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>게시글 수정 - 아무 말 대잔치</title>
+    
+    <!-- CSS 로드 -->
+    <link rel="stylesheet" href="../css/reset.css">
+    <link rel="stylesheet" href="../css/common.css">
+    <link rel="stylesheet" href="../css/pages/post-edit.css">
+</head>
+<body>
+    <!-- 전체 배경 -->
+    <div class="app-background">
+        
+        <!-- 모바일 컨테이너 (중앙 흰색 박스) -->
+        <div class="mobile-container">
+
+            <!-- 헤더 영역: 뒤로 가기 + 타이틀 + 프로필 메뉴 -->
+            <header class="page-header">
+                <!-- 뒤로가기 버튼 -->
+                <button class="btn-back" id="btnBack" aria-label="뒤로가기">
+                    <span class="icon-back">&lt;</span>
+                </button>
+
+                <!-- 페이지 타이틀 -->
+                <h1 class="header-title">아무 말 대잔치</h1>
+
+                <!-- 프로필 메뉴 드롭다운 -->
+                <div class="profile-menu">
+                    <button class="profile-button" id="profileButton" aria-label="프로필 메뉴">
+                        <div class="profile-placeholder" id="profilePlaceholder"></div>
+                    </button>
+                    
+                    <!-- 드롭다운 메뉴 -->
+                    <div class="dropdown-menu hidden" id="dropdownMenu">
+                        <a href="/pages/edit-profile.html" class="dropdown-item">회원정보수정</a>
+                        <a href="/pages/change-password.html" class="dropdown-item">비밀번호수정</a>
+                        <button class="dropdown-item" id="logoutButton">로그아웃</button>
+                    </div>
+                </div>
+            </header>
+
+            <!-- 메인 콘텐츠 영역 -->
+            <main class="main-content">
+
+                <!-- 게시글 수정 헤더 섹션 -->
+                <section class="post-edit-header-section">
+                    <h2 class="section-title">게시글 수정</h2>
+                </section>
+
+                <!-- 게시글 수정 폼 -->
+                <form class="post-edit-form" id="postEditForm">
+                    
+                    <!-- 제목 섹션 -->
+                    <section class="form-section">
+                        <label for="postTitle" class="form-label">제목*</label>
+                        <input 
+                            type="text" 
+                            id="postTitle" 
+                            name="title"
+                            class="form-input" 
+                            placeholder="제목을 입력해주세요. (최대 26자)"
+                            maxlength="26"
+                            required>
+                        <span class="helper-text" id="titleHelperText">0/26</span>
+                    </section>
+
+                    <!-- 내용 섹션 -->
+                    <section class="form-section">
+                        <label for="postContent" class="form-label">내용*</label>
+                        <textarea 
+                            id="postContent" 
+                            name="content"
+                            class="form-textarea" 
+                            placeholder="내용을 입력해주세요."
+                            required></textarea>
+                    </section>
+
+                    <!-- 이미지 섹션 -->
+                    <section class="form-section">
+                        <label class="form-label">이미지</label>
+                        
+                        <!-- 이미지 업로드 영역 -->
+                        <div class="image-upload-wrapper">
+                            <input 
+                                type="file" 
+                                id="imageInput" 
+                                accept="image/*"
+                                class="hidden">
+                            
+                            <div class="file-select-area">
+                                <button type="button" class="btn-file-select" id="btnFileSelect">
+                                    파일 선택
+                                </button>
+                                <span class="file-name" id="fileName">선택된 파일 없음</span>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- 수정하기 버튼 섹션 -->
+                    <section class="form-actions">
+                        <button type="submit" class="btn-submit" id="btnSubmit" disabled>
+                            수정하기
+                        </button>
+                    </section>
+
+                </form>
+
+            </main>
+
+        </div>
+    </div>
+
+    <!-- JS 로드 -->
+    <script type="module" src="../js/pages/post-edit.js"></script>
+</body>
+</html>

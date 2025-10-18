@@ -2,7 +2,7 @@
 // public/js/services/postService.js
 // 게시글 API 서비스
 
-import { getWithAuth, deleteWithAuth } from "../utils/http.js";
+import { getWithAuth, postWithAuth, patchWithAuth, deleteWithAuth } from "../utils/http.js";
 import { API_ENDPOINTS } from "../config/api.js";
 import { getAccessToken } from "../utils/storage.js";
 
@@ -90,6 +90,85 @@ async function getPostDetail(postId) {
     }
 }
 
+// 게시글 작성
+async function createPost(postData) {
+    try {
+        const token = getAccessToken();
+
+        if (!token) {
+            throw new Error('로그인이 필요합니다.');
+        }
+
+        const url = API_ENDPOINTS.POSTS;
+        console.log('게시글 작성:', url, postData);
+        
+        const result = await postWithAuth(url, postData, token);
+        
+        console.log('게시글 작성 성공:', result);
+        return result.data;
+
+    } catch (error) {
+        console.error('게시글 작성 실패:', error);
+        
+        let userMessage = '게시글 작성에 실패했습니다.';
+        
+        if (error.status === 401) {
+            userMessage = '로그인이 만료되었습니다.';
+        } else if (error.status === 400) {
+            userMessage = error.message || '입력 정보를 확인해주세요.';
+        } else if (error.status === 500) {
+            userMessage = '서버 오류가 발생했습니다.';
+        }
+        
+        throw {
+            status: error.status,
+            message: userMessage,
+            originalMessage: error.message
+        };
+    }
+}
+
+// 게시글 수정
+async function updatePost(postId, updateData) {
+    try {
+        const token = getAccessToken();
+
+        if (!token) {
+            throw new Error('로그인이 필요합니다.');
+        }
+
+        const url = API_ENDPOINTS.POST_DETAIL(postId);
+        console.log('게시글 수정:', url, updateData);
+        
+        const result = await patchWithAuth(url, updateData, token);
+        
+        console.log('게시글 수정 성공:', result);
+        return result.data;
+
+    } catch (error) {
+        console.error('게시글 수정 실패:', error);
+        
+        let userMessage = '게시글 수정에 실패했습니다.';
+        
+        if (error.status === 401) {
+            userMessage = '로그인이 만료되었습니다.';
+        } else if (error.status === 403) {
+            userMessage = '게시글 수정 권한이 없습니다.';
+        } else if (error.status === 404) {
+            userMessage = '존재하지 않는 게시글입니다.';
+        } else if (error.status === 400) {
+            userMessage = error.message || '입력 정보를 확인해주세요.';
+        }
+        
+        throw {
+            status: error.status,
+            message: userMessage,
+            originalMessage: error.message
+        };
+    }
+}
+
+
 // 게시글 삭제
 async function deletePost(postId) {
     try {
@@ -128,4 +207,4 @@ async function deletePost(postId) {
     }
 }
 
-export { getPosts, getPostDetail, deletePost };
+export { getPosts, getPostDetail, createPost, updatePost, deletePost };

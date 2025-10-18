@@ -1,0 +1,311 @@
+/* ========================================
+   게시글 작성 페이지 전용 스타일
+   파일 위치: public/css/pages/post-write.css
+   ======================================== */
+
+/* 헤더 레이아웃 */
+.page-header {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* 뒤로가기 버튼 */
+.btn-back {
+  position: absolute;
+  left: 20px;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 24px;
+  color: var(--gray-dark);
+  transition: color 0.3s;
+}
+
+.btn-back:hover {
+  color: var(--primary-color);
+}
+
+.icon-back {
+  font-size: 28px;
+  line-height: 1;
+}
+
+/* 프로필 메뉴 영역 */
+.profile-menu {
+  position: absolute;
+  right: 20px;
+}
+
+/* 프로필 버튼 */
+.profile-button {
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+}
+
+/* 프로필 이미지 placeholder (동그라미) */
+.profile-placeholder {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background-color: var(--gray-light);
+  border: 2px solid var(--gray-light);
+  transition: border-color 0.3s;
+}
+
+.profile-button:hover .profile-placeholder {
+  border-color: var(--primary-color);
+}
+
+/* 실제 프로필 이미지 (JS로 추가될 때) */
+.profile-image {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--gray-light);
+  transition: border-color 0.3s;
+}
+
+.profile-button:hover .profile-image {
+  border-color: var(--primary-color);
+}
+
+/* 드롭다운 메뉴 */
+.dropdown-menu {
+  position: absolute;
+  top: 50px;
+  right: 0;
+  min-width: 150px;
+  background-color: var(--white);
+  border: 1px solid var(--gray-light);
+  border-radius: var(--border-radius);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  overflow: hidden;
+  z-index: 1000;
+}
+
+.dropdown-menu.hidden {
+  display: none;
+}
+
+.dropdown-item {
+  display: block;
+  width: 100%;
+  padding: 12px 16px;
+  font-size: var(--font-regular);
+  color: var(--gray-dark);
+  text-align: left;
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.dropdown-item:hover {
+  background-color: #F5F5F5;
+}
+
+/* ========================================
+   메인 콘텐츠
+   ======================================== */
+
+.main-content {
+  padding: 0;
+  background-color: #F5F5F5;
+}
+
+/* 게시글 작성 헤더 섹션 */
+.post-write-header-section {
+  padding: 30px 20px 20px 20px;
+  background-color: var(--white);
+  border-bottom: 1px solid #E0E0E0;
+}
+
+.section-title {
+  font-size: var(--font-large);
+  font-weight: 700;
+  color: var(--gray-dark);
+  text-align: left;
+}
+
+/* ========================================
+   게시글 작성 폼
+   ======================================== */
+
+.post-write-form {
+  background-color: var(--white);
+  padding: 20px;
+}
+
+/* 폼 섹션 (각 입력 필드 영역) */
+.form-section {
+  margin-bottom: 30px;
+}
+
+/* 라벨 */
+.form-label {
+  display: block;
+  font-size: var(--font-regular);
+  font-weight: 600;
+  color: var(--gray-dark);
+  margin-bottom: 8px;
+}
+
+/* 제목 입력 필드 */
+.form-input {
+  width: 100%;
+  height: 45px;
+  padding: 0 16px;
+  font-size: var(--font-regular);
+  color: var(--gray-dark);
+  background-color: #F9F9F9;
+  border: 1px solid #E0E0E0;
+  border-radius: var(--border-radius);
+  transition: border-color 0.3s;
+}
+
+.form-input:focus {
+  border-color: var(--primary-color);
+  outline: none;
+}
+
+.form-input::placeholder {
+  color: #AAAAAA;
+}
+
+/* 글자 수 표시 */
+.helper-text {
+  display: block;
+  margin-top: 4px;
+  font-size: var(--font-small);
+  color: var(--gray-medium);
+  text-align: right;
+}
+
+/* 내용 입력 필드 (textarea) */
+.form-textarea {
+  width: 100%;
+  min-height: 300px;
+  max-height: 600px;
+  padding: 16px;
+  font-size: var(--font-regular);
+  color: var(--gray-dark);
+  background-color: #F9F9F9;
+  border: 1px solid #E0E0E0;
+  border-radius: var(--border-radius);
+  resize: vertical;
+  font-family: inherit;
+  line-height: 1.6;
+  transition: border-color 0.3s;
+}
+
+.form-textarea:focus {
+  border-color: var(--primary-color);
+  outline: none;
+}
+
+.form-textarea::placeholder {
+  color: #AAAAAA;
+}
+
+/* ========================================
+   이미지 업로드 영역
+   ======================================== */
+
+.image-upload-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* 파일 선택 영역 */
+.file-select-area {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* 파일 선택 버튼 */
+.btn-file-select {
+  height: 35px;
+  padding: 0 20px;
+  font-size: var(--font-small);
+  font-weight: 600;
+  color: var(--white);
+  background-color: var(--primary-color);
+  border: none;
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  transition: background-color 0.3s;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.btn-file-select:hover {
+  background-color: #6952D1;
+}
+
+/* 파일명 표시 */
+.file-name {
+  font-size: var(--font-small);
+  color: var(--gray-medium);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+}
+
+/* 업로드 힌트 텍스트 */
+.upload-hint {
+  font-size: var(--font-small);
+  color: var(--gray-medium);
+  margin-left: 0;
+}
+
+/* ========================================
+   완료 버튼
+   ======================================== */
+
+.form-actions {
+  margin-top: 40px;
+  padding-top: 20px;
+  border-top: 1px solid #E0E0E0;
+}
+
+.btn-submit {
+  width: 100%;
+  height: 50px;
+  font-size: var(--font-medium);
+  font-weight: 600;
+  color: var(--white);
+  background-color: var(--primary-light);
+  border: none;
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.btn-submit:hover:not(:disabled) {
+  background-color: var(--primary-color);
+}
+
+.btn-submit:disabled {
+  background-color: var(--primary-light);
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.btn-submit.active {
+  background-color: var(--primary-color);
+}
