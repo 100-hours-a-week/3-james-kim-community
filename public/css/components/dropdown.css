@@ -1,0 +1,40 @@
+/* ========================================
+   드롭다운 메뉴 공통 컴포넌트 (public/css/components/dropdown.css)
+   - 프로필 메뉴 드롭다운에서 사용 (프로필 수정, 비밀번호 수정, 로그아웃)
+   ======================================== */
+
+/* 드롭다운 메뉴 */
+.dropdown-menu {
+  position: absolute;
+  top: 50px;
+  right: 0;
+  min-width: 150px;
+  background-color: var(--white);
+  border: 1px solid var(--gray-light);
+  border-radius: var(--border-radius);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  overflow: hidden;
+  z-index: 1000;
+}
+
+.dropdown-menu.hidden {
+  display: none;
+}
+
+/* 드롭다운 아이템 */
+.dropdown-item {
+  display: block;
+  width: 100%;
+  padding: 12px 16px;
+  font-size: var(--font-regular);
+  color: var(--gray-dark);
+  text-align: left;
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.dropdown-item:hover {
+  background-color: #F5F5F5;
+}

@@ -1,99 +1,12 @@
 /* ========================================
-   게시글 목록 페이지 전용 스타일
-   파일 위치: public/css/pages/posts.css
+   게시글 목록 페이지 전용 스타일 (public/css/pages/posts.css)
    ======================================== */
 
-/* 헤더 - 프로필 메뉴 추가 */
-.page-header {
-  position: relative;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
+/* (리팩토링) 삭제: .page-header, .profile-menu, .profile-button, .profile-placeholder, 
+           .profile-image (header.css로 이동) */
+/* (리팩토링) 삭제: .dropdown-menu, .dropdown-item (dropdown.css로 이동) */
 
-/* 프로필 메뉴 영역 */
-.profile-menu {
-  position: absolute;
-  right: 20px;
-}
-
-/* 프로필 버튼 */
-.profile-button {
-  width: 40px;
-  height: 40px;
-  padding: 0;
-  border: none;
-  background: none;
-  cursor: pointer;
-}
-
-/* 프로필 이미지 placeholder (동그라미) */
-.profile-placeholder {
-  width: 100%;
-  height: 100%;
-  border-radius: 50%;
-  background-color: var(--gray-light);
-  border: 2px solid var(--gray-light);
-  transition: border-color 0.3s;
-}
-
-.profile-button:hover .profile-placeholder {
-  border-color: var(--primary-color);
-}
-
-/* 실제 프로필 이미지 (JS로 추가될 때) */
-.profile-image {
-  width: 100%;
-  height: 100%;
-  border-radius: 50%;
-  object-fit: cover;
-  border: 2px solid var(--gray-light);
-  transition: border-color 0.3s;
-}
-
-.profile-button:hover .profile-image {
-  border-color: var(--primary-color);
-}
-
-/* 드롭다운 메뉴 */
-.dropdown-menu {
-  position: absolute;
-  top: 50px;
-  right: 0;
-  min-width: 150px;
-  background-color: var(--white);
-  border: 1px solid var(--gray-light);
-  border-radius: var(--border-radius);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  overflow: hidden;
-  z-index: 1000;
-}
-
-.dropdown-menu.hidden {
-  display: none;
-}
-
-.dropdown-item {
-  display: block;
-  width: 100%;
-  padding: 12px 16px;
-  font-size: var(--font-regular);
-  color: var(--gray-dark);
-  text-align: left;
-  background: none;
-  border: none;
-  cursor: pointer;
-  transition: background-color 0.2s;
-}
-
-.dropdown-item:hover {
-  background-color: #F5F5F5;
-}
-
-/* ========================================
-   메인 콘텐츠
-   ======================================== */
-
+/* 메인 콘텐츠 */
 .main-content {
   padding: 0;
 }
@@ -118,14 +31,14 @@
   background-color: var(--white);
   border-bottom: 1px solid #E0E0E0;
   display: flex;
-  justify-content: flex-end;  /* 오른쪽 정렬 */
+  justify-content: flex-end;
 }
 
 .btn-write {
-  width: auto;  /* 전체 너비가 아닌 내용에 맞춤 */
-  min-width: 120px;  /* 최소 너비 */
+  width: auto;
+  min-width: 120px;
   height: 45px;
-  padding: 0 24px;  /* 좌우 여백 */
+  padding: 0 24px;
   font-size: var(--font-medium);
   font-weight: 600;
   color: var(--white);
@@ -140,10 +53,7 @@
   background-color: #6952D1;
 }
 
-/* ========================================
-   게시글 목록
-   ======================================== */
-
+/* 게시글 목록 */
 .posts-section {
   background-color: #F5F5F5;
   min-height: 400px;
@@ -153,47 +63,38 @@
 .posts-list {
   display: flex;
   flex-direction: column;
-  gap: 16px;  /* 카드 간격 */
+  gap: 16px;
 }
 
 /* 게시글 카드 */
 .post-card {
   background-color: var(--white);
   padding: 24px;
-  border-radius: 12px;  /* 둥근 모서리 */
+  border-radius: 12px;
   cursor: pointer;
   transition: all 0.3s ease;
-  
-  /* 그림자 효과 */
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
 .post-card:hover {
-  transform: translateY(-2px);  /* 살짝 올라오는 효과 */
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);  /* 호버 시 그림자 강화 */
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
   background-color: #FAFAFA;
 }
 
 /* 게시글 제목 */
 .post-title {
-  font-size: 18px;  /* 조금 더 크게 */
-  font-weight: 600;
+  font-size: var(--font-medium);
+  font-weight: 700;
   color: var(--gray-dark);
   margin-bottom: 16px;
-  line-height: 1.5;
-  
-  /* 2줄 넘으면 말줄임표 */
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  line-height: 1.4;
 }
 
-/* 통계 정보 (좋아요, 댓글, 조회수) */
+/* 게시글 통계 */
 .post-stats {
   display: flex;
-  gap: 20px;
+  gap: 16px;
   margin-bottom: 16px;
   padding-bottom: 16px;
   border-bottom: 1px solid #F0F0F0;
@@ -201,52 +102,38 @@
 
 .stat-item {
   display: flex;
-  align-items: center;
-  gap: 6px;
+  gap: 4px;
   font-size: var(--font-small);
 }
 
 .stat-label {
   color: var(--gray-medium);
-  font-weight: 400;
 }
 
 .stat-value {
-  color: var(--primary-color);  /* 보라색으로 강조 */
-  font-weight: 700;
-  font-size: 15px;
+  color: var(--gray-dark);
+  font-weight: 600;
 }
 
 /* 작성자 정보 */
 .post-author {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 12px;
 }
 
-/* 작성자 이미지 placeholder */
 .author-image-placeholder {
-  width: 32px;
-  height: 32px;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
   background-color: var(--gray-light);
-  border: 1px solid var(--gray-light);
-  flex-shrink: 0;
-}
-
-.author-image {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  object-fit: cover;
-  border: 1px solid var(--gray-light);
   flex-shrink: 0;
 }
 
 .author-info {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 4px;
 }
 
 .author-name {
@@ -256,28 +143,18 @@
 }
 
 .post-date {
-  font-size: 12px;
-  color: var(--gray-medium);
-}
-
-/* ========================================
-   로딩 & 더보기
-   ======================================== */
-
-.loading-indicator,
-.no-more-posts {
-  padding: 20px;
-  text-align: center;
-  background-color: var(--white);
-}
-
-.loading-indicator p,
-.no-more-posts p {
   font-size: var(--font-small);
   color: var(--gray-medium);
 }
 
-/* 게시글 없음 메시지 */
+/* 로딩 및 상태 메시지 */
+.loading-indicator,
+.no-more-posts {
+  padding: 20px;
+  text-align: center;
+  color: var(--gray-medium);
+}
+
 .empty-posts {
   padding: 60px 20px;
   text-align: center;

@@ -1,45 +1,17 @@
 /* ========================================
-   회원가입 페이지 전용 스타일
+   회원가입 페이지 전용 스타일 (public/css/pages/signup.css)
    ======================================== */
 
-/* 헤더 - 뒤로가기 버튼 추가 */
-.page-header {
-  position: relative;
-}
-
-.btn-back {
-  position: absolute;
-  left: 20px;
-  width: 40px;
-  height: 40px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background: none;
-  border: none;
-  cursor: pointer;
-  font-size: 24px;
-  color: var(--gray-dark);
-  transition: color 0.3s;
-}
-
-.btn-back:hover {
-  color: var(--primary-color);
-}
-
-.icon-back {
-  font-size: 28px;
-  line-height: 1;
-}
+/* (리팩토링) 삭제: .page-header, .btn-back, .icon-back (header.css로 이동) */
 
 /* 회원가입 섹션 */
 .signup-section {
   display: flex;
   flex-direction: column;
-  gap: 30px;                    
-  max-width: 400px;              
-  margin: 0 20px;                
-  padding: 0 20px;               
+  gap: 30px;
+  max-width: 400px;
+  margin: 0 20px;
+  padding: 0 20px;
 }
 
 /* "회원가입" 제목 */
@@ -48,21 +20,21 @@
   font-weight: 700;
   color: var(--gray-dark);
   text-align: center;
-  margin-bottom: 20px;          
+  margin-bottom: 20px;
 }
 
 /* 회원가입 폼 */
 .signup-form {
   display: flex;
   flex-direction: column;
-  gap: 30px;                    
+  gap: 30px;
 }
 
 /* 입력 필드 그룹 */
 .form-group {
   display: flex;
   flex-direction: column;
-  gap: 4px;                      
+  gap: 4px;
 }
 
 /* 라벨 */
@@ -76,7 +48,7 @@
 .form-input {
   width: 100%;
   height: 40px;
-  padding: 0 16px;              
+  padding: 0 16px;
   font-size: var(--font-regular);
   color: var(--gray-dark);
   background-color: var(--white);
@@ -101,10 +73,10 @@
 /* 에러 메시지 */
 .error-message {
   display: block;
-  margin-top: 8px;               
+  margin-top: 8px;
   font-size: var(--font-small);
   color: var(--error-color);
-  min-height: 20px;              
+  min-height: 20px;
 }
 
 .error-message:empty {
@@ -123,12 +95,13 @@
 
 /* 파일 선택 버튼 */
 .btn-file-select {
-  height: 30px;                  
+  height: 30px;
   padding: 0 20px;
   font-size: var(--font-small);
   font-weight: 600;
   color: var(--white);
   background-color: var(--primary-color);
+  border: none;
   border-radius: var(--border-radius);
   cursor: pointer;
   transition: background-color 0.3s;
@@ -148,15 +121,21 @@
   white-space: nowrap;
 }
 
-/* 회원가입 버튼  */
+/* 숨겨진 파일 input */
+.hidden-file-input {
+  display: none;
+}
+
+/* 회원가입 버튼 */
 .btn-signup {
   width: 100%;
   height: 40px;
-  margin-top: 10px;            
+  margin-top: 10px;
   font-size: var(--font-medium);
   font-weight: 600;
   color: var(--white);
   background-color: var(--primary-light);
+  border: none;
   border-radius: var(--border-radius);
   cursor: pointer;
   transition: background-color 0.3s;
@@ -176,21 +155,4 @@
   background-color: var(--primary-light);
   cursor: not-allowed;
   opacity: 0.6;
-}
-
-/* 로그인 링크 */
-.login-link {
-  text-align: center;
-}
-
-.link-text {
-  font-size: var(--font-regular);
-  color: var(--gray-medium);
-  text-decoration: underline;
-  cursor: pointer;
-  transition: color 0.3s;
-}
-
-.link-text:hover {
-  color: var(--primary-color);
 }
