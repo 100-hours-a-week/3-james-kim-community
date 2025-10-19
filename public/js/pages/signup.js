@@ -12,9 +12,9 @@ import { checkEmailDuplicate, checkNicknameDuplicate } from "../services/authSer
 import { uploadImage } from "../services/imageService.js";
 import { signup } from "../services/userService.js";
 import { saveLoginData, isLoggedIn } from "../utils/storage.js";
+import { initBackButton } from "../components/header.js";  
 
 // DOM 요소 가져오기
-const backButton = document.getElementById('backButton');
 const signupForm = document.getElementById('signupForm');
 const signupButton = document.getElementById('signupButton');
 
@@ -39,6 +39,9 @@ const fileName = document.getElementById('fileName');
 let uploadedImageUrl = null;
 let isEmailChecked = false;
 let isNicknameChecked = false;
+
+// 헤더 컴포넌트 초기화
+initBackButton('/index.html');
 
 // 이미 로그인되어 있으면 리다이렉트
 if (isLoggedIn()) {
@@ -168,11 +171,6 @@ profileImageInput.addEventListener('change', async (event) => {
     }
 });
 
-// 뒤로가기
-backButton.addEventListener('click', () => {
-    window.location.href = '/index.html';
-});
-
 // 이메일 입력
 emailInput.addEventListener('input', () => {
     isEmailChecked = false;
@@ -262,5 +260,3 @@ signupForm.addEventListener('submit', async (event) => {
 signupButton.disabled = true;
 
 console.log('회원가입 페이지 로드 완료');
-
-

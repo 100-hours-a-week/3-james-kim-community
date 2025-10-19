@@ -1,148 +1,105 @@
 // public/js/pages/posts.js
 // 게시글 목록 페이지 메인 로직
 
-import { getPosts } from "../services/postService.js";
-import { isLoggedIn, clearLoginData, getUserId } from "../utils/storage.js";
+import { getPosts } from '../services/postService.js';
+import { isLoggedIn, clearLoginData } from '../utils/storage.js';
+import { initProfileDropdown } from '../components/profileDropdown.js'; 
 
 // DOM 요소 가져오기
-const profileButton = document.getElementById('profileButton');
-const dropdownMenu = document.getElementById('dropdownMenu');
-const logoutButton = document.getElementById('logoutButton');
-const writeButton = document.getElementById('writeButton');
 const postsList = document.getElementById('postsList');
 const loadingIndicator = document.getElementById('loadingIndicator');
 const noMorePosts = document.getElementById('noMorePosts');
+const writeButton = document.getElementById('writeButton');
 
-// 상태 관리 전역 변수
-let lastSeenId = null;  // 마지막으로 본 게시글 ID
-let hasMore = true;     // 더 불러올 게시글이 있는지
-let isLoading = false;  // 현재 로딩 중인지
+// 상태 관리
+let lastSeenId = null;
+let hasNext = true;
+let isLoading = false;
 
-// 로그인 체크
-if (!isLoggedIn()) {
-    alert('로그인이 필요합니다.');
-    window.location.href = '/index.html';
-}
-
-// 프로필 메뉴 드롭다운
-profileButton.addEventListener('click', (e) => {
-    e.stopPropagation();
-    dropdownMenu.classList.toggle('hidden');
-});
-
-// 프로필 메뉴 외부 클릭 시 닫기
-document.addEventListener('click', () => {
-    dropdownMenu.classList.add('hidden');
-});
-
-// 로그아웃
-logoutButton.addEventListener('click', () => {
-    if (confirm('로그아웃 하시겠습니까?')) {
-        clearLoginData();
-        alert('로그아웃되었습니다.');
-        window.location.href = '/index.html';
+// 초기 로그인 체크 및 리다이렉트
+function checkLoginStatus() {
+    if (!isLoggedIn()) {
+        alert('로그인이 필요합니다.');
+        window.location.replace('/index.html');
+        return false;
     }
-});
-
-// 게시글 작성 버튼
-writeButton.addEventListener('click', () => {
-    window.location.href = '/pages/post-write.html';
-});
-
-// 게시글 개별 카드 리스트 HTML 동적 생성
-function createPostCard(post) {
-    const card = document.createElement('article');
-    card.className = 'post-card';
-    card.dataset.postId = post.postId;
-    
-    // 날짜 포맷팅 (YYYY-MM-DD HH:mm:ss)
-    const dateStr = post.createdAt || '';
-    
-    card.innerHTML = `
-        <h3 class="post-title">${post.title}</h3>
-        
-        <div class="post-stats">
-            <span class="stat-item">
-                <span class="stat-label">좋아요</span>
-                <span class="stat-value">${post.likeCount || 0}</span>
-            </span>
-            <span class="stat-item">
-                <span class="stat-label">댓글</span>
-                <span class="stat-value">${post.commentCount || 0}</span>
-            </span>
-            <span class="stat-item">
-                <span class="stat-label">조회수</span>
-                <span class="stat-value">${post.viewCount || 0}</span>
-            </span>
-        </div>
-        
-        <div class="post-author">
-            <div class="author-image-placeholder"></div>
-            <div class="author-info">
-                <span class="author-name">${post.authorNickname}</span>
-                <span class="post-date">${dateStr}</span>
-            </div>
-        </div>
-    `;
-    
-    // 카드 클릭 시 상세 페이지로 이동
-    card.addEventListener('click', () => {
-        window.location.href = `/pages/post-detail.html?id=${post.postId}`;
-    });
-    
-    return card;
+    return true;
 }
 
-// 게시글 목록 로드 (게시글 카드 리스트의 모음)
+// 즉시 로그인 체크
+if (!checkLoginStatus()) {
+    // 로그인 안 되어 있으면 여기서 멈춤
+    throw new Error('Unauthorized access');
+}
+
+// 프로필 드롭다운 초기화
+initProfileDropdown();
+
+// 게시글 목록 로드
 async function loadPosts() {
-    if (isLoading || !hasMore) return;
-    
-    isLoading = true;
-    loadingIndicator.classList.remove('hidden');
+    if (isLoading || !hasNext) {
+        return;
+    }
     
     try {
-        // 첫 로딩은 5개, 이후는 10개씩 페이징
-        const limit = (lastSeenId === null) ? 5 : 10;
+        isLoading = true;
+        loadingIndicator.classList.remove('hidden');
         
-        const result = await getPosts(lastSeenId, limit);
+        // API 호출
+        const data = await getPosts(lastSeenId, 10);
         
-        const posts = result.data.posts;
-        const pagination = result.data.pagination;
+        // 안전성 체크
+        if (!data || !data.posts || !Array.isArray(data.posts)) {
+            console.error('잘못된 응답 데이터:', data);
+            throw new Error('게시글 데이터를 불러올 수 없습니다.');
+        }
         
-        // 게시글이 하나도 없으면
-        if (posts.length === 0 && lastSeenId === null) {
-            postsList.innerHTML = '<div class="empty-posts"><p>게시글이 없습니다.</p></div>';
-            hasMore = false;
+        // 게시글이 하나도 없을 때 처리
+        if (data.posts.length === 0 && lastSeenId === null) {
+            postsList.innerHTML = '<div class="empty-posts"><p>아직 작성된 게시글이 없습니다.</p></div>';
+            hasNext = false;
             return;
         }
         
-        // 게시글 카드 추가
-        posts.forEach(post => {
-            const card = createPostCard(post);
-            postsList.appendChild(card);
+        // 게시글 카드 렌더링
+        data.posts.forEach(post => {
+            const postCard = createPostCard(post);
+            postsList.appendChild(postCard);
         });
         
-        // 페이징 정보 업데이트
-        lastSeenId = pagination.lastSeenId;
-        hasMore = pagination.hasNext;
+        // 페이지네이션 정보 업데이트
+        lastSeenId = data.pagination?.lastSeenId || null;
+        hasNext = data.pagination?.hasNext || false;
         
-        // 더 이상 게시글 없으면 표시
-        if (!hasMore) {
+        // 더 이상 게시글이 없으면 메시지 표시
+        if (!hasNext && data.posts.length > 0) {
             noMorePosts.classList.remove('hidden');
         }
         
     } catch (error) {
-        console.error('게시글 로딩 실패:', error);
+        console.error('게시글 목록 로드 실패:', error);
         
-        // 인증 에러면 로그인 페이지로
+        // 401 에러 시 로그아웃 처리
         if (error.status === 401) {
-            alert('로그인이 만료되었습니다.');
+            alert('로그인이 만료되었습니다. 다시 로그인해주세요.');
             clearLoginData();
-            window.location.href = '/index.html';
+            window.location.replace('/index.html');
             return;
         }
         
-        alert(error.message);
+        alert(error.message || '게시글을 불러오는데 실패했습니다.');
+        
+        // 첫 로딩 실패 시 에러 메시지 표시
+        if (lastSeenId === null) {
+            postsList.innerHTML = `
+                <div class="empty-posts">
+                    <p>게시글을 불러올 수 없습니다.</p>
+                    <p style="margin-top: 8px; font-size: 14px; color: #999;">
+                        ${error.message || '알 수 없는 오류가 발생했습니다.'}
+                    </p>
+                </div>
+            `;
+        }
         
     } finally {
         isLoading = false;
@@ -150,31 +107,68 @@ async function loadPosts() {
     }
 }
 
-// 인피니티 스크롤링
-function handleScroll() {
-    // 스크롤이 하단 근처에 도달했는지 체크
+// 게시글 카드 생성
+function createPostCard(post) {
+    const li = document.createElement('li');
+    li.className = 'post-card';
+    li.dataset.postId = post.postId;
+    
+    // 작성자 프로필 이미지
+    const authorImageHTML = post.authorProfileImage
+        ? `<img src="${post.authorProfileImage}" alt="프로필" class="author-image">`
+        : `<div class="author-image-placeholder"></div>`;
+    
+    // 게시글 카드 HTML
+    li.innerHTML = `
+        <h3 class="post-title">${post.title}</h3>
+        <div class="post-stats">
+            <div class="stat-item">
+                <span class="stat-label">좋아요</span>
+                <span class="stat-value">${post.likeCount}</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">댓글</span>
+                <span class="stat-value">${post.commentCount}</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">조회수</span>
+                <span class="stat-value">${post.viewCount}</span>
+            </div>
+        </div>
+        <div class="post-author">
+            ${authorImageHTML}
+            <div class="author-info">
+                <span class="author-name">${post.authorNickname}</span>
+                <span class="post-date">${post.createdAt}</span>
+            </div>
+        </div>
+    `;
+    
+    // 게시글 클릭 이벤트
+    li.addEventListener('click', () => {
+        window.location.href = `/pages/post-detail.html?id=${post.postId}`;
+    });
+    
+    return li;
+}
+
+// 게시글 작성 버튼
+writeButton.addEventListener('click', () => {
+    window.location.href = '/pages/post-write.html';
+});
+
+// 인피니티 스크롤
+window.addEventListener('scroll', () => {
     const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
     const windowHeight = window.innerHeight;
     const documentHeight = document.documentElement.scrollHeight;
     
-    // 하단 200px 이내에 도달하면 다음 게시글 페이징 로드
+    // 하단에 가까워지면 다음 페이지 로드
     if (scrollTop + windowHeight >= documentHeight - 200) {
         loadPosts();
     }
-}
-
-// 스크롤 이벤트
-let scrollTimeout;
-window.addEventListener('scroll', () => {
-    if (scrollTimeout) return;
-    
-    scrollTimeout = setTimeout(() => {
-        handleScroll();
-        scrollTimeout = null;
-    }, 200);
 });
 
-// 초기 로드 ==========
 loadPosts();
 
 console.log('게시글 목록 페이지 로드 완료');

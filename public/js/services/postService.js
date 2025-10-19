@@ -1,10 +1,8 @@
-
 // public/js/services/postService.js
 // 게시글 API 서비스
 
 import { getWithAuth, postWithAuth, patchWithAuth, deleteWithAuth } from "../utils/http.js";
 import { API_ENDPOINTS } from "../config/api.js";
-import { getAccessToken } from "../utils/storage.js";
 
 /**
  * 게시글 목록 조회 (인피니티 스크롤)
@@ -14,12 +12,6 @@ import { getAccessToken } from "../utils/storage.js";
  */
 async function getPosts(lastSeenId = null, limit = 10) {
     try {
-        const token = getAccessToken();
-
-        if (!token) {
-            throw new Error('로그인이 필요합니다.');
-        }
-
         // 쿼리 파라미터 구성
         let url = `${API_ENDPOINTS.POSTS}?limit=${limit}`;
         if (lastSeenId) {
@@ -28,10 +20,11 @@ async function getPosts(lastSeenId = null, limit = 10) {
 
         console.log('게시글 목록 조회:', url);
         
-        const result = await getWithAuth(url, token);
+        const result = await getWithAuth(url);
         
         console.log('게시글 목록 조회 성공:', result);
-        return result;
+        
+        return result.data;
 
     } catch (error) {
         console.error('게시글 목록 조회 실패:', error);
@@ -55,16 +48,10 @@ async function getPosts(lastSeenId = null, limit = 10) {
 // 게시글 상세 조회
 async function getPostDetail(postId) {
     try {
-        const token = getAccessToken();
-
-        if (!token) {
-            throw new Error('로그인이 필요합니다.');
-        }
-
         const url = API_ENDPOINTS.POST_DETAIL(postId);
         console.log('게시글 상세 조회:', url);
-        
-        const result = await getWithAuth(url, token);
+  
+        const result = await getWithAuth(url);
         
         console.log('게시글 상세 조회 성공:', result);
         return result.data;
@@ -93,16 +80,10 @@ async function getPostDetail(postId) {
 // 게시글 작성
 async function createPost(postData) {
     try {
-        const token = getAccessToken();
-
-        if (!token) {
-            throw new Error('로그인이 필요합니다.');
-        }
-
         const url = API_ENDPOINTS.POSTS;
         console.log('게시글 작성:', url, postData);
         
-        const result = await postWithAuth(url, postData, token);
+        const result = await postWithAuth(url, postData);
         
         console.log('게시글 작성 성공:', result);
         return result.data;
@@ -131,16 +112,10 @@ async function createPost(postData) {
 // 게시글 수정
 async function updatePost(postId, updateData) {
     try {
-        const token = getAccessToken();
-
-        if (!token) {
-            throw new Error('로그인이 필요합니다.');
-        }
-
         const url = API_ENDPOINTS.POST_DETAIL(postId);
         console.log('게시글 수정:', url, updateData);
         
-        const result = await patchWithAuth(url, updateData, token);
+        const result = await patchWithAuth(url, updateData);
         
         console.log('게시글 수정 성공:', result);
         return result.data;
@@ -168,20 +143,13 @@ async function updatePost(postId, updateData) {
     }
 }
 
-
 // 게시글 삭제
 async function deletePost(postId) {
     try {
-        const token = getAccessToken();
-
-        if (!token) {
-            throw new Error('로그인이 필요합니다.');
-        }
-
         const url = API_ENDPOINTS.POST_DETAIL(postId);
         console.log('게시글 삭제:', url);
         
-        await deleteWithAuth(url, token);
+        await deleteWithAuth(url);
         
         console.log('게시글 삭제 성공');
         return true;

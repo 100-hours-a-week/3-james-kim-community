@@ -1,149 +1,131 @@
 // public/js/pages/post-write.js
 // 게시글 작성 페이지 메인 로직
 
-import { createPost } from "../services/postService.js";
-import { uploadImage } from "../services/imageService.js";
-import { isLoggedIn, clearLoginData } from "../utils/storage.js";
+import { uploadImage } from '../services/imageService.js';
+import { createPost } from '../services/postService.js';
+import { isLoggedIn, clearLoginData } from '../utils/storage.js';
+import { initBackButton } from '../components/header.js';
+import { initProfileDropdown } from '../components/profileDropdown.js';
 
 // DOM 요소 가져오기
-const btnBack = document.getElementById('btnBack');
-const profileButton = document.getElementById('profileButton');
-const dropdownMenu = document.getElementById('dropdownMenu');
-const logoutButton = document.getElementById('logoutButton');
+// 폼 요소
 const postWriteForm = document.getElementById('postWriteForm');
 const postTitle = document.getElementById('postTitle');
 const postContent = document.getElementById('postContent');
 const titleHelperText = document.getElementById('titleHelperText');
-const btnFileSelect = document.getElementById('btnFileSelect');
-const imageInput = document.getElementById('imageInput');
-const fileName = document.getElementById('fileName');
 const btnSubmit = document.getElementById('btnSubmit');
 
-// 상태 관리 전역 변수
-let uploadedImageUrl = null;  // 업로드된 이미지 URL (/temp/...)
+// 이미지 업로드
+const imageInput = document.getElementById('imageInput');
+const btnFileSelect = document.getElementById('btnFileSelect');
+const fileName = document.getElementById('fileName');
+
+// 상태 관리
+let uploadedImageUrl = null;
 
 // 로그인 체크
 if (!isLoggedIn()) {
     alert('로그인이 필요합니다.');
-    window.location.href = '/index.html';
+    window.location.replace('/index.html');
+    throw new Error('Unauthorized access');
 }
 
-/**
- * 헤더 이벤트
- */
-btnBack.addEventListener('click', () => {
-    if (confirm('작성 중인 내용이 사라집니다. 뒤로 가시겠습니까?')) {
-        window.location.href = '/pages/posts.html';
-    }
-});
+// 헤더 컴포넌트 초기화
+initBackButton('/pages/posts.html');
 
-profileButton.addEventListener('click', (e) => {
-    e.stopPropagation();
-    dropdownMenu.classList.toggle('hidden');
-});
+// 프로필 드롭다운 초기화
+initProfileDropdown();
 
-document.addEventListener('click', () => {
-    dropdownMenu.classList.add('hidden');
-});
-
-logoutButton.addEventListener('click', () => {
-    if (confirm('로그아웃 하시겠습니까?')) {
-        clearLoginData();
-        alert('로그아웃되었습니다.');
-        window.location.href = '/index.html';
-    }
-});
-
-/**
- * 제목 글자 수 표시
- */
+// 제목 글자 수 카운터
 postTitle.addEventListener('input', () => {
     const length = postTitle.value.length;
     titleHelperText.textContent = `${length}/26`;
     checkFormValid();
 });
 
-/**
- * 내용 입력 시 유효성 검사
- */
+// 내용 입력 시 유효성 체크
 postContent.addEventListener('input', () => {
     checkFormValid();
 });
 
-/**
- * 폼 유효성 검사
- * - 제목과 내용이 모두 입력되었는지 확인
- */
+// 폼 유효성 검사 및 버튼 활성화/비활성화
 function checkFormValid() {
-    const isTitleValid = postTitle.value.trim().length > 0;
-    const isContentValid = postContent.value.trim().length > 0;
+    const title = postTitle.value.trim();
+    const content = postContent.value.trim();
     
-    if (isTitleValid && isContentValid) {
-        btnSubmit.disabled = false;
+    const isValid = title.length > 0 && 
+                   title.length <= 26 && 
+                   content.length > 0;
+    
+    btnSubmit.disabled = !isValid;
+    
+    if (isValid) {
         btnSubmit.classList.add('active');
     } else {
-        btnSubmit.disabled = true;
         btnSubmit.classList.remove('active');
     }
 }
 
-/**
- * 이미지 업로드 버튼 클릭
- */
+// 이미지 파일 선택
 btnFileSelect.addEventListener('click', () => {
     imageInput.click();
 });
 
-/**
- * 이미지 파일 선택
- */
 imageInput.addEventListener('change', async (e) => {
     const file = e.target.files[0];
     
+    // 파일 선택 취소 처리 (파일이 없으면)
     if (!file) {
-        // 파일 선택 취소 시 - 기존 파일 삭제
-        uploadedImageUrl = null;
         fileName.textContent = '선택된 파일 없음';
+        uploadedImageUrl = null;
         imageInput.value = '';
         return;
     }
     
-    // 이미지 파일 검증
-    if (!file.type.startsWith('image/')) {
-        alert('이미지 파일만 업로드 가능합니다.');
-        imageInput.value = '';
-        fileName.textContent = '선택된 파일 없음';
-        uploadedImageUrl = null;
-        return;
-    }
-    
-    // 파일 크기 검증 (5MB)
+    // 파일 크기 체크 (5MB)
     const maxSize = 5 * 1024 * 1024;
     if (file.size > maxSize) {
-        alert('이미지 파일은 5MB 이하만 업로드 가능합니다.');
+        alert('이미지 크기는 5MB 이하만 업로드 가능합니다.');
         imageInput.value = '';
         fileName.textContent = '선택된 파일 없음';
         uploadedImageUrl = null;
         return;
     }
     
+    // 파일 타입 체크
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
+    if (!allowedTypes.includes(file.type)) {
+        alert('JPG, PNG, GIF 형식의 이미지만 업로드 가능합니다.');
+        imageInput.value = '';
+        fileName.textContent = '선택된 파일 없음';
+        uploadedImageUrl = null;
+        return;
+    }
+    
+    // 파일명 표시
+    fileName.textContent = file.name;
+    
+    // 이미지 업로드
     try {
-        // 로딩 표시
         btnFileSelect.disabled = true;
         btnFileSelect.textContent = '업로드 중...';
-        fileName.textContent = '업로드 중...';
         
-        // 임시 이미지 업로드
-        const imageUrl = await uploadImage(file);
-        uploadedImageUrl = imageUrl;
-        
-        // 파일명 표시
-        fileName.textContent = file.name;
-        
+        uploadedImageUrl = await uploadImage(file);
         console.log('이미지 업로드 성공:', uploadedImageUrl);
+        
+        btnFileSelect.textContent = '파일 선택';
         
     } catch (error) {
         console.error('이미지 업로드 실패:', error);
+        
+        // 401 에러 시 로그아웃 처리
+        if (error.status === 401) {
+            alert('로그인이 만료되었습니다. 다시 로그인해주세요.');
+            clearLoginData();
+            window.location.replace('/index.html');
+            return;
+        }
+        
         alert(error.message || '이미지 업로드에 실패했습니다.');
         imageInput.value = '';
         fileName.textContent = '선택된 파일 없음';
@@ -154,9 +136,7 @@ imageInput.addEventListener('change', async (e) => {
     }
 });
 
-/**
- * 게시글 작성 제출
- */
+// 게시글 작성 제출
 postWriteForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     
@@ -196,6 +176,15 @@ postWriteForm.addEventListener('submit', async (e) => {
         
     } catch (error) {
         console.error('게시글 작성 실패:', error);
+        
+        // 401 에러 시 로그아웃 처리
+        if (error.status === 401) {
+            alert('로그인이 만료되었습니다. 다시 로그인해주세요.');
+            clearLoginData();
+            window.location.replace('/index.html');
+            return;
+        }
+        
         alert(error.message || '게시글 작성에 실패했습니다.');
         
         // 버튼 원래대로

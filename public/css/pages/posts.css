@@ -64,6 +64,9 @@
   display: flex;
   flex-direction: column;
   gap: 16px;
+  list-style: none;  
+  padding: 0;        
+  margin: 0;         
 }
 
 /* 게시글 카드 */
