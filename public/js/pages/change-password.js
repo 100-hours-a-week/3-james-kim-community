@@ -2,6 +2,7 @@
 // 비밀번호 수정 페이지 메인 로직
 
 import { updatePassword } from "../services/userService.js";
+import { logout } from "../services/authService.js";
 import { isLoggedIn, clearLoginData } from "../utils/storage.js";
 import { validatePassword } from "../utils/validation.js";
 import { initBackButton } from "../components/header.js";
@@ -130,12 +131,13 @@ changePasswordForm.addEventListener('submit', async (event) => {
         // 토스트 메시지 표시
         showToast();
         
-        // 2초 후 로그아웃 처리 및 로그인 페이지로 이동
-        setTimeout(() => {
+        // 1초 후 로그아웃 처리 및 로그인 페이지로 이동
+        setTimeout(async() => {
+            await logout();  
             clearLoginData();
             alert('비밀번호가 변경되었습니다. 새로운 비밀번호로 다시 로그인해주세요.');
             window.location.href = '/index.html';
-        }, 2000);
+        }, 1000);
         
     } catch (error) {
         console.error('비밀번호 수정 실패:', error);

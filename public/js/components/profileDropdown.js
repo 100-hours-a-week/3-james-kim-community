@@ -1,6 +1,7 @@
 // public/js/components/profileDropdown.js
 // 프로필 드롭다운 메뉴 컴포넌트
 
+import { logout } from '../services/authService.js';
 import { clearLoginData } from '../utils/storage.js';
 
 /**
@@ -38,8 +39,10 @@ export function initProfileDropdown(options = {}) {
     
     // 로그아웃 버튼
     if (logoutButton) {
-        logoutButton.addEventListener('click', () => {
+        logoutButton.addEventListener('click', async () => {
             if (confirm('로그아웃 하시겠습니까?')) {
+                await logout();
+
                 clearLoginData();
                 alert('로그아웃되었습니다.');
                 window.location.href = '/index.html';

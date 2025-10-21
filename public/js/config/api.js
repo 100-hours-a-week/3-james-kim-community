@@ -8,6 +8,7 @@ const API_BASE_URL = 'http://localhost:8080/api';
 const API_ENDPOINTS = {
     // 인증 관련
     LOGIN: `${API_BASE_URL}/auth`,
+    LOGOUT: `${API_BASE_URL}/auth`,
     CHECK_EMAIL: `${API_BASE_URL}/auth/check-email`,
     CHECK_NICKNAME: `${API_BASE_URL}/auth/check-nickname`,
 

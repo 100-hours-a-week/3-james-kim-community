@@ -1,7 +1,7 @@
 // public/js/services/authService.js
 // 인증 API 서비스 - 로그인, 중복 체크 API 호출
 
-import { get, post } from "../utils/http.js";
+import { get, post, deleteWithAuth } from "../utils/http.js";
 import { API_ENDPOINTS } from "../config/api.js";
 
 async function login(email, password) {
@@ -91,4 +91,14 @@ async function checkNicknameDuplicate(nickname) {
     }
 }
 
-export { login, checkEmailDuplicate, checkNicknameDuplicate };
+async function logout() {
+    try {
+        await deleteWithAuth(API_ENDPOINTS.LOGOUT);
+        console.log('서버 로그아웃 성공');
+    } catch (error) {
+        console.error('서버 로그아웃 실패:', error);
+        // 서버 로그아웃 실패해도 클라이언트는 로그아웃 처리
+    }
+}
+
+export { login, checkEmailDuplicate, checkNicknameDuplicate, logout };
