@@ -114,10 +114,12 @@ function createPostCard(post) {
     li.dataset.postId = post.postId;
     
     // 작성자 프로필 이미지
-    const authorImageHTML = post.authorProfileImage
-        ? `<img src="${post.authorProfileImage}" alt="프로필" class="author-image">`
-        : `<div class="author-image-placeholder"></div>`;
+    const DEFAULT_IMAGE = '/assets/images/default-profile.png';
+    const authorImageSrc = post.authorProfileImage || DEFAULT_IMAGE;
     
+    // onerror에서 무한 루프 방지
+    const authorImageHTML = `<img src="${authorImageSrc}" alt="프로필" class="author-image">`;
+
     // 게시글 카드 HTML
     li.innerHTML = `
         <h3 class="post-title">${post.title}</h3>

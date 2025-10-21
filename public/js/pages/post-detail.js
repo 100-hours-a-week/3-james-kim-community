@@ -100,9 +100,15 @@ async function loadPostDetail() {
 function renderPostDetail(data) {
     postTitle.textContent = data.title;
     
-    if (data.author.profileImage) {
-        authorImage.innerHTML = `<img src="${data.author.profileImage}" alt="프로필" class="author-image">`;
-    }
+    // 게시글 작성자 프로필 이미지
+    const DEFAULT_IMAGE = '/assets/images/default-profile.png';
+    const authorImageSrc = data.author.profileImage || DEFAULT_IMAGE;
+    
+    authorImage.innerHTML = `<img src="${authorImageSrc}" 
+                                  alt="프로필" 
+                                  class="author-image"
+                                  onerror="this.onerror=null; this.src='${DEFAULT_IMAGE}';">`;
+    
     authorName.textContent = data.author.nickname;
     postDate.textContent = data.createdAt;
     
@@ -260,9 +266,15 @@ function createCommentCard(comment) {
     li.className = 'comment-card';
     li.dataset.commentId = comment.commentId;
     
-    const profileImageHTML = comment.authorProfileImage
-        ? `<img src="${comment.authorProfileImage}" alt="프로필" class="comment-author-image">`
-        : `<div class="comment-author-image-placeholder"></div>`;
+    // 프로필 이미지 처리
+    const DEFAULT_IMAGE = '/assets/images/default-profile.png';
+    const profileImageSrc = comment.authorProfileImage || DEFAULT_IMAGE;
+    
+    const profileImageHTML = `<img src="${profileImageSrc}" 
+                                   alt="프로필" 
+                                   class="comment-author-image"
+                                   onerror="this.onerror=null; this.src='${DEFAULT_IMAGE}';">`;
+    
     
     const actionsHTML = comment.isAuthor
         ? `
@@ -353,7 +365,7 @@ function handleCommentEdit(comment) {
             commentContent.textContent = newContent;
             comment.content = newContent;
             commentCard.dataset.comment = JSON.stringify(comment);
-            
+
             editForm.remove();
             commentContent.style.display = 'block';
             
