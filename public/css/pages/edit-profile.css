@@ -1,0 +1,256 @@
+/* ========================================
+   회원정보 수정 페이지 전용 스타일 (public/css/pages/edit-profile.css)
+   ======================================== */
+
+/* 메인 콘텐츠 */
+.main-content {
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  background-color: var(--white);
+}
+
+/* 회원정보수정 헤더 섹션 */
+.edit-profile-header-section {
+  padding: 40px 20px 30px 20px;
+  text-align: center;
+}
+
+.section-title {
+  font-size: var(--font-large);
+  font-weight: 700;
+  color: var(--gray-dark);
+}
+
+/* 회원정보 수정 폼 */
+.edit-profile-form {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+  padding: 0 60px 40px 60px;
+}
+
+/* 프로필 이미지 섹션 */
+.profile-image-section {
+  display: flex;
+  justify-content: center;
+  padding: 20px 0;
+}
+
+.profile-image-wrapper {
+  position: relative;
+  width: 120px;
+  height: 120px;
+}
+
+/* 프로필 이미지 컨테이너 */
+.profile-image-container {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  overflow: hidden;
+  background-color: var(--gray-light);
+}
+
+/* 프로필 이미지 placeholder (기본 회색 원) */
+.profile-image-placeholder {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background-color: var(--gray-light);
+}
+
+/* 실제 프로필 이미지 (JS로 추가될 때) */
+.profile-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+/* 변경 버튼 (이미지 위에 겹쳐서 표시) */
+.btn-change-image {
+  position: absolute;
+  bottom: 30%;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 8px 10px;
+  font-size: var(--font-small);
+  font-weight: 600;
+  color: var(--white);
+  background-color: var(--gray-dark);
+  border: 2px solid var(--white);
+  border-radius: 20px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.btn-change-image:hover {
+  background-color: #6952D1;
+}
+
+/* 숨겨진 파일 input */
+.hidden-file-input {
+  display: none;
+}
+
+/* 폼 섹션 */
+.form-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* 폼 라벨 */
+.form-label {
+  font-size: var(--font-regular);
+  font-weight: 600;
+  color: var(--gray-dark);
+}
+
+/* 읽기 전용 입력 필드 (이메일) */
+.form-input-readonly {
+  width: 100%;
+  height: 40px;
+  padding: 0 16px;
+  font-size: var(--font-regular);
+  color: var(--gray-medium);
+  background-color: #F5F5F5;
+  border: 1px solid #E0E0E0;
+  border-radius: var(--border-radius);
+  display: flex;
+  align-items: center;
+  cursor: not-allowed;
+}
+
+/* 입력 필드 (닉네임) */
+.form-input {
+  width: 100%;
+  height: 40px;
+  padding: 0 16px;
+  font-size: var(--font-regular);
+  color: var(--gray-dark);
+  background-color: var(--white);
+  border: 1px solid #E0E0E0;
+  border-radius: var(--border-radius);
+  transition: border-color 0.3s;
+}
+
+/* 입력 필드 포커스 */
+.form-input:focus {
+  border-color: var(--primary-color);
+  outline: none;
+}
+
+/* 입력 필드 placeholder */
+.form-input::placeholder {
+  color: #AAAAAA;
+}
+
+/* 에러 메시지 */
+.error-message {
+  font-size: var(--font-small);
+  color: var(--error-color);
+  min-height: 20px;
+}
+
+/* 에러 메시지 숨김 상태 */
+.error-message:empty {
+  display: none;
+}
+
+/* 수정하기 버튼 섹션 */
+.form-actions {
+  margin-top: 20px;
+}
+
+/* 수정하기 버튼 */
+.btn-submit {
+  width: 100%;
+  height: 45px;
+  font-size: var(--font-medium);
+  font-weight: 600;
+  color: var(--white);
+  background-color: var(--primary-light);
+  border: none;
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.btn-submit:hover:not(:disabled) {
+  background-color: var(--primary-color);
+}
+
+/* 버튼 활성화 */
+.btn-submit.active {
+  background-color: var(--primary-color);
+}
+
+/* 버튼 비활성화 */
+.btn-submit:disabled {
+  background-color: var(--primary-light);
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* 회원탈퇴 섹션 */
+.withdrawal-section {
+  padding: 0 20px 40px 20px;
+  text-align: center;
+}
+
+/* 회원탈퇴 버튼 */
+.btn-withdrawal {
+  font-size: var(--font-regular);
+  color: var(--gray-medium);
+  background: none;
+  border: none;
+  text-decoration: underline;
+  cursor: pointer;
+  transition: color 0.3s;
+}
+
+.btn-withdrawal:hover {
+  color: var(--gray-dark);
+}
+
+/* 토스트 메시지 */
+.toast-message {
+  position: fixed;
+  bottom: 80px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 16px 32px;
+  background-color: rgba(0, 0, 0, 0.8);
+  color: var(--white);
+  font-size: var(--font-regular);
+  border-radius: 8px;
+  z-index: 3000;
+  animation: fadeInOut 2s ease-in-out;
+}
+
+.toast-message.hidden {
+  display: none;
+}
+
+/* 토스트 메시지 애니메이션 */
+@keyframes fadeInOut {
+  0% {
+    opacity: 0;
+    transform: translateX(-50%) translateY(20px);
+  }
+  15% {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+  85% {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-20px);
+  }
+}

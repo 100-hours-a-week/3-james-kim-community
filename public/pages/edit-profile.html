@@ -1,0 +1,146 @@
+<!-- /public/pages/edit-profile.html -->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>회원정보 수정 - 커뮤니티</title>
+    
+    <!-- 공통 CSS 로드 -->
+    <link rel="stylesheet" href="../css/reset.css">
+    <link rel="stylesheet" href="../css/common.css">
+
+    <!-- 필요한 컴포넌트 CSS 로드 -->
+    <link rel="stylesheet" href="../css/components/header.css">
+    <link rel="stylesheet" href="../css/components/dropdown.css">
+    <link rel="stylesheet" href="../css/components/modal.css">
+
+    <!-- 페이지 전용 CSS 로드 -->
+    <link rel="stylesheet" href="../css/pages/edit-profile.css">
+</head>
+<body>
+    <!-- 전체 배경 -->
+    <div class="app-background">
+        
+        <!-- 중앙 컨텐츠 컨테이너 -->
+        <div class="mobile-container">
+
+            <!-- 헤더 영역: 뒤로 가기, 커뮤니티 타이틀, 프로필 메뉴 드롭다운 -->
+            <header class="page-header">
+                <!-- 뒤로가기 버튼 -->
+                <button class="btn-back" id="btnBack" aria-label="뒤로가기">
+                    <span class="icon-back">&lt;</span>
+                </button>
+
+                <!-- 커뮤니티 이름 -->
+                <h1 class="header-title">커뮤니티</h1>
+
+                <!-- 프로필 메뉴 드롭다운-->
+                <div class="profile-menu">
+                    <button class="profile-button" id="profileButton" aria-label="프로필 메뉴">
+                        <div class="profile-placeholder" id="profilePlaceholder"></div>
+                    </button>
+                    
+                    <!-- 드롭다운 메뉴 -->
+                    <div class="dropdown-menu hidden" id="dropdownMenu">
+                        <a href="/pages/edit-profile.html" class="dropdown-item">회원정보수정</a>
+                        <a href="/pages/change-password.html" class="dropdown-item">비밀번호수정</a>
+                        <button class="dropdown-item" id="btnLogout">로그아웃</button>
+                    </div>
+                </div>
+            </header>
+
+            <!-- 메인 콘텐츠 영역 -->
+            <main class="main-content">
+
+                <!-- 회원정보수정 헤더 섹션 -->
+                <section class="edit-profile-header-section">
+                    <h2 class="section-title">회원정보수정</h2>
+                </section>
+
+                <!-- 회원정보 수정 폼 -->
+                <form class="edit-profile-form" id="editProfileForm">
+                    
+                    <!-- 프로필 이미지 섹션 -->
+                    <section class="profile-image-section">
+                        <div class="profile-image-wrapper">
+                            <!-- 프로필 이미지 표시 영역 -->
+                            <div class="profile-image-container" id="profileImageContainer">
+                                <div class="profile-image-placeholder" id="profileImagePlaceholder"></div>
+                            </div>
+                            
+                            <!-- 변경 버튼 (이미지 위에 겹쳐서 표시) -->
+                            <button type="button" class="btn-change-image" id="btnChangeImage">
+                                변경
+                            </button>
+                            
+                            <!-- 숨겨진 파일 input -->
+                            <input 
+                                type="file" 
+                                id="imageInput" 
+                                accept="image/*"
+                                class="hidden-file-input">
+                        </div>
+                    </section>
+
+                    <!-- 이메일 섹션 (읽기 전용) -->
+                    <section class="form-section">
+                        <label class="form-label">이메일</label>
+                        <div class="form-input-readonly" id="emailDisplay"></div>
+                    </section>
+
+                    <!-- 닉네임 섹션 -->
+                    <section class="form-section">
+                        <label for="nicknameInput" class="form-label">닉네임*</label>
+                        <input 
+                            type="text" 
+                            id="nicknameInput" 
+                            name="nickname"
+                            class="form-input" 
+                            placeholder="닉네임을 입력해주세요."
+                            maxlength="10"
+                            required>
+                        <span class="error-message" id="nicknameError"></span>
+                    </section>
+
+                    <!-- 수정하기 버튼 섹션 -->
+                    <section class="form-actions">
+                        <button type="submit" class="btn-submit" id="btnSubmit" disabled>
+                            수정하기
+                        </button>
+                    </section>
+
+                </form>
+
+                <!-- 회원탈퇴 섹션 -->
+                <section class="withdrawal-section">
+                    <button type="button" class="btn-withdrawal" id="btnWithdrawal">
+                        회원 탈퇴
+                    </button>
+                </section>
+
+            </main>
+        </div>
+    </div>
+
+    <!-- 회원탈퇴 확인 모달 -->
+    <div class="modal-overlay hidden" id="withdrawalModal">
+        <div class="modal-container">
+            <h3 class="modal-title">회원 탈퇴</h3>
+            <p class="modal-message">회원탈퇴 하시겠습니까?<br>작성된 게시글과 댓글은 삭제 됩니다.</p>
+            <div class="modal-buttons">
+                <button class="btn-modal btn-cancel" id="btnCancelWithdrawal">취소</button>
+                <button class="btn-modal btn-confirm" id="btnConfirmWithdrawal">확인</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 토스트 메시지 -->
+    <div class="toast-message hidden" id="toastMessage">
+        수정 완료
+    </div>
+
+    <!-- JS 로드 -->
+    <script type="module" src="../js/pages/edit-profile.js"></script>
+</body>
+</html>

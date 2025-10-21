@@ -13,6 +13,11 @@ const API_ENDPOINTS = {
 
     // 사용자 관련
     SIGNUP: `${API_BASE_URL}/users`,
+    USER_INFO: `${API_BASE_URL}/users/me`,
+    USER_UPDATE: `${API_BASE_URL}/users`,
+    USER_DELETE: `${API_BASE_URL}/users`,
+    PASSWORD_UPDATE: `${API_BASE_URL}/users/password`,
+    CHECK_NICKNAME_UPDATE: `${API_BASE_URL}/users/check-nickname`,
 
     // 이미지 관련
     UPLOAD_IMAGE: `${API_BASE_URL}/images`,
