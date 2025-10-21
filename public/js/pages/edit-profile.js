@@ -34,7 +34,8 @@ let isNicknameChecked = true;
 // 로그인 체크
 if (!isLoggedIn()) {
     alert('로그인이 필요합니다.');
-    window.location.href = '/index.html';
+    window.location.replace('/index.html');
+    throw new Error('Unauthorized access');
 }
 
 // 헤더 컴포넌트 초기화
