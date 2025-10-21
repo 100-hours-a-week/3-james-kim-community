@@ -135,7 +135,6 @@ changePasswordForm.addEventListener('submit', async (event) => {
         setTimeout(async() => {
             await logout();  
             clearLoginData();
-            alert('비밀번호가 변경되었습니다. 새로운 비밀번호로 다시 로그인해주세요.');
             window.location.href = '/index.html';
         }, 1000);
         

@@ -170,8 +170,6 @@ postWriteForm.addEventListener('submit', async (e) => {
         
         console.log('게시글 작성 성공:', result);
         
-        // 작성된 게시글 상세 페이지로 이동
-        alert('게시글이 작성되었습니다.');
         window.location.href = `/pages/post-detail.html?id=${result.postId}`;
         
     } catch (error) {

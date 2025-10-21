@@ -286,8 +286,6 @@ postEditForm.addEventListener('submit', async (e) => {
         
         console.log('게시글 수정 성공');
         
-        // 수정된 게시글 상세 페이지로 이동
-        alert('게시글이 수정되었습니다.');
         window.location.href = `/pages/post-detail.html?id=${currentPostId}`;
         
     } catch (error) {

@@ -245,7 +245,6 @@ signupForm.addEventListener('submit', async (event) => {
         const { accessToken, refreshToken, userId } = result.data;
         saveLoginData(accessToken, refreshToken, userId);
         
-        alert('회원가입 성공!');
         window.location.href = '/pages/posts.html';
         
     } catch (error) {

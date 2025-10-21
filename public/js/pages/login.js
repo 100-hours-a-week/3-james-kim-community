@@ -138,7 +138,6 @@ loginForm.addEventListener('submit', async (event) => {
         saveLoginData(accessToken, refreshToken, userId);
     
         // 5. 게시글 목록 페이지로 이동
-        alert('로그인 성공!');
         window.location.href = '/pages/posts.html';
     
     } catch (error) {

@@ -138,7 +138,6 @@ btnCancelDeletePost.addEventListener('click', () => {
 btnConfirmDeletePost.addEventListener('click', async () => {
     try {
         await deletePost(currentPostId);
-        alert('게시글이 삭제되었습니다.');
         window.location.href = '/pages/posts.html';
     } catch (error) {
         console.error('게시글 삭제 실패:', error);
@@ -188,8 +187,6 @@ btnCommentSubmit.addEventListener('click', async () => {
         commentsHasNext = true;
         commentsList.innerHTML = '';
         await loadComments();
-        
-        alert('댓글이 등록되었습니다.');
         
     } catch (error) {
         console.error('댓글 작성 실패:', error);
@@ -357,8 +354,6 @@ function handleCommentEdit(comment) {
             editForm.remove();
             commentContent.style.display = 'block';
             
-            alert('댓글이 수정되었습니다.');
-            
         } catch (error) {
             console.error('댓글 수정 실패:', error);
             
@@ -402,8 +397,6 @@ btnConfirmDeleteComment.addEventListener('click', async () => {
         if (commentCard) {
             commentCard.remove();
         }
-        
-        alert('댓글이 삭제되었습니다.');
         
     } catch (error) {
         console.error('댓글 삭제 실패:', error);
