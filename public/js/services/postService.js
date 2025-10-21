@@ -3,6 +3,7 @@
 
 import { getWithAuth, postWithAuth, patchWithAuth, deleteWithAuth } from "../utils/http.js";
 import { API_ENDPOINTS } from "../config/api.js";
+import { handleServiceError } from "../utils/errorHandler.js";
 
 /**
  * 게시글 목록 조회 (인피니티 스크롤)
@@ -29,19 +30,10 @@ async function getPosts(lastSeenId = null, limit = 10) {
     } catch (error) {
         console.error('게시글 목록 조회 실패:', error);
         
-        let userMessage = '게시글을 불러올 수 없습니다.';
-        
-        if (error.status === 401) {
-            userMessage = '로그인이 만료되었습니다. 다시 로그인해주세요.';
-        } else if (error.status === 500) {
-            userMessage = '서버 오류가 발생했습니다.';
-        }
-        
-        throw {
-            status: error.status,
-            message: userMessage,
-            originalMessage: error.message
-        };
+        throw handleServiceError(error, '게시글을 불러올 수 없습니다.', {
+            401: '로그인이 만료되었습니다. 다시 로그인해주세요.',
+            500: '서버 오류가 발생했습니다.'
+        });
     }
 }
 
@@ -59,21 +51,11 @@ async function getPostDetail(postId) {
     } catch (error) {
         console.error('게시글 상세 조회 실패:', error);
         
-        let userMessage = '게시글을 불러올 수 없습니다.';
-        
-        if (error.status === 401) {
-            userMessage = '로그인이 만료되었습니다.';
-        } else if (error.status === 404) {
-            userMessage = '존재하지 않는 게시글입니다.';
-        } else if (error.status === 500) {
-            userMessage = '서버 오류가 발생했습니다.';
-        }
-        
-        throw {
-            status: error.status,
-            message: userMessage,
-            originalMessage: error.message
-        };
+        throw handleServiceError(error, '게시글을 불러올 수 없습니다.', {
+            401: '로그인이 만료되었습니다.',
+            404: '존재하지 않는 게시글입니다.',
+            500: '서버 오류가 발생했습니다.'
+        });
     }
 }
 
@@ -91,21 +73,11 @@ async function createPost(postData) {
     } catch (error) {
         console.error('게시글 작성 실패:', error);
         
-        let userMessage = '게시글 작성에 실패했습니다.';
-        
-        if (error.status === 401) {
-            userMessage = '로그인이 만료되었습니다.';
-        } else if (error.status === 400) {
-            userMessage = error.message || '입력 정보를 확인해주세요.';
-        } else if (error.status === 500) {
-            userMessage = '서버 오류가 발생했습니다.';
-        }
-        
-        throw {
-            status: error.status,
-            message: userMessage,
-            originalMessage: error.message
-        };
+        throw handleServiceError(error, '게시글 작성에 실패했습니다.', {
+            401: '로그인이 만료되었습니다.',
+            400: error.message || '입력 정보를 확인해주세요.',
+            500: '서버 오류가 발생했습니다.'
+        });
     }
 }
 
@@ -123,23 +95,12 @@ async function updatePost(postId, updateData) {
     } catch (error) {
         console.error('게시글 수정 실패:', error);
         
-        let userMessage = '게시글 수정에 실패했습니다.';
-        
-        if (error.status === 401) {
-            userMessage = '로그인이 만료되었습니다.';
-        } else if (error.status === 403) {
-            userMessage = '게시글 수정 권한이 없습니다.';
-        } else if (error.status === 404) {
-            userMessage = '존재하지 않는 게시글입니다.';
-        } else if (error.status === 400) {
-            userMessage = error.message || '입력 정보를 확인해주세요.';
-        }
-        
-        throw {
-            status: error.status,
-            message: userMessage,
-            originalMessage: error.message
-        };
+        throw handleServiceError(error, '게시글 수정에 실패했습니다.', {
+            401: '로그인이 만료되었습니다.',
+            403: '게시글 수정 권한이 없습니다.',
+            404: '존재하지 않는 게시글입니다.',
+            400: error.message || '입력 정보를 확인해주세요.'
+        });
     }
 }
 
@@ -157,21 +118,11 @@ async function deletePost(postId) {
     } catch (error) {
         console.error('게시글 삭제 실패:', error);
         
-        let userMessage = '게시글 삭제에 실패했습니다.';
-        
-        if (error.status === 401) {
-            userMessage = '로그인이 만료되었습니다.';
-        } else if (error.status === 403) {
-            userMessage = '게시글 삭제 권한이 없습니다.';
-        } else if (error.status === 404) {
-            userMessage = '존재하지 않는 게시글입니다.';
-        }
-        
-        throw {
-            status: error.status,
-            message: userMessage,
-            originalMessage: error.message
-        };
+        throw handleServiceError(error, '게시글 삭제에 실패했습니다.', {
+            401: '로그인이 만료되었습니다.',
+            403: '게시글 삭제 권한이 없습니다.',
+            404: '존재하지 않는 게시글입니다.'
+        });
     }
 }
 

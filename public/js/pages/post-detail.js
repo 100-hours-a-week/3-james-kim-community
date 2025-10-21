@@ -351,6 +351,9 @@ function handleCommentEdit(comment) {
             await updateComment(currentPostId, comment.commentId, newContent);
             
             commentContent.textContent = newContent;
+            comment.content = newContent;
+            commentCard.dataset.comment = JSON.stringify(comment);
+            
             editForm.remove();
             commentContent.style.display = 'block';
             

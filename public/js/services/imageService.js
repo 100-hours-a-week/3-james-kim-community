@@ -3,6 +3,7 @@
 
 import { postFormData } from "../utils/http.js";
 import { API_ENDPOINTS } from "../config/api.js";
+import { handleServiceError } from "../utils/errorHandler.js";
 
 // 이미지 임시 업로드
 async function uploadImage(file) {
@@ -23,21 +24,11 @@ async function uploadImage(file) {
     } catch (error) {
         console.error('이미지 업로드 실패:', error);
         
-        let userMessage = '이미지 업로드에 실패했습니다.';
-        
-        if (error.status === 400) {
-            userMessage = '올바른 이미지 파일이 아닙니다.';
-        } else if (error.status === 413) {
-            userMessage = '이미지 파일이 너무 큽니다. (최대 5MB)';
-        } else if (error.status === 500) {
-            userMessage = '서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요.';
-        }
-        
-        throw {
-            status: error.status,
-            message: userMessage,
-            originalMessage: error.message
-        };
+        throw handleServiceError(error, '이미지 업로드에 실패했습니다.', {
+            400: '올바른 이미지 파일이 아닙니다.',
+            413: '이미지 파일이 너무 큽니다. (최대 5MB)',
+            500: '서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요.'
+        });
     }
 }
 

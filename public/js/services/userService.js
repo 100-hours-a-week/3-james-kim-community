@@ -3,6 +3,7 @@
 
 import { getWithAuth, patchWithAuth, deleteWithAuth, putWithAuth, post } from "../utils/http.js";
 import { API_ENDPOINTS } from "../config/api.js";
+import { handleServiceError } from "../utils/errorHandler.js";
 
 async function signup(email, password, passwordConfirm, nickname, profileImage) {
     try {
@@ -24,25 +25,12 @@ async function signup(email, password, passwordConfirm, nickname, profileImage) 
     } catch (error) {
         console.error('회원가입 실패:', error);
         
-        let userMessage = '회원가입에 실패했습니다.';
-        
-        if (error.status === 400) {
-            // 백엔드 유효성 검사 실패
-            userMessage = error.message || '입력 정보를 확인해주세요.';
-        } else if (error.status === 409) {
-            // 중복
-            userMessage = '이미 사용 중인 이메일 또는 닉네임입니다.';
-        } else if (error.status === 500) {
-            userMessage = '서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요.';
-        } else if (error.status === 0) {
-            userMessage = '서버에 연결할 수 없습니다. 네트워크를 확인해주세요.';
-        }
-        
-        throw {
-            status: error.status,
-            message: userMessage,
-            originalMessage: error.message
-        };
+        throw handleServiceError(error, '회원가입에 실패했습니다.', {
+            400: error.message || '입력 정보를 확인해주세요.',
+            409: '이미 사용 중인 이메일 또는 닉네임입니다.',
+            500: '서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요.',
+            0: '서버에 연결할 수 없습니다. 네트워크를 확인해주세요.'
+        });
     }
 }
 
@@ -57,19 +45,10 @@ async function getUserInfo() {
     } catch (error) {
         console.error('사용자 정보 조회 실패:', error);
         
-        let userMessage = '사용자 정보를 불러올 수 없습니다.';
-        
-        if (error.status === 401) {
-            userMessage = '로그인이 만료되었습니다.';
-        } else if (error.status === 404) {
-            userMessage = '사용자를 찾을 수 없습니다.';
-        }
-        
-        throw {
-            status: error.status,
-            message: userMessage,
-            originalMessage: error.message
-        };
+        throw handleServiceError(error, '사용자 정보를 불러올 수 없습니다.', {
+            401: '로그인이 만료되었습니다.',
+            404: '사용자를 찾을 수 없습니다.'
+        });
     }
 }
 
@@ -91,11 +70,7 @@ async function checkNicknameForUpdate(nickname) {
             return false;
         }
         
-        throw {
-            status: error.status,
-            message: '닉네임 중복 확인에 실패했습니다.',
-            originalMessage: error.message
-        };
+        throw handleServiceError(error, '닉네임 중복 확인에 실패했습니다.');
     }
 }
 
@@ -110,21 +85,11 @@ async function updateUserInfo(updateData) {
     } catch (error) {
         console.error('회원정보 수정 실패:', error);
         
-        let userMessage = '회원정보 수정에 실패했습니다.';
-        
-        if (error.status === 401) {
-            userMessage = '로그인이 만료되었습니다.';
-        } else if (error.status === 409) {
-            userMessage = '중복된 닉네임입니다.';
-        } else if (error.status === 400) {
-            userMessage = error.message || '입력 정보를 확인해주세요.';
-        }
-        
-        throw {
-            status: error.status,
-            message: userMessage,
-            originalMessage: error.message
-        };
+        throw handleServiceError(error, '회원정보 수정에 실패했습니다.', {
+            401: '로그인이 만료되었습니다.',
+            409: '중복된 닉네임입니다.',
+            400: error.message || '입력 정보를 확인해주세요.'
+        });
     }
 }
 
@@ -142,19 +107,10 @@ async function updatePassword(newPassword, newPasswordConfirm) {
     } catch (error) {
         console.error('비밀번호 수정 실패:', error);
         
-        let userMessage = '비밀번호 수정에 실패했습니다.';
-        
-        if (error.status === 401) {
-            userMessage = '로그인이 만료되었습니다.';
-        } else if (error.status === 400) {
-            userMessage = error.message || '입력 정보를 확인해주세요.';
-        }
-        
-        throw {
-            status: error.status,
-            message: userMessage,
-            originalMessage: error.message
-        };
+        throw handleServiceError(error, '비밀번호 수정에 실패했습니다.', {
+            401: '로그인이 만료되었습니다.',
+            400: error.message || '입력 정보를 확인해주세요.'
+        });
     }
 }
 
@@ -170,17 +126,9 @@ async function deleteUser() {
     } catch (error) {
         console.error('회원 탈퇴 실패:', error);
         
-        let userMessage = '회원 탈퇴에 실패했습니다.';
-        
-        if (error.status === 401) {
-            userMessage = '로그인이 만료되었습니다.';
-        }
-        
-        throw {
-            status: error.status,
-            message: userMessage,
-            originalMessage: error.message
-        };
+        throw handleServiceError(error, '회원 탈퇴에 실패했습니다.', {
+            401: '로그인이 만료되었습니다.'
+        });
     }
 }
 
