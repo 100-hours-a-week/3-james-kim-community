@@ -11,6 +11,7 @@ import { getImageUrl, handleImageError } from '../utils/imageHelper.js';
 
 // DOM 요소 가져오기
 const profileImagePlaceholder = document.getElementById('profileImagePlaceholder');
+const profileImageContainer = document.getElementById('profileImageContainer');
 const btnChangeImage = document.getElementById('btnChangeImage');
 const imageInput = document.getElementById('imageInput');
 
@@ -26,9 +27,9 @@ const btnConfirmWithdrawal = document.getElementById('btnConfirmWithdrawal');
 const toastMessage = document.getElementById('toastMessage');
 
 // 상태 관리 전역 변수
-let originalUserData = null; 
-let currentImageUrl = null;  
-let uploadedImageUrl = null;  
+let originalUserData = null;      
+let originalImageUrl = null;       // 원본 이미지 URL (백엔드 상대 경로)
+let uploadedImageUrl = null;       // 새로 업로드한 이미지 URL (백엔드 상대 경로)
 let isNicknameValid = true;  
 let isNicknameChecked = true;
 
@@ -60,18 +61,17 @@ async function loadUserInfo() {
         originalUserData = {
             email: userInfo.email,
             nickname: userInfo.nickname,
-            imageUrl: userInfo.imageUrl
+            imageUrl: userInfo.imageUrl  
         };
+        
+        originalImageUrl = userInfo.imageUrl;
         
         // 화면에 표시
         emailDisplay.textContent = userInfo.email;
         nicknameInput.value = userInfo.nickname;
         
         // 프로필 이미지 표시
-        if (userInfo.imageUrl) {
-            currentImageUrl = userInfo.imageUrl;
-            displayProfileImage(userInfo.imageUrl);
-        }
+        displayProfileImage(userInfo.imageUrl);
         
         console.log('사용자 정보 로드 완료');
         
@@ -88,13 +88,11 @@ async function loadUserInfo() {
 
 // 프로필 이미지 표시
 function displayProfileImage(imageUrl) {
-    profileImagePlaceholder.style.display = 'none';
-    
-    // 이미지 URL 변환
     const fullImageUrl = getImageUrl(imageUrl);
     
-    // 이미지 요소가 없으면 생성
-    let imgElement = document.querySelector('.profile-image');
+    // 기존 이미지 요소 찾기 또는 생성
+    let imgElement = profileImageContainer.querySelector('.profile-image');
+    
     if (!imgElement) {
         imgElement = document.createElement('img');
         imgElement.className = 'profile-image';
@@ -103,10 +101,15 @@ function displayProfileImage(imageUrl) {
         // 이미지 로드 실패 처리
         imgElement.addEventListener('error', () => handleImageError(imgElement));
         
-        document.getElementById('profileImageContainer').appendChild(imgElement);
+        // placeholder 숨기고 이미지 추가
+        profileImagePlaceholder.style.display = 'none';
+        profileImageContainer.appendChild(imgElement);
     }
     
+    // 이미지 src 설정
     imgElement.src = fullImageUrl;
+    
+    console.log('프로필 이미지 표시:', fullImageUrl);
 }
 
 // 프로필 이미지 변경 버튼 클릭
@@ -139,18 +142,28 @@ imageInput.addEventListener('change', async (event) => {
     try {
         console.log('이미지 업로드 시작:', file.name);
         
-        const imageUrl = await uploadImage(file);
+        const uploadedUrl = await uploadImage(file);
         
-        console.log('이미지 업로드 성공:', imageUrl);
+        console.log('이미지 업로드 성공 (백엔드 경로):', uploadedUrl);
         
-        uploadedImageUrl = imageUrl;
+        uploadedImageUrl = uploadedUrl;
         
-        displayProfileImage(imageUrl);
+        displayProfileImage(uploadedUrl);
         
+        // 수정 버튼 상태 업데이트
         updateSubmitButtonState();
         
     } catch (error) {
         console.error('이미지 업로드 실패:', error);
+        
+        // 401 에러 시 로그아웃 처리
+        if (error.status === 401) {
+            alert('로그인이 만료되었습니다. 다시 로그인해주세요.');
+            clearLoginData();
+            window.location.replace('/index.html');
+            return;
+        }
+        
         alert(error.message);
         imageInput.value = '';
     }
@@ -225,7 +238,7 @@ nicknameInput.addEventListener('blur', async () => {
 });
 
 /**
- * 수정 버튼 활성화 상태 업데이트
+ *  수정 버튼 활성화 상태 업데이트
  * - 닉네임이 변경되었거나 이미지가 변경되었을 때만 활성화
  * - 닉네임이 유효하고 중복 체크를 통과해야 함
  */
@@ -236,6 +249,8 @@ function updateSubmitButtonState() {
     const isNicknameChanged = nickname !== originalUserData.nickname;
     const isImageChanged = uploadedImageUrl !== null;
     
+    console.log('변경 사항:', { isNicknameChanged, isImageChanged, isNicknameValid, isNicknameChecked });
+    
     // 닉네임이 변경되었는데 유효하지 않거나 중복 체크를 안 했으면 비활성화
     if (isNicknameChanged && (!isNicknameValid || !isNicknameChecked)) {
         btnSubmit.disabled = true;
@@ -243,7 +258,7 @@ function updateSubmitButtonState() {
         return;
     }
     
-    // 변경 사항이 있으면 활성화
+    // 닉네임 또는 이미지 중 하나라도 변경되면 활성화
     if (isNicknameChanged || isImageChanged) {
         btnSubmit.disabled = false;
         btnSubmit.classList.add('active');
@@ -291,8 +306,9 @@ editProfileForm.addEventListener('submit', async (event) => {
             updateData.nickname = nickname;
         }
         
+        // 이미지 변경 시 백엔드 상대 경로 전송
         if (isImageChanged) {
-            updateData.profileImage = uploadedImageUrl;
+            updateData.imageUrl = uploadedImageUrl;  // "/temp/abc.jpg"
         }
         
         console.log('회원정보 수정 요청:', updateData);
@@ -301,7 +317,7 @@ editProfileForm.addEventListener('submit', async (event) => {
         
         console.log('회원정보 수정 완료');
         
-        // 토스트 메시지 표시
+        // 토스트 메시지 표시s
         showToast();
         
         // 원본 데이터 업데이트
@@ -310,22 +326,12 @@ editProfileForm.addEventListener('submit', async (event) => {
         }
         if (isImageChanged) {
             originalUserData.imageUrl = uploadedImageUrl;
-            currentImageUrl = uploadedImageUrl;
-            uploadedImageUrl = null;
+            originalImageUrl = uploadedImageUrl;
+            uploadedImageUrl = null;  // 초기화
         }
         
         btnSubmit.textContent = '수정하기';
         updateSubmitButtonState();
-        
-        // 헤더 프로필 이미지도 업데이트
-        if (isImageChanged && currentImageUrl) {
-            const headerProfilePlaceholder = document.querySelector('#profilePlaceholder');
-            if (headerProfilePlaceholder) {
-                headerProfilePlaceholder.style.backgroundImage = `url(${currentImageUrl})`;
-                headerProfilePlaceholder.style.backgroundSize = 'cover';
-                headerProfilePlaceholder.style.backgroundPosition = 'center';
-            }
-        }
         
     } catch (error) {
         console.error('회원정보 수정 실패:', error);
