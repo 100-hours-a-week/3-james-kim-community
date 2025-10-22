@@ -4,6 +4,7 @@
 import { logout } from '../services/authService.js';
 import { clearLoginData } from '../utils/storage.js';
 import { getUserInfo } from '../services/userService.js';
+import { getImageUrl, handleImageError } from '../utils/imageHelper.js';
 
 // 프로필 드롭다운 메뉴 초기화
 export async function initProfileDropdown(options = {}) {
@@ -69,53 +70,25 @@ async function loadProfileImage(profileButton) {
         }
         
         // 기본 이미지 경로 (절대 경로)
-        const DEFAULT_IMAGE = '/assets/images/default-profile.png';
-        
-        // 이미지 URL 결정
-        const imageUrl = userInfo.imageUrl || DEFAULT_IMAGE;
+        const imageUrl = getImageUrl(userInfo.imageUrl);
         
         // img 태그인 경우
         if (imageElement.tagName === 'IMG') {
             imageElement.src = imageUrl;
-            
-            // 무한 루프 방지
-            let errorHandled = false;
-            imageElement.onerror = () => {
-                if (!errorHandled) {
-                    errorHandled = true;
-                    console.warn('프로필 이미지 로드 실패');
-                    // 기본 이미지도 실패하면 placeholder로 교체
-                    if (imageElement.src.includes(DEFAULT_IMAGE)) {
-                        const placeholder = document.createElement('div');
-                        placeholder.className = 'profile-placeholder';
-                        imageElement.replaceWith(placeholder);
-                    } else {
-                        imageElement.src = DEFAULT_IMAGE;
-                    }
-                }
-            };
-        } 
+    
+            // 이미지 로드 실패 처리
+            imageElement.addEventListener('error', () => handleImageError(imageElement));
+        }
         // div placeholder인 경우 - img로 교체
         else {
             const imgElement = document.createElement('img');
             imgElement.src = imageUrl;
             imgElement.alt = '프로필';
             imgElement.className = 'profile-image';
-            
-            let errorHandled = false;
-            imgElement.onerror = () => {
-                if (!errorHandled) {
-                    errorHandled = true;
-                    console.warn('프로필 이미지 로드 실패');
-                    // 기본 이미지도 실패하면 원래 placeholder 유지
-                    if (imgElement.src.includes(DEFAULT_IMAGE)) {
-                        imgElement.replaceWith(imageElement);
-                    } else {
-                        imgElement.src = DEFAULT_IMAGE;
-                    }
-                }
-            };
-            
+    
+            // 이미지 로드 실패 처리
+            imgElement.addEventListener('error', () => handleImageError(imgElement));
+    
             imageElement.replaceWith(imgElement);
         }
         

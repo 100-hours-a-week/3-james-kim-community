@@ -6,6 +6,7 @@ import { getComments, createComment, updateComment, deleteComment } from '../ser
 import { isLoggedIn, clearLoginData } from '../utils/storage.js';
 import { initBackButton } from '../components/header.js';  
 import { initProfileDropdown } from '../components/profileDropdown.js';  
+import { getImageUrl, handleImageError } from '../utils/imageHelper.js';
 
 // DOM 요소 가져오기
 // 게시글
@@ -101,13 +102,16 @@ function renderPostDetail(data) {
     postTitle.textContent = data.title;
     
     // 게시글 작성자 프로필 이미지
-    const DEFAULT_IMAGE = '/assets/images/default-profile.png';
-    const authorImageSrc = data.author.profileImage || DEFAULT_IMAGE;
-    
-    authorImage.innerHTML = `<img src="${authorImageSrc}" 
-                                  alt="프로필" 
-                                  class="author-image"
-                                  onerror="this.onerror=null; this.src='${DEFAULT_IMAGE}';">`;
+    const authorImageSrc = getImageUrl(data.author.profileImage);
+
+    const authorImg = document.createElement('img');
+    authorImg.src = authorImageSrc;
+    authorImg.alt = '프로필';
+    authorImg.className = 'author-image';
+    authorImg.addEventListener('error', () => handleImageError(authorImg));
+
+    authorImage.innerHTML = '';
+    authorImage.appendChild(authorImg);
     
     authorName.textContent = data.author.nickname;
     postDate.textContent = data.createdAt;
@@ -117,7 +121,9 @@ function renderPostDetail(data) {
     }
     
     if (data.imageUrl) {
-        postImage.src = data.imageUrl;
+        const postImageUrl = getImageUrl(data.imageUrl);
+        postImage.src = postImageUrl;
+        postImage.addEventListener('error', () => handleImageError(postImage));
         postImageWrapper.classList.remove('hidden');
     }
     
@@ -267,13 +273,11 @@ function createCommentCard(comment) {
     li.dataset.commentId = comment.commentId;
     
     // 프로필 이미지 처리
-    const DEFAULT_IMAGE = '/assets/images/default-profile.png';
-    const profileImageSrc = comment.authorProfileImage || DEFAULT_IMAGE;
-    
+    const profileImageSrc = getImageUrl(comment.authorProfileImage);
+
     const profileImageHTML = `<img src="${profileImageSrc}" 
-                                   alt="프로필" 
-                                   class="comment-author-image"
-                                   onerror="this.onerror=null; this.src='${DEFAULT_IMAGE}';">`;
+                               alt="프로필" 
+                               class="comment-author-image">`;
     
     
     const actionsHTML = comment.isAuthor
@@ -299,6 +303,12 @@ function createCommentCard(comment) {
         <p class="comment-content">${comment.content}</p>
     `;
     
+    // 이미지 로드 실패 처리 추가
+    const imgElement = li.querySelector('.comment-author-image');
+    if (imgElement) {
+        imgElement.addEventListener('error', () => handleImageError(imgElement));
+    }
+
     if (comment.isAuthor) {
         const btnCommentEdit = li.querySelector('.btn-comment-edit');
         btnCommentEdit.addEventListener('click', () => handleCommentEdit(comment));

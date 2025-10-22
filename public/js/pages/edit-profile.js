@@ -7,6 +7,7 @@ import { isLoggedIn, clearLoginData } from "../utils/storage.js";
 import { validateNickname } from "../utils/validation.js";
 import { initBackButton } from "../components/header.js";
 import { initProfileDropdown } from "../components/profileDropdown.js";
+import { getImageUrl, handleImageError } from '../utils/imageHelper.js';
 
 // DOM 요소 가져오기
 const profileImagePlaceholder = document.getElementById('profileImagePlaceholder');
@@ -89,16 +90,23 @@ async function loadUserInfo() {
 function displayProfileImage(imageUrl) {
     profileImagePlaceholder.style.display = 'none';
     
+    // 이미지 URL 변환
+    const fullImageUrl = getImageUrl(imageUrl);
+    
     // 이미지 요소가 없으면 생성
     let imgElement = document.querySelector('.profile-image');
     if (!imgElement) {
         imgElement = document.createElement('img');
         imgElement.className = 'profile-image';
         imgElement.alt = '프로필 이미지';
+        
+        // 이미지 로드 실패 처리
+        imgElement.addEventListener('error', () => handleImageError(imgElement));
+        
         document.getElementById('profileImageContainer').appendChild(imgElement);
     }
     
-    imgElement.src = imageUrl;
+    imgElement.src = fullImageUrl;
 }
 
 // 프로필 이미지 변경 버튼 클릭

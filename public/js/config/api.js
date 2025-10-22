@@ -4,6 +4,9 @@
 // API 기본 URL (스프링부트 서버)
 const API_BASE_URL = 'http://localhost:8080/api';
 
+// 이미지 파일 접근용 (로컬 파일 시스템이라서 임시 - s3 전환 후 수정 예정)
+const BACKEND_BASE_URL = 'http://localhost:8080';
+
 // 로그인 API 엔드포인트
 const API_ENDPOINTS = {
     // 인증 관련
@@ -35,4 +38,4 @@ const API_ENDPOINTS = {
 
 };
 
-export { API_BASE_URL, API_ENDPOINTS };
+export { API_BASE_URL, API_ENDPOINTS, BACKEND_BASE_URL };

@@ -19,11 +19,21 @@ const imageInput = document.getElementById('imageInput');
 const btnFileSelect = document.getElementById('btnFileSelect');
 const fileName = document.getElementById('fileName');
 
+// 기존 이미지 관리
+const currentImageArea = document.getElementById('currentImageArea');
+const currentImageName = document.getElementById('currentImageName');
+const btnRemoveImage = document.getElementById('btnRemoveImage');
+const btnRestoreImage = document.getElementById('btnRestoreImage');
+
 // 상태 관리
 let currentPostId = null;
 let originalData = null;
-let currentImageUrl = null;
-let imageChanged = false;
+
+// 이미지 상태 관리 (3가지 상태)
+let originalImageUrl = null;    
+let currentImageUrl = null;     
+let newUploadedImageUrl = null; 
+let imageChanged = false;       
 
 // 로그인 체크
 if (!isLoggedIn()) {
@@ -78,13 +88,18 @@ async function loadPostData() {
         
         // 기존 이미지가 있으면 표시
         if (postData.imageUrl) {
+            originalImageUrl = postData.imageUrl;
             currentImageUrl = postData.imageUrl;
-            // 파일명 추출 (URL에서 마지막 부분)
+            
+            // 파일명 추출
             const imageName = postData.imageUrl.split('/').pop();
-            fileName.textContent = imageName || '기존 이미지';
+            currentImageName.textContent = imageName || '기존 이미지';
+            
+            // 기존 이미지 영역 표시
+            currentImageArea.classList.remove('hidden');
         }
         
-        // 버튼 활성화 (기존 데이터가 있으므로)
+        // 버튼 활성화
         checkFormValid();
         
         console.log('게시글 데이터 로드 완료:', postData);
@@ -155,20 +170,8 @@ btnFileSelect.addEventListener('click', () => {
 imageInput.addEventListener('change', async (e) => {
     const file = e.target.files[0];
     
-    // 파일 선택 취소 처리
+    // 파일 선택 취소 시 - 아무 동작 안 함
     if (!file) {
-        // 기존 이미지가 있었으면 복구
-        if (originalData && originalData.imageUrl) {
-            currentImageUrl = originalData.imageUrl;
-            const imageName = originalData.imageUrl.split('/').pop();
-            fileName.textContent = imageName || '기존 이미지';
-            imageChanged = false;
-        } else {
-            // 기존 이미지가 없었으면 초기화
-            fileName.textContent = '선택된 파일 없음';
-            currentImageUrl = null;
-            imageChanged = false;
-        }
         imageInput.value = '';
         return;
     }
@@ -189,19 +192,36 @@ imageInput.addEventListener('change', async (e) => {
         return;
     }
     
-    // 파일명 표시
-    fileName.textContent = file.name;
-    imageChanged = true;
-    
-    // 이미지 업로드
+    // 새 이미지 업로드
     try {
         btnFileSelect.disabled = true;
         btnFileSelect.textContent = '업로드 중...';
+        fileName.textContent = '업로드 중...';
         
-        currentImageUrl = await uploadImage(file);
-        console.log('이미지 업로드 성공:', currentImageUrl);
+        // 임시 이미지 업로드
+        const uploadedUrl = await uploadImage(file);
         
-        btnFileSelect.textContent = '파일 선택';
+        // 새 이미지로 교체
+        newUploadedImageUrl = uploadedUrl;
+        currentImageUrl = uploadedUrl;
+        imageChanged = true;
+        
+        // 파일명 표시 (새 업로드 파일)
+        fileName.textContent = file.name;
+        
+        // 기존 이미지 영역 처리
+        if (originalImageUrl) {
+            // 기존 이미지가 있었으면 - 복구 버튼 숨기고 삭제 버튼만 표시
+            currentImageName.classList.remove('pending-delete');
+            btnRemoveImage.classList.add('hidden');
+            btnRestoreImage.classList.add('hidden');
+        } else {
+            // 기존 이미지가 없었으면 - 기존 이미지 영역 숨김
+            currentImageArea.classList.add('hidden');
+        }
+        
+        console.log('이미지 업로드 성공:', uploadedUrl);
+        
         checkFormValid();
         
     } catch (error) {
@@ -217,23 +237,49 @@ imageInput.addEventListener('change', async (e) => {
         
         alert(error.message || '이미지 업로드에 실패했습니다.');
         imageInput.value = '';
-        
-        // 기존 이미지가 있으면 복구
-        if (originalData && originalData.imageUrl) {
-            currentImageUrl = originalData.imageUrl;
-            const imageName = originalData.imageUrl.split('/').pop();
-            fileName.textContent = imageName || '기존 이미지';
-        } else {
-            fileName.textContent = '선택된 파일 없음';
-            currentImageUrl = null;
-        }
-        
-        imageChanged = false;
+        fileName.textContent = originalImageUrl ? '파일을 선택하거나 기존 이미지 사용' : '선택된 파일 없음';
         
     } finally {
         btnFileSelect.disabled = false;
         btnFileSelect.textContent = '파일 선택';
+        imageInput.value = '';
     }
+});
+
+// 기존 이미지 삭제 버튼 (임시 삭제 - 취소 가능)
+btnRemoveImage.addEventListener('click', () => {
+    // 이미지 삭제 예정 상태로 변경
+    currentImageUrl = "";
+    imageChanged = true;
+    
+    // UI 업데이트
+    currentImageName.classList.add('pending-delete');
+    btnRemoveImage.classList.add('hidden');
+    btnRestoreImage.classList.remove('hidden');
+    
+    // 새 업로드 파일명 초기화
+    fileName.textContent = '선택된 파일 없음';
+    newUploadedImageUrl = null;
+    
+    console.log('이미지 삭제 예정 (임시)');
+});
+
+// 기존 이미지 복구 버튼 (삭제 취소)
+btnRestoreImage.addEventListener('click', () => {
+    // 원본 이미지로 복구
+    currentImageUrl = originalImageUrl;
+    imageChanged = false;
+    
+    // UI 업데이트
+    currentImageName.classList.remove('pending-delete');
+    btnRemoveImage.classList.remove('hidden');
+    btnRestoreImage.classList.add('hidden');
+    
+    // 새 업로드 파일명 초기화
+    fileName.textContent = '파일을 선택하거나 기존 이미지 사용';
+    newUploadedImageUrl = null;
+    
+    console.log('이미지 삭제 취소 (원본 복구)');
 });
 
 // 게시글 수정 제출
@@ -278,7 +324,11 @@ postEditForm.addEventListener('submit', async (e) => {
         
         // 이미지 변경 확인
         if (imageChanged) {
-            updateData.imageUrl = currentImageUrl;  // "" (삭제) 또는 "/temp/..." (교체)
+            // currentImageUrl이 최종 이미지 URL
+            // - "" (빈 문자열) = 삭제
+            // - "/temp/..." = 새 업로드
+            // - "/images/..." = 기존 유지 (변경 없음, 이 경우는 imageChanged가 false)
+            updateData.imageUrl = currentImageUrl;
         }
         
         console.log('게시글 수정 요청:', updateData);

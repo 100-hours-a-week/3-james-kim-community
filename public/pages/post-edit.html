@@ -103,6 +103,18 @@
                                 </button>
                                 <span class="file-name" id="fileName">선택된 파일 없음</span>
                             </div>
+
+                            <!-- 기존 이미지 관리 영역(있을 때만) -->
+                            <div class="current-image-area hidden" id="currentImageArea">
+                                <span class="current-image-label">선택된 이미지:</span>
+                                <span class="current-image-name" id="currentImageName">-</span>
+                                <button type="button" class="btn-remove-image" id="btnRemoveImage" title="이미지 삭제">
+                                    ❌
+                                </button>
+                                <button type="button" class="btn-restore-image hidden" id="btnRestoreImage" title="삭제 취소">
+                                    ↩️
+                                </button>
+                            </div>
                         </div>
                     </section>
 

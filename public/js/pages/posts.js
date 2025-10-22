@@ -4,6 +4,7 @@
 import { getPosts } from '../services/postService.js';
 import { isLoggedIn, clearLoginData } from '../utils/storage.js';
 import { initProfileDropdown } from '../components/profileDropdown.js'; 
+import { getImageUrl, handleImageError } from '../utils/imageHelper.js';
 
 // DOM 요소 가져오기
 const postsList = document.getElementById('postsList');
@@ -113,13 +114,10 @@ function createPostCard(post) {
     li.className = 'post-card';
     li.dataset.postId = post.postId;
     
-    // 작성자 프로필 이미지
-    const DEFAULT_IMAGE = '/assets/images/default-profile.png';
-    const authorImageSrc = post.authorProfileImage || DEFAULT_IMAGE;
-    
-    // onerror에서 무한 루프 방지
+    // 작성자 프로필 이미지 URL 변환
+    const authorImageSrc = getImageUrl(post.authorProfileImage);
     const authorImageHTML = `<img src="${authorImageSrc}" alt="프로필" class="author-image">`;
-
+    
     // 게시글 카드 HTML
     li.innerHTML = `
         <h3 class="post-title">${post.title}</h3>
@@ -145,6 +143,12 @@ function createPostCard(post) {
             </div>
         </div>
     `;
+
+    // 이미지 로드 실패 처리
+    const imgElement = li.querySelector('.author-image');
+    if (imgElement) {
+        imgElement.addEventListener('error', () => handleImageError(imgElement));
+    }
     
     // 게시글 클릭 이벤트
     li.addEventListener('click', () => {

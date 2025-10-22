@@ -146,7 +146,13 @@ fileSelectButton.addEventListener('click', () => {
 
 profileImageInput.addEventListener('change', async (event) => {
     const file = event.target.files[0];
-    if (!file) return;
+
+    if (!file) {
+        fileName.textContent = '선택된 파일 없음';
+        uploadedImageUrl = null;
+        profileImageInput.value = '';
+        return;
+    }
     
     // 파일 유효성 검사
     const result = validateImageFile(file);
