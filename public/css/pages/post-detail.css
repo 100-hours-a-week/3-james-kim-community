@@ -59,8 +59,9 @@
 
 .author-details {
   display: flex;
-  flex-direction: column;
-  gap: 4px;
+  flex-direction: row;
+  gap: 12px;
+  align-items: flex-end;
 }
 
 .author-name {
@@ -156,13 +157,51 @@
 .post-stats {
   display: flex;
   justify-content: center;
+  align-items: center;
   gap: 24px;
 }
 
 .stat-item {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  transition: background-color 0.2s;
+}
+
+/* 좋아요 버튼 스타일 */
+.stat-like {
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.stat-like:hover {
+  background-color: #FFF0F0;
+}
+
+.stat-like.liked {
+  background-color: #FFE6E6;
+}
+
+/* 하트 아이콘 */
+.stat-icon {
+  font-size: 24px;
+  color: var(--gray-medium);
+  transition: all 0.3s;
+}
+
+.stat-like.liked .stat-icon {
+  color: #FF4444;
+}
+
+/* 통계 내용 */
+.stat-content {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-end;
   gap: 4px;
 }
 
@@ -172,8 +211,8 @@
 }
 
 .stat-value {
-  font-size: var(--font-medium);
-  font-weight: 700;
+  font-size: var(--font-small);
+  font-weight: 400;
   color: var(--gray-dark);
 }
 

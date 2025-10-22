@@ -126,4 +126,33 @@ async function deletePost(postId) {
     }
 }
 
-export { getPosts, getPostDetail, createPost, updatePost, deletePost };
+// 좋아요 토글 (추가/취소)
+async function toggleLike(postId) {
+    try {
+        const url = API_ENDPOINTS.POST_LIKE(postId);
+        console.log('좋아요 토글:', url);
+        
+        const result = await postWithAuth(url, {});
+        
+        console.log('좋아요 토글 성공:', result);
+        return result.data;
+
+    } catch (error) {
+        console.error('좋아요 토글 실패:', error);
+        
+        throw handleServiceError(error, '좋아요 처리에 실패했습니다.', {
+            401: '로그인이 만료되었습니다.',
+            404: '존재하지 않는 게시글입니다.',
+            500: '서버 오류가 발생했습니다.'
+        });
+    }
+}
+
+export { 
+    getPosts, 
+    getPostDetail, 
+    createPost, 
+    updatePost, 
+    deletePost,
+    toggleLike  
+};

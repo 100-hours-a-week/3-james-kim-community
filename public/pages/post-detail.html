@@ -85,17 +85,29 @@
                 <!-- 게시글 통계 (좋아요, 조회수, 댓글수) -->
                 <section class="post-stats-section">
                     <div class="post-stats">
+                        <!-- 좋아요 (클릭 가능)-->
+                        <button class="stat-item stat-like" id="likeButton">
+                            <span class="stat-icon" id="likeIcon">♡</span>
+                            <div class="stat-content">
+                                <span class="stat-label">좋아요</span>
+                                <span class="stat-value" id="likeCount">0</span>
+                            </div>
+                        </button>
+        
+                        <!-- 조회수 -->
                         <div class="stat-item">
-                            <span class="stat-label">좋아요</span>
-                            <span class="stat-value" id="likeCount">0</span>
+                            <div class="stat-content">
+                                <span class="stat-label">조회수</span>
+                                <span class="stat-value" id="viewCount">0</span>
+                            </div>
                         </div>
+        
+                        <!-- 댓글 -->
                         <div class="stat-item">
-                            <span class="stat-label">조회수</span>
-                            <span class="stat-value" id="viewCount">0</span>
-                        </div>
-                        <div class="stat-item">
-                            <span class="stat-label">댓글</span>
-                            <span class="stat-value" id="commentCount">0</span>
+                            <div class="stat-content">
+                                <span class="stat-label">댓글</span>
+                                <span class="stat-value" id="commentCount">0</span>
+                                </div>
                         </div>
                     </div>
                 </section>

@@ -1,7 +1,7 @@
 // public/js/pages/post-detail.js
 // 게시글 상세 페이지 메인 로직
 
-import { getPostDetail, deletePost } from '../services/postService.js';
+import { getPostDetail, deletePost, toggleLike } from '../services/postService.js';
 import { getComments, createComment, updateComment, deleteComment } from '../services/commentService.js';
 import { isLoggedIn, clearLoginData } from '../utils/storage.js';
 import { initBackButton } from '../components/header.js';  
@@ -22,6 +22,8 @@ const postImage = document.getElementById('postImage');
 const postContent = document.getElementById('postContent');
 
 // 통계
+const likeButton = document.getElementById('likeButton');
+const likeIcon = document.getElementById('likeIcon');
 const likeCount = document.getElementById('likeCount');
 const viewCount = document.getElementById('viewCount');
 const commentCountElement = document.getElementById('commentCount');
@@ -98,6 +100,7 @@ async function loadPostDetail() {
     }
 }
 
+// 게시글 데이터를 화면에 렌더링
 function renderPostDetail(data) {
     postTitle.textContent = data.title;
     
@@ -132,7 +135,64 @@ function renderPostDetail(data) {
     likeCount.textContent = data.stats.likeCount;
     viewCount.textContent = data.stats.viewCount;
     commentCountElement.textContent = data.stats.commentCount;
+
+    // 좋아요 상태 표시
+    updateLikeButton(data.isLiked);
 }
+
+// 좋아요 버튼 상태 업데이트
+function updateLikeButton(isLiked) {
+    if (isLiked) {
+        likeButton.classList.add('liked');
+        likeIcon.textContent = '♥';  // 꽉 찬 하트
+    } else {
+        likeButton.classList.remove('liked');
+        likeIcon.textContent = '♡';  // 빈 하트
+    }
+}
+
+// 좋아요 이벤트 리스너
+likeButton.addEventListener('click', async (e) => {
+    e.stopPropagation();
+    
+    // 연속 클릭 방지
+    if (likeButton.disabled) return;
+    
+    try {
+        likeButton.disabled = true;
+        
+        console.log('좋아요 토글 요청:', currentPostId);
+        
+        // 좋아요 API 호출
+        const result = await toggleLike(currentPostId);
+        
+        console.log('좋아요 토글 성공:', result);
+        
+        likeCount.textContent = result.likeCount;
+        updateLikeButton(result.isLiked);
+        
+        // 현재 게시글 데이터 업데이트
+        if (currentPostData) {
+            currentPostData.isLiked = result.isLiked;
+            currentPostData.stats.likeCount = result.likeCount;
+        }
+        
+    } catch (error) {
+        console.error('좋아요 처리 실패:', error);
+        
+        // 인증 에러인 경우 로그인 페이지로
+        if (error.status === 401) {
+            alert(error.message || '로그인이 필요합니다.');
+            clearLoginData();
+            window.location.replace('/index.html');
+            return;
+        }
+        
+        alert(error.message || '좋아요 처리에 실패했습니다.');
+    } finally {
+        likeButton.disabled = false;
+    }
+});
 
 // 게시글 수정/삭제
 btnEdit.addEventListener('click', () => {
