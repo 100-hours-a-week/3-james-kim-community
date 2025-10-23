@@ -11,15 +11,15 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/100-hours-a-week/james-community-frontend.git"
+    "url": "git+https://github.com/100-hours-a-week/3-james-community-frontend.git"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/100-hours-a-week/james-community-frontend/issues"
+    "url": "https://github.com/100-hours-a-week/3-james-community-frontend/issues"
   },
-  "homepage": "https://github.com/100-hours-a-week/james-community-frontend#readme",
+  "homepage": "https://github.com/100-hours-a-week/3-james-community-frontend#readme",
   "dependencies": {
     "express": "^5.1.0"
   }

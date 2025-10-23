@@ -37,7 +37,7 @@ body {
   justify-content: center;         /* 가로 중앙 정렬 */
   align-items: center;             /* 세로 중앙 정렬 */
   min-height: 100vh;              /* 최소 높이 = 화면 전체 */
-  background: url('../../assets/images/background.png');
+  /*background: url('../../assets/images/background.png');*/
   background-size: 100vw 100vh;
   background-color: var(--background-dark);
 }

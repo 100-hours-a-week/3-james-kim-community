@@ -1,72 +1,117 @@
-<!-- /public/index.html -->
 <!DOCTYPE html>
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>커뮤니티 - 로그인</title>
+    <title>커뮤니티 - 로그인/회원가입</title>
 
-    <!-- 공통 CSS 로드 -->
-    <link rel="stylesheet" href="./css/reset.css">
-    <link rel="stylesheet" href="./css/common.css">
+    <!-- Boxicons -->
+    <link href='https://unpkg.com/boxicons@2.0.7/css/boxicons.min.css' rel='stylesheet'>
 
-    <!-- 페이지 전용 CSS 로드 -->
-    <link rel="stylesheet" href="./css/pages/login.css">
+    <!-- 통합 인증 페이지 전용 CSS -->
+    <link rel="stylesheet" href="./css/pages/auth.css">
 </head>
 <body>
-    <!-- 전체 배경 (건물 이미지) -->
-    <div class="app-background">
-
-        <!-- 중앙 컨텐츠 컨테이너 (모바일 친화적 UI) -->
-        <div class="mobile-container">
-
-            <!-- Header: "커뮤니티" 타이틀 -->
-            <header class="page-header">
-                <h1 class="header-title">커뮤니티</h1>
+    <!-- 메인 컨테이너 -->
+    <main class="login">
+        <div class="login__content">
+            <!-- 헤더: 브랜드 + 이미지 -->
+            <header class="login__img">
+                <h1 class="login__brand">KTB 커뮤니티</h1>
+                <img src="https://image.freepik.com/free-vector/code-typing-concept-illustration_114360-3581.jpg" alt="user login">
             </header>
-            
-            <!-- 메인 콘텐츠 영역 "흰색 영역" -->
-            <main class="main-content">
 
-                <!-- 로그인 섹션 -->
-                <section class="login-section">
-                    <h2 class="section-title">로그인</h2>
-                    
-                    <!-- 로그인 폼 -->
-                    <form class="login-form" id="loginForm">
-                        <!-- 이메일 입력 -->
-                        <div class="form-group">
-                            <label for="email" class="form-label">이메일</label>
-                            <input type="email" id="email" name="email"
-                                   class="form-input" placeholder="이메일을 입력하세요" required>
-                            
-                            <!-- 에러 메시지 표시 (제어는 JS)-->
-                            <span class="error-message" id="emailError"></span>
-                        </div>
-                    
-                        <!-- 비밀번호 입력 -->
-                        <div class="form-group">
-                            <label for="password" class="form-label">비밀번호</label>
-                            <input type="password" id="password" name="password"
-                                   class="form-input" placeholder="비밀번호를 입력하세요" required>
-                            
-                            <!-- 에러 메시지 표시 (제어는 JS)-->
-                            <span class="error-message" id="passwordError"></span>
-                        </div>
-                        
-                        <!-- 로그인 버튼 -->
-                        <button type="submit" class="btn-login" id="loginButton">로그인</button>
-                    </form>
+            <!-- 폼 섹션 -->
+            <section class="login__forms">
+                <!-- 로그인 폼 -->
+                <form class="login__register" id="loginForm">
+                    <h2 class="login__title">Sign In</h2>
 
-                    <div class="signup-link">
-                        <a href="/pages/signup.html" class="link-text">회원가입</a>
+                    <!-- 이메일 입력 -->
+                    <div class="login__box">
+                        <i class='bx bx-user login__icon'></i>
+                        <input type="email" id="email" name="email" placeholder="이메일" 
+                                class="login__input" maxlength="200" required>
                     </div>
-                </section>
-            </main>
-        </div>
-    </div>
+                    <span class="error-message" id="emailError"></span>
 
-    <!-- 로그인 JS 로드 -->
-    <script type="module" src="./js/pages/login.js"></script>
+                    <!-- 비밀번호 입력 -->
+                    <div class="login__box">
+                        <i class='bx bx-lock login__icon'></i>
+                        <input type="password" id="password" name="password" placeholder="비밀번호" 
+                                class="login__input" maxlength="200" required>
+                    </div>
+                    <span class="error-message" id="passwordError"></span>
+
+                    <!-- 로그인 버튼 -->
+                    <button type="submit" class="login__button" id="loginButton">Sign In</button>
+
+                    <div>
+                        <span class="login__account login__account--account">계정이 없으신가요?</span>
+                        <span class="login__signin login__signin--signup" id="sign-up">회원가입</span>
+                    </div>
+                </form>
+
+                <!-- 회원가입 폼 -->
+                <form class="login__create none" id="signupForm">
+                    <h2 class="login__title">Create Account</h2>
+
+                    <!-- 이메일 입력 -->
+                    <div class="login__box">
+                        <i class='bx bx-user login__icon'></i>
+                        <input type="email" id="signupEmail" name="email" placeholder="이메일" 
+                                class="login__input" maxlength="200" required>
+                    </div>
+                    <span class="error-message" id="signupEmailError"></span>
+
+                    <!-- 비밀번호 입력 -->
+                    <div class="login__box">
+                        <i class='bx bx-lock login__icon'></i>
+                        <input type="password" id="signupPassword" name="password" placeholder="비밀번호" 
+                                class="login__input" maxlength="200" required>
+                    </div>
+                    <span class="error-message" id="signupPasswordError"></span>
+
+                    <!-- 비밀번호 확인 -->
+                    <div class="login__box">
+                        <i class='bx bx-lock-alt login__icon'></i>
+                        <input type="password" id="passwordConfirm" name="passwordConfirm" placeholder="비밀번호 확인" 
+                                class="login__input" maxlength="200" required>
+                    </div>
+                    <span class="error-message" id="passwordConfirmError"></span>
+
+                    <!-- 닉네임 입력 -->
+                    <div class="login__box">
+                        <i class='bx bx-user-circle login__icon'></i>
+                        <input type="text" id="nickname" name="nickname" placeholder="닉네임 (1~10자)" 
+                                class="login__input" maxlength="10" required>
+                    </div>
+                    <span class="error-message" id="nicknameError"></span>
+
+                    <!-- 프로필 이미지 업로드 -->
+                    <div class="login__box login__box--file">
+                        <i class='bx bx-image login__icon'></i>
+                        <input type="file" id="profileImage" class="hidden-file-input" accept="image/*">
+                        <button type="button" class="btn-file-select" id="fileSelectButton">
+                            파일 선택
+                        </button>
+                        <span class="file-name" id="fileName">선택된 파일 없음</span>
+                    </div>
+                    <span class="error-message" id="imageError"></span>
+
+                    <!-- 회원가입 버튼 -->
+                    <button type="submit" class="login__button" id="signupButton" disabled>회원가입</button>
+
+                    <div>
+                        <span class="login__account login__account--account">이미 계정이 있으신가요?</span>
+                        <span class="login__signup login__signup--signup" id="sign-in">로그인</span>
+                    </div>
+                </form>
+            </section>
+        </div>
+    </main>
+
+    <!-- 통합 인증 JS 로드 -->
+    <script type="module" src="./js/pages/auth.js"></script>
 </body>
 </html>
