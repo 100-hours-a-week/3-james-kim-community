@@ -39,6 +39,17 @@ function isLoggedIn() {
     return accessToken !== null && accessToken !== '';
 }
 
+// accessToken 갱신
+function updateAccessToken(newAccessToken) {
+    try {
+        localStorage.setItem(STORAGE_KEYS.ACCESS_TOKEN, newAccessToken);
+        console.log("Access Token 갱신 완료");
+    } catch (error) {
+        console.log("Access Token 갱신 실패", error);
+        throw new Error("Access Token을 갱신할 수 없습니다.");
+    }
+}
+
 // 로그아웃 (모든 로그인 정보 삭제)
 function clearLoginData() {
     try {
@@ -58,5 +69,6 @@ export {
     getRefreshToken,
     getUserId,
     isLoggedIn,
+    updateAccessToken,
     clearLoginData,
 };
