@@ -163,17 +163,33 @@ writeButton.addEventListener('click', () => {
     window.location.href = '/pages/post-write.html';
 });
 
-// 인피니티 스크롤
-window.addEventListener('scroll', () => {
-    const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-    const windowHeight = window.innerHeight;
-    const documentHeight = document.documentElement.scrollHeight;
-    
-    // 하단에 가까워지면 다음 페이지 로드
-    if (scrollTop + windowHeight >= documentHeight - 200) {
-        loadPosts();
-    }
+// 인피니티 스크롤 (Intersection Observer 사용)
+// 스크롤 감시용 sentinel 요소 생성
+const sentinel = document.createElement('div');
+sentinel.id = 'scroll-sentinel';
+sentinel.style.height = '1px';
+sentinel.style.visibility = 'hidden';
+
+// sentinel을 loadingIndicator 바로 앞에 삽입
+loadingIndicator.parentNode.insertBefore(sentinel, loadingIndicator);
+
+// Intersection Observer 생성
+const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+        // sentinel이 화면에 보이고, 로딩 중이 아니고, 더 가져올 데이터가 있으면
+        if (entry.isIntersecting && !isLoading && hasNext) {
+            console.log('📍 Sentinel 감지 - 다음 페이지 로드');
+            loadPosts();
+        }
+    });
+}, {
+    // 300px 전에 미리 로드 (더 빠른 반응)
+    rootMargin: '300px',
+    threshold: 0
 });
+
+// sentinel 감시 시작
+observer.observe(sentinel);
 
 // 초기 로드
 loadPosts();

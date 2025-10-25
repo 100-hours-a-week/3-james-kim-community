@@ -255,9 +255,14 @@ btnCommentSubmit.addEventListener('click', async () => {
         commentCountElement.textContent = result.commentsCount;
         commentTextarea.value = '';
         
+        // 댓글 목록 초기화 및 재로드
         commentsLastSeenId = null;
         commentsHasNext = true;
-        commentsList.innerHTML = '';
+        commentsList.innerHTML = '';  
+        
+        // noMoreComments도 숨기기
+        noMoreComments.classList.add('hidden');
+        
         await loadComments();
         
     } catch (error) {
@@ -501,16 +506,32 @@ btnConfirmDeleteComment.addEventListener('click', async () => {
     }
 });
 
-// 인피니티 스크롤 
-window.addEventListener('scroll', () => {
-    const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-    const windowHeight = window.innerHeight;
-    const documentHeight = document.documentElement.scrollHeight;
-    
-    if (scrollTop + windowHeight >= documentHeight - 200) {
-        loadComments();
-    }
+// 인피니티 스크롤 (Intersection Observer 사용)
+// 댓글 스크롤 감시용 sentinel 요소 생성
+const commentSentinel = document.createElement('div');
+commentSentinel.id = 'comment-scroll-sentinel';
+commentSentinel.style.height = '1px';
+commentSentinel.style.visibility = 'hidden';
+
+commentsLoadingElement.parentNode.insertBefore(commentSentinel, commentsLoadingElement);
+
+// Intersection Observer 생성
+const commentObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+        // sentinel이 화면에 보이고, 로딩 중이 아니고, 더 가져올 댓글이 있으면
+        if (entry.isIntersecting && !commentsIsLoading && commentsHasNext) {
+            console.log('📍 댓글 Sentinel 감지 - 다음 페이지 로드');
+            loadComments();
+        }
+    });
+}, {
+    // 300px 전에 미리 로드 (빠른 반응)
+    rootMargin: '300px',
+    threshold: 0
 });
+
+// sentinel 감시 시작
+commentObserver.observe(commentSentinel);
 
 // 페이지 로드
 loadPostDetail();

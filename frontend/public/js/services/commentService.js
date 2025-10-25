@@ -3,6 +3,7 @@
 
 import { getWithAuth, postWithAuth, putWithAuth, deleteWithAuth } from "../utils/http.js";
 import { API_ENDPOINTS } from "../config/api.js";
+import { handleServiceError } from "../utils/errorHandler.js";
 
 /**
  * 댓글 목록 조회 (인피니티 스크롤)
