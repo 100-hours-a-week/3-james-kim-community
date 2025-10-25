@@ -24,30 +24,7 @@
         <!-- 중앙 컨텐츠 컨테이너 -->
         <div class="mobile-container">
 
-            <!-- 헤더 영역: 뒤로 가기 + 타이틀 + 프로필 메뉴 -->
-            <header class="page-header">
-                <!-- 뒤로가기 버튼 -->
-                <button class="btn-back" id="btnBack" aria-label="뒤로가기">
-                    <span class="icon-back">&lt;</span>
-                </button>
-
-                <!-- 페이지 타이틀 -->
-                <h1 class="header-title">아무 말 대잔치</h1>
-
-                <!-- 프로필 메뉴 드롭다운 -->
-                <div class="profile-menu">
-                    <button class="profile-button" id="profileButton" aria-label="프로필 메뉴">
-                        <div class="profile-placeholder" id="profilePlaceholder"></div>
-                    </button>
-                    
-                    <!-- 드롭다운 메뉴 -->
-                    <div class="dropdown-menu hidden" id="dropdownMenu">
-                        <a href="/pages/edit-profile.html" class="dropdown-item">회원정보수정</a>
-                        <a href="/pages/change-password.html" class="dropdown-item">비밀번호수정</a>
-                        <button class="dropdown-item" id="logoutButton">로그아웃</button>
-                    </div>
-                </div>
-            </header>
+            <!-- Header는 JS로 동적 생성됨 -->
 
             <!-- 메인 콘텐츠 영역 -->
             <main class="main-content">

@@ -6,6 +6,9 @@ import { isLoggedIn, clearLoginData } from '../utils/storage.js';
 import { initProfileDropdown } from '../components/profileDropdown.js'; 
 import { getImageUrl, handleImageError } from '../utils/imageHelper.js';
 import { showLoginPrompt } from '../components/loginPromptModal.js';
+import { renderHeader } from '../components/headerTemplate.js';
+
+renderHeader('.mobile-container', { showBackButton: false });
 
 // DOM 요소 가져오기
 const postsList = document.getElementById('postsList');
@@ -21,6 +24,20 @@ const userLoggedIn = isLoggedIn(); // 로그인 여부 확인
 
 // 프로필 드롭다운 초기화 (로그인 상태에 따라)
 initProfileDropdown({ isGuest: !userLoggedIn });
+
+setTimeout(() => {
+    const logoutBtn = document.getElementById('btnLogout');
+    console.log('로그아웃 버튼:', logoutBtn);
+    console.log('로그아웃 버튼 이벤트:', logoutBtn?._listeners);
+    
+    // 직접 클릭 이벤트 붙여보기
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', (e) => {
+            console.log('로그아웃 버튼 클릭됨!', e);
+            alert('로그아웃 버튼 클릭!');
+        });
+    }
+}, 1000);
 
 // 게시글 목록 로드
 async function loadPosts() {

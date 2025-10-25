@@ -22,7 +22,7 @@
 }
 
 .post-title {
-  font-size: var(--font-xlarge);
+  font-size: var(--font-regular);
   font-weight: 700;
   color: var(--gray-dark);
   line-height: 1.4;

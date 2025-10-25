@@ -5,8 +5,10 @@ import { updatePassword } from "../services/userService.js";
 import { logout } from "../services/authService.js";
 import { isLoggedIn, clearLoginData } from "../utils/storage.js";
 import { validatePassword } from "../utils/validation.js";
-import { initBackButton } from "../components/header.js";
 import { initProfileDropdown } from "../components/profileDropdown.js";
+import { renderHeader, initBackButton } from '../components/headerTemplate.js';
+
+renderHeader('.mobile-container');
 
 // DOM 요소 가져오기
 const passwordInput = document.getElementById('passwordInput');

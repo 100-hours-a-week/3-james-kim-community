@@ -2,10 +2,9 @@
 // 프로필 드롭다운 메뉴 컴포넌트
 
 import { logout } from '../services/authService.js';
-import { clearLoginData, isLoggedIn } from '../utils/storage.js';
+import { clearLoginData } from '../utils/storage.js';
 import { getUserInfo } from '../services/userService.js';
 import { getImageUrl, handleImageError } from '../utils/imageHelper.js';
-import { showLoginPrompt } from './loginPromptModal.js';
 
 /**
  * 프로필 드롭다운 메뉴 초기화
@@ -70,6 +69,7 @@ function setupGuestDropdown(profileButton, dropdownMenu) {
 /**
  * 로그인 사용자용 드롭다운 설정
  */
+// profileDropdown.js의 setupLoggedInDropdown 함수 수정
 async function setupLoggedInDropdown(profileButton, dropdownMenu, logoutButton) {
     // 프로필 이미지 로드
     await loadProfileImage(profileButton);
@@ -84,6 +84,11 @@ async function setupLoggedInDropdown(profileButton, dropdownMenu, logoutButton) 
     document.addEventListener('click', () => {
         dropdownMenu.classList.add('hidden');
     });
+    
+    // ID로 못 찾으면 class로 찾기
+    if (!logoutButton) {
+        logoutButton = dropdownMenu.querySelector('.logout-button');
+    }
     
     // 로그아웃 버튼
     if (logoutButton) {

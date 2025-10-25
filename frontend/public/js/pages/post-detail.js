@@ -4,9 +4,11 @@
 import { getPostDetail, deletePost, toggleLike } from '../services/postService.js';
 import { getComments, createComment, updateComment, deleteComment } from '../services/commentService.js';
 import { isLoggedIn, clearLoginData } from '../utils/storage.js';
-import { initBackButton } from '../components/header.js';  
 import { initProfileDropdown } from '../components/profileDropdown.js';  
 import { getImageUrl, handleImageError } from '../utils/imageHelper.js';
+import { renderHeader, initBackButton } from '../components/headerTemplate.js';
+
+renderHeader('.mobile-container');
 
 // DOM 요소 가져오기
 // 게시글
