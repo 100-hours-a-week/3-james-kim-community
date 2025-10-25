@@ -24,11 +24,11 @@ let isPasswordConfirmValid = false;
 // 로그인 체크
 if (!isLoggedIn()) {
     alert('로그인이 필요합니다.');
-    window.location.href = '/index.html';
+    window.location.href = '/pages/login.html';
 }
 
 // 헤더 컴포넌트 초기화
-initBackButton('/pages/posts.html');
+initBackButton('/index.html');
 
 // 프로필 드롭다운 초기화
 initProfileDropdown({
@@ -135,7 +135,7 @@ changePasswordForm.addEventListener('submit', async (event) => {
         setTimeout(async() => {
             await logout();  
             clearLoginData();
-            window.location.href = '/index.html';
+            window.location.href = '/pages/login.html';
         }, 1000);
         
     } catch (error) {
@@ -144,7 +144,7 @@ changePasswordForm.addEventListener('submit', async (event) => {
         
         if (error.status === 401) {
             clearLoginData();
-            window.location.href = '/index.html';
+            window.location.href = '/pages/login.html';
         }
         
         btnSubmit.disabled = false;

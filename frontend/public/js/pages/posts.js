@@ -5,6 +5,7 @@ import { getPosts } from '../services/postService.js';
 import { isLoggedIn, clearLoginData } from '../utils/storage.js';
 import { initProfileDropdown } from '../components/profileDropdown.js'; 
 import { getImageUrl, handleImageError } from '../utils/imageHelper.js';
+import { showLoginPrompt } from '../components/loginPromptModal.js';
 
 // DOM 요소 가져오기
 const postsList = document.getElementById('postsList');
@@ -16,25 +17,10 @@ const writeButton = document.getElementById('writeButton');
 let lastSeenId = null;
 let hasNext = true;
 let isLoading = false;
+const userLoggedIn = isLoggedIn(); // 로그인 여부 확인
 
-// 초기 로그인 체크 및 리다이렉트
-function checkLoginStatus() {
-    if (!isLoggedIn()) {
-        alert('로그인이 필요합니다.');
-        window.location.replace('/index.html');
-        return false;
-    }
-    return true;
-}
-
-// 즉시 로그인 체크
-if (!checkLoginStatus()) {
-    // 로그인 안 되어 있으면 여기서 멈춤
-    throw new Error('Unauthorized access');
-}
-
-// 프로필 드롭다운 초기화
-initProfileDropdown();
+// 프로필 드롭다운 초기화 (로그인 상태에 따라)
+initProfileDropdown({ isGuest: !userLoggedIn });
 
 // 게시글 목록 로드
 async function loadPosts() {
@@ -80,11 +66,11 @@ async function loadPosts() {
     } catch (error) {
         console.error('게시글 목록 로드 실패:', error);
         
-        // 401 에러 시 로그아웃 처리
-        if (error.status === 401) {
+        // 401 에러 시 로그아웃 처리 (로그인한 사용자만)
+        if (error.status === 401 && userLoggedIn) {
             alert('로그인이 만료되었습니다. 다시 로그인해주세요.');
             clearLoginData();
-            window.location.replace('/index.html');
+            window.location.replace('/pages/login.html');
             return;
         }
         
@@ -152,6 +138,13 @@ function createPostCard(post) {
     
     // 게시글 클릭 이벤트
     li.addEventListener('click', () => {
+        // 비로그인 사용자는 로그인 유도 모달 표시
+        if (!userLoggedIn) {
+            showLoginPrompt('게시글을 보려면<br>로그인이 필요합니다.');
+            return;
+        }
+        
+        // 로그인 사용자는 상세 페이지로 이동
         window.location.href = `/pages/post-detail.html?id=${post.postId}`;
     });
     
@@ -160,6 +153,13 @@ function createPostCard(post) {
 
 // 게시글 작성 버튼
 writeButton.addEventListener('click', () => {
+    // 비로그인 사용자는 로그인 유도 모달 표시
+    if (!userLoggedIn) {
+        showLoginPrompt('게시글을 작성하려면<br>로그인이 필요합니다.');
+        return;
+    }
+    
+    // 로그인 사용자는 작성 페이지로 이동
     window.location.href = '/pages/post-write.html';
 });
 
@@ -175,6 +175,7 @@ window.addEventListener('scroll', () => {
     }
 });
 
+// 초기 로드
 loadPosts();
 
-console.log('게시글 목록 페이지 로드 완료');
+console.log('게시글 목록 페이지 로드 완료', userLoggedIn ? '(로그인)' : '(비로그인)');

@@ -1,117 +1,91 @@
+<!-- /public/pages/posts.html -->
 <!DOCTYPE html>
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>커뮤니티 - 로그인/회원가입</title>
+    <title>커뮤니티 - 게시글 목록</title>
 
-    <!-- Boxicons -->
-    <link href='https://unpkg.com/boxicons@2.0.7/css/boxicons.min.css' rel='stylesheet'>
+    <!-- 공통 CSS 로드 -->
+    <link rel="stylesheet" href="../css/reset.css">
+    <link rel="stylesheet" href="../css/common.css">
 
-    <!-- 통합 인증 페이지 전용 CSS -->
-    <link rel="stylesheet" href="./css/pages/auth.css">
+    <!-- 필요한 컴포넌트 CSS 로드 -->
+    <link rel="stylesheet" href="../css/components/header.css">
+    <link rel="stylesheet" href="../css/components/dropdown.css">
+    <link rel="stylesheet" href="../css/components/login-prompt-modal.css">
+
+    <!-- 페이지 전용 CSS 로드 -->
+    <link rel="stylesheet" href="../css/pages/posts.css">
 </head>
 <body>
-    <!-- 메인 컨테이너 -->
-    <main class="login">
-        <div class="login__content">
-            <!-- 헤더: 브랜드 + 이미지 -->
-            <header class="login__img">
-                <h1 class="login__brand">KTB 커뮤니티</h1>
-                <img src="https://image.freepik.com/free-vector/code-typing-concept-illustration_114360-3581.jpg" alt="user login">
+    <!-- 전체 배경 -->
+    <div class="app-background">
+
+        <!-- 중앙 컨텐츠 컨테이너 -->
+        <div class="mobile-container">
+
+            <!-- Header: "커뮤니티" + 프로필 메뉴 -->
+            <header class="page-header">
+                <h1 class="header-title">커뮤니티</h1>
+                
+                <!-- 프로필 메뉴 -->
+                <div class="profile-menu">
+                    <button class="profile-button" id="profileButton">
+                        <img src="../assets/images/default-profile.png" 
+                             alt="프로필" 
+                             class="profile-image"
+                             id="profileImage">
+                    </button>
+                    
+                    <!-- 드롭다운 메뉴 (JS로 토글) -->
+                    <div class="dropdown-menu hidden" id="dropdownMenu">
+                        <a href="/pages/edit-profile.html" class="dropdown-item">회원정보수정</a>
+                        <a href="/pages/change-password.html" class="dropdown-item">비밀번호수정</a>
+                        <button class="dropdown-item" id="logoutButton">로그아웃</button>
+                    </div>
+                </div>
             </header>
+            
+            <!-- 메인 콘텐츠 영역 -->
+            <main class="main-content">
 
-            <!-- 폼 섹션 -->
-            <section class="login__forms">
-                <!-- 로그인 폼 -->
-                <form class="login__register" id="loginForm">
-                    <h2 class="login__title">Sign In</h2>
+                <!-- 환영 메시지 영역 -->
+                <section class="welcome-section">
+                    <p class="welcome-text">안녕하세요,</p>
+                    <p class="welcome-text">커뮤니티 게시판 입니다.</p>
+                </section>
 
-                    <!-- 이메일 입력 -->
-                    <div class="login__box">
-                        <i class='bx bx-user login__icon'></i>
-                        <input type="email" id="email" name="email" placeholder="이메일" 
-                                class="login__input" maxlength="200" required>
+                <!-- 게시글 작성 버튼 -->
+                <section class="write-section">
+                    <button class="btn-write" id="writeButton">게시글 작성</button>
+                </section>
+
+                <!-- 게시글 목록 -->
+                <section class="posts-section">
+                    <!-- 게시글 리스트 (JS로 동적 생성) -->
+                    <div class="posts-list" id="postsList">
+                        <!-- 게시글 카드가 여기에 동적으로 추가 -->
                     </div>
-                    <span class="error-message" id="emailError"></span>
 
-                    <!-- 비밀번호 입력 -->
-                    <div class="login__box">
-                        <i class='bx bx-lock login__icon'></i>
-                        <input type="password" id="password" name="password" placeholder="비밀번호" 
-                                class="login__input" maxlength="20" required>
+                    <!-- 로딩 인디케이터 (인피니티 스크롤용) -->
+                    <div class="loading-indicator hidden" id="loadingIndicator">
+                        <p>게시글을 불러오는 중...</p>
                     </div>
-                    <span class="error-message" id="passwordError"></span>
 
-                    <!-- 로그인 버튼 -->
-                    <button type="submit" class="login__button" id="loginButton">Sign In</button>
-
-                    <div>
-                        <span class="login__account login__account--account">계정이 없으신가요?</span>
-                        <span class="login__signin login__signin--signup" id="sign-up">회원가입</span>
+                    <!-- 더 이상 게시글 없음 -->
+                    <div class="no-more-posts hidden" id="noMorePosts">
+                        <p>마지막 게시글입니다</p>
                     </div>
-                </form>
+                </section>
 
-                <!-- 회원가입 폼 -->
-                <form class="login__create none" id="signupForm">
-                    <h2 class="login__title">Create Account</h2>
-
-                    <!-- 이메일 입력 -->
-                    <div class="login__box">
-                        <i class='bx bx-user login__icon'></i>
-                        <input type="email" id="signupEmail" name="email" placeholder="이메일" 
-                                class="login__input" maxlength="200" required>
-                    </div>
-                    <span class="error-message" id="signupEmailError"></span>
-
-                    <!-- 비밀번호 입력 -->
-                    <div class="login__box">
-                        <i class='bx bx-lock login__icon'></i>
-                        <input type="password" id="signupPassword" name="password" placeholder="비밀번호" 
-                                class="login__input" maxlength="20" required>
-                    </div>
-                    <span class="error-message" id="signupPasswordError"></span>
-
-                    <!-- 비밀번호 확인 -->
-                    <div class="login__box">
-                        <i class='bx bx-lock-alt login__icon'></i>
-                        <input type="password" id="passwordConfirm" name="passwordConfirm" placeholder="비밀번호 확인" 
-                                class="login__input" maxlength="20" required>
-                    </div>
-                    <span class="error-message" id="passwordConfirmError"></span>
-
-                    <!-- 닉네임 입력 -->
-                    <div class="login__box">
-                        <i class='bx bx-user-circle login__icon'></i>
-                        <input type="text" id="nickname" name="nickname" placeholder="닉네임 (1~10자)" 
-                                class="login__input" maxlength="10" required>
-                    </div>
-                    <span class="error-message" id="nicknameError"></span>
-
-                    <!-- 프로필 이미지 업로드 -->
-                    <div class="login__box login__box--file">
-                        <i class='bx bx-image login__icon'></i>
-                        <input type="file" id="profileImage" class="hidden-file-input" accept="image/*">
-                        <button type="button" class="btn-file-select" id="fileSelectButton">
-                            파일 선택
-                        </button>
-                        <span class="file-name" id="fileName">선택된 파일 없음</span>
-                    </div>
-                    <span class="error-message" id="imageError"></span>
-
-                    <!-- 회원가입 버튼 -->
-                    <button type="submit" class="login__button" id="signupButton" disabled>회원가입</button>
-
-                    <div>
-                        <span class="login__account login__account--account">이미 계정이 있으신가요?</span>
-                        <span class="login__signup login__signup--signup" id="sign-in">로그인</span>
-                    </div>
-                </form>
-            </section>
+            </main>
         </div>
-    </main>
+    </div>
 
-    <!-- 통합 인증 JS 로드 -->
-    <script type="module" src="./js/pages/auth.js"></script>
+    <!-- 로그인 유도 모달은 JS로 동적 생성 -->
+
+    <!-- JS 로드 -->
+    <script type="module" src="./js/pages/posts.js"></script>
 </body>
 </html>

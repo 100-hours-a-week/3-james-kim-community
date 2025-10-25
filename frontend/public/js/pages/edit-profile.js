@@ -36,12 +36,12 @@ let isNicknameChecked = true;
 // 로그인 체크
 if (!isLoggedIn()) {
     alert('로그인이 필요합니다.');
-    window.location.replace('/index.html');
+    window.location.replace('/pages/login.html');
     throw new Error('Unauthorized access');
 }
 
 // 헤더 컴포넌트 초기화
-initBackButton('/pages/posts.html');
+initBackButton('/index.html');
 
 // 프로필 드롭다운 초기화
 initProfileDropdown({
@@ -81,7 +81,7 @@ async function loadUserInfo() {
         
         if (error.status === 401) {
             clearLoginData();
-            window.location.href = '/index.html';
+            window.location.href = '/pages/login.html';
         }
     }
 }
@@ -160,7 +160,7 @@ imageInput.addEventListener('change', async (event) => {
         if (error.status === 401) {
             alert('로그인이 만료되었습니다. 다시 로그인해주세요.');
             clearLoginData();
-            window.location.replace('/index.html');
+            window.location.replace('/pages/login.html');
             return;
         }
         
@@ -339,7 +339,7 @@ editProfileForm.addEventListener('submit', async (event) => {
         
         if (error.status === 401) {
             clearLoginData();
-            window.location.href = '/index.html';
+            window.location.href = '/pages/login.html';
         }
         
         btnSubmit.disabled = false;
@@ -382,7 +382,7 @@ btnConfirmWithdrawal.addEventListener('click', async () => {
         
         alert('회원 탈퇴가 완료되었습니다.');
         
-        window.location.href = '/index.html';
+        window.location.href = '/pages/login.html';
         
     } catch (error) {
         console.error('회원 탈퇴 실패:', error);
@@ -390,7 +390,7 @@ btnConfirmWithdrawal.addEventListener('click', async () => {
         
         if (error.status === 401) {
             clearLoginData();
-            window.location.href = '/index.html';
+            window.location.href = '/pages/login.html';
         }
     }
 });

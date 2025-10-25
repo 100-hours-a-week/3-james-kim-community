@@ -5,6 +5,7 @@ import { getPostDetail, updatePost } from '../services/postService.js';
 import { uploadImage } from '../services/imageService.js';
 import { isLoggedIn, clearLoginData } from '../utils/storage.js';
 import { initProfileDropdown } from '../components/profileDropdown.js';
+import { initBackButton } from '../components/header.js';
 
 // DOM 요소 가져오기
 // 폼 요소
@@ -38,7 +39,7 @@ let imageChanged = false;
 // 로그인 체크
 if (!isLoggedIn()) {
     alert('로그인이 필요합니다.');
-    window.location.replace('/index.html');
+    window.location.replace('/pages/login.html');
     throw new Error('Unauthorized access');
 }
 
@@ -48,7 +49,7 @@ currentPostId = urlParams.get('postId');
 
 if (!currentPostId) {
     alert('잘못된 접근입니다.');
-    window.location.replace('/pages/posts.html');
+    window.location.replace('/index.html');
     throw new Error('Invalid post ID');
 }
 
@@ -63,6 +64,9 @@ btnBack.addEventListener('click', () => {
         window.location.href = `/pages/post-detail.html?id=${currentPostId}`;
     }
 });
+
+// 헤더 컴포넌트 초기화
+initBackButton(`/pages/post-detail.html?id=${currentPostId}`);
 
 // 프로필 드롭다운 초기화
 initProfileDropdown();
@@ -111,12 +115,12 @@ async function loadPostData() {
         if (error.status === 401) {
             alert('로그인이 만료되었습니다. 다시 로그인해주세요.');
             clearLoginData();
-            window.location.replace('/index.html');
+            window.location.replace('/pages/login.html');
             return;
         }
         
         alert(error.message || '게시글을 불러올 수 없습니다.');
-        window.location.replace('/pages/posts.html');
+        window.location.replace('/index.html');
     }
 }
 
@@ -231,7 +235,7 @@ imageInput.addEventListener('change', async (e) => {
         if (error.status === 401) {
             alert('로그인이 만료되었습니다. 다시 로그인해주세요.');
             clearLoginData();
-            window.location.replace('/index.html');
+            window.location.replace('/pages/login.html');
             return;
         }
         
@@ -345,7 +349,7 @@ postEditForm.addEventListener('submit', async (e) => {
         if (error.status === 401) {
             alert('로그인이 만료되었습니다. 다시 로그인해주세요.');
             clearLoginData();
-            window.location.replace('/index.html');
+            window.location.replace('/pages/login.html');
             return;
         }
         

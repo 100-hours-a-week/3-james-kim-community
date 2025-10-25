@@ -1,7 +1,7 @@
 // public/js/services/postService.js
 // 게시글 API 서비스
 
-import { getWithAuth, postWithAuth, patchWithAuth, deleteWithAuth } from "../utils/http.js";
+import { get, getWithAuth, postWithAuth, patchWithAuth, deleteWithAuth } from "../utils/http.js";
 import { API_ENDPOINTS } from "../config/api.js";
 import { handleServiceError } from "../utils/errorHandler.js";
 
@@ -21,7 +21,7 @@ async function getPosts(lastSeenId = null, limit = 10) {
 
         console.log('게시글 목록 조회:', url);
         
-        const result = await getWithAuth(url);
+        const result = await get(url);
         
         console.log('게시글 목록 조회 성공:', result);
         

@@ -56,7 +56,7 @@ let selectedCommentId = null;
 // 로그인 체크
 if (!isLoggedIn()) {
     alert('로그인이 필요합니다.');
-    window.location.replace('/index.html');
+    window.location.replace('/pages/login.html');
     throw new Error('Unauthorized access');
 }
 
@@ -66,12 +66,12 @@ currentPostId = urlParams.get('id');
 
 if (!currentPostId) {
     alert('잘못된 접근입니다.');
-    window.location.replace('/pages/posts.html');
+    window.location.replace('/index.html');
     throw new Error('Invalid post ID');
 }
 
 // 헤더 컴포넌트 초기화
-initBackButton('/pages/posts.html');
+initBackButton('/index.html');
 
 // 프로필 드롭다운 초기화
 initProfileDropdown({
@@ -91,12 +91,12 @@ async function loadPostDetail() {
         if (error.status === 401) {
             alert('로그인이 만료되었습니다. 다시 로그인해주세요.');
             clearLoginData();
-            window.location.replace('/index.html');
+            window.location.replace('/pages/login.html');
             return;
         }
         
         alert(error.message || '게시글을 불러올 수 없습니다.');
-        window.location.replace('/pages/posts.html');
+        window.location.replace('/index.html');
     }
 }
 
@@ -184,7 +184,7 @@ likeButton.addEventListener('click', async (e) => {
         if (error.status === 401) {
             alert(error.message || '로그인이 필요합니다.');
             clearLoginData();
-            window.location.replace('/index.html');
+            window.location.replace('/pages/login.html');
             return;
         }
         
@@ -210,7 +210,7 @@ btnCancelDeletePost.addEventListener('click', () => {
 btnConfirmDeletePost.addEventListener('click', async () => {
     try {
         await deletePost(currentPostId);
-        window.location.href = '/pages/posts.html';
+        window.location.href = '/index.html';
     } catch (error) {
         console.error('게시글 삭제 실패:', error);
         
@@ -218,7 +218,7 @@ btnConfirmDeletePost.addEventListener('click', async () => {
         if (error.status === 401) {
             alert('로그인이 만료되었습니다. 다시 로그인해주세요.');
             clearLoginData();
-            window.location.replace('/index.html');
+            window.location.replace('/pages/login.html');
             return;
         }
         
@@ -267,7 +267,7 @@ btnCommentSubmit.addEventListener('click', async () => {
         if (error.status === 401) {
             alert('로그인이 만료되었습니다. 다시 로그인해주세요.');
             clearLoginData();
-            window.location.replace('/index.html');
+            window.location.replace('/pages/login.html');
             return;
         }
         
@@ -316,7 +316,7 @@ async function loadComments() {
         if (error.status === 401) {
             alert('로그인이 만료되었습니다. 다시 로그인해주세요.');
             clearLoginData();
-            window.location.replace('/index.html');
+            window.location.replace('/pages/login.html');
             return;
         }
         
@@ -446,7 +446,7 @@ function handleCommentEdit(comment) {
             if (error.status === 401) {
                 alert('로그인이 만료되었습니다. 다시 로그인해주세요.');
                 clearLoginData();
-                window.location.replace('/index.html');
+                window.location.replace('/pages/login.html');
                 return;
             }
             
@@ -490,7 +490,7 @@ btnConfirmDeleteComment.addEventListener('click', async () => {
         if (error.status === 401) {
             alert('로그인이 만료되었습니다. 다시 로그인해주세요.');
             clearLoginData();
-            window.location.replace('/index.html');
+            window.location.replace('/pages/login.html');
             return;
         }
         

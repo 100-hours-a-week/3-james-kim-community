@@ -2,16 +2,22 @@
 // 프로필 드롭다운 메뉴 컴포넌트
 
 import { logout } from '../services/authService.js';
-import { clearLoginData } from '../utils/storage.js';
+import { clearLoginData, isLoggedIn } from '../utils/storage.js';
 import { getUserInfo } from '../services/userService.js';
 import { getImageUrl, handleImageError } from '../utils/imageHelper.js';
+import { showLoginPrompt } from './loginPromptModal.js';
 
-// 프로필 드롭다운 메뉴 초기화
+/**
+ * 프로필 드롭다운 메뉴 초기화
+ * @param {object} options - 옵션
+ * @param {boolean} options.isGuest - 비로그인 사용자 여부
+ */
 export async function initProfileDropdown(options = {}) {
     const {
         profileButtonId = 'profileButton',
         dropdownMenuId = 'dropdownMenu',
-        logoutButtonId = 'logoutButton'
+        logoutButtonId = 'logoutButton',
+        isGuest = false
     } = options;
     
     const profileButton = document.getElementById(profileButtonId);
@@ -22,6 +28,49 @@ export async function initProfileDropdown(options = {}) {
         return;
     }
 
+    // 비로그인 사용자일 경우
+    if (isGuest) {
+        setupGuestDropdown(profileButton, dropdownMenu);
+        return;
+    }
+
+    // 로그인 사용자일 경우
+    await setupLoggedInDropdown(profileButton, dropdownMenu, logoutButton);
+}
+
+/**
+ * 비로그인 사용자용 드롭다운 설정
+ */
+function setupGuestDropdown(profileButton, dropdownMenu) {
+    // 드롭다운 메뉴를 로그인 버튼만 표시하도록 수정
+    dropdownMenu.innerHTML = `
+        <button class="dropdown-item" id="guestLoginButton">로그인</button>
+    `;
+    
+    // 프로필 버튼 클릭 시 드롭다운 토글
+    profileButton.addEventListener('click', (e) => {
+        e.stopPropagation();
+        dropdownMenu.classList.toggle('hidden');
+    });
+    
+    // 외부 클릭 시 드롭다운 닫기
+    document.addEventListener('click', () => {
+        dropdownMenu.classList.add('hidden');
+    });
+    
+    // 로그인 버튼 클릭
+    const guestLoginButton = document.getElementById('guestLoginButton');
+    if (guestLoginButton) {
+        guestLoginButton.addEventListener('click', () => {
+            window.location.href = '/pages/login.html';
+        });
+    }
+}
+
+/**
+ * 로그인 사용자용 드롭다운 설정
+ */
+async function setupLoggedInDropdown(profileButton, dropdownMenu, logoutButton) {
     // 프로필 이미지 로드
     await loadProfileImage(profileButton);
     
@@ -101,7 +150,7 @@ async function loadProfileImage(profileButton) {
         if (error.status === 401) {
             clearLoginData();
             alert('로그인이 만료되었습니다.');
-            window.location.href = '/index.html';
+            window.location.href = '/pages/login.html';
         }
     }
 }

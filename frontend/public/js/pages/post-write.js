@@ -26,12 +26,12 @@ let uploadedImageUrl = null;
 // 로그인 체크
 if (!isLoggedIn()) {
     alert('로그인이 필요합니다.');
-    window.location.replace('/index.html');
+    window.location.replace('/pages/login.html');
     throw new Error('Unauthorized access');
 }
 
 // 헤더 컴포넌트 초기화
-initBackButton('/pages/posts.html');
+initBackButton('/index.html');
 
 // 프로필 드롭다운 초기화
 initProfileDropdown();
@@ -122,7 +122,7 @@ imageInput.addEventListener('change', async (e) => {
         if (error.status === 401) {
             alert('로그인이 만료되었습니다. 다시 로그인해주세요.');
             clearLoginData();
-            window.location.replace('/index.html');
+            window.location.replace('/pages/login.html');
             return;
         }
         
@@ -179,7 +179,7 @@ postWriteForm.addEventListener('submit', async (e) => {
         if (error.status === 401) {
             alert('로그인이 만료되었습니다. 다시 로그인해주세요.');
             clearLoginData();
-            window.location.replace('/index.html');
+            window.location.replace('/pages/login.html');
             return;
         }
         

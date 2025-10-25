@@ -1,7 +1,5 @@
 // public/js/pages/auth.js
-// 통합 인증 페이지 (로그인/회원가입)
-// 기존 login.js와 signup.js 로직을 통합 운영
-// 일단 기존 파일들은 이후를 대비해 그대로 남겨둔다. 삭제 X
+// 통합 인증 전환 제어 페이지 (로그인/회원가입)
 
 import { validateEmail, validatePassword, validatePasswordConfirm, validateNickname, validateImageFile } from "../utils/validation.js";
 import { login, checkEmailDuplicate, checkNicknameDuplicate } from "../services/authService.js";
