@@ -254,6 +254,32 @@ img {
   text-decoration: underline;
 }
 
+/* 정책 링크 스타일 */
+.policy-links {
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid #e0e0e0;
+  text-align: center;
+  font-size: var(--small-font-size);
+}
+
+.policy-link {
+  color: var(--color-light);
+  text-decoration: none;
+  transition: color 0.3s;
+  font-size: var(--small-font-size);
+}
+
+.policy-link:hover {
+  color: var(--color);
+  text-decoration: underline;
+}
+
+.policy-divider {
+  margin: 0 8px;
+  color: var(--color-light);
+}
+
 /* 표시/숨김 클래스 */
 .block {
   display: block;

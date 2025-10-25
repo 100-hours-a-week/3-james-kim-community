@@ -1,53 +1,35 @@
 // public/js/pages/signup.js
-// 회원가입 페이지 메인 로직
+// 회원가입 폼 로직 (원본 그대로)
 
-import {
-    validateEmail,
-    validatePassword,
-    validatePasswordConfirm,
-    validateNickname,
-    validateImageFile
-} from "../utils/validation.js";
+import { validateEmail, validatePassword, validatePasswordConfirm, validateNickname, validateImageFile } from "../utils/validation.js";
 import { checkEmailDuplicate, checkNicknameDuplicate } from "../services/authService.js";
 import { uploadImage } from "../services/imageService.js";
 import { signup } from "../services/userService.js";
-import { saveLoginData, isLoggedIn } from "../utils/storage.js";
-import { initBackButton } from "../components/header.js";  
+import { saveLoginData } from "../utils/storage.js";
 
-// DOM 요소 가져오기
-const signupForm = document.getElementById('signupForm');
-const signupButton = document.getElementById('signupButton');
-
-// 입력 필드
-const emailInput = document.getElementById('email');
-const passwordInput = document.getElementById('password');
+// ========================================
+// 회원가입 폼 로직 (기존 auth.js에서 그대로 복사)
+// ========================================
+const signupEmailInput = document.getElementById('signupEmail');
+const signupPasswordInput = document.getElementById('signupPassword');
 const passwordConfirmInput = document.getElementById('passwordConfirm');
 const nicknameInput = document.getElementById('nickname');
 const profileImageInput = document.getElementById('profileImage');
 
-// 에러 메시지
-const emailError = document.getElementById('emailError');
-const passwordError = document.getElementById('passwordError');
+const signupEmailError = document.getElementById('signupEmailError');
+const signupPasswordError = document.getElementById('signupPasswordError');
 const passwordConfirmError = document.getElementById('passwordConfirmError');
 const nicknameError = document.getElementById('nicknameError');
 const imageError = document.getElementById('imageError');
 
-// 파일 선택 관련
 const fileSelectButton = document.getElementById('fileSelectButton');
 const fileName = document.getElementById('fileName');
+const signupButton = document.getElementById('signupButton');
+const signupForm = document.getElementById('signupForm');
 
 let uploadedImageUrl = null;
 let isEmailChecked = false;
 let isNicknameChecked = false;
-
-// 헤더 컴포넌트 초기화
-initBackButton('/index.html');
-
-// 이미 로그인되어 있으면 리다이렉트
-if (isLoggedIn()) {
-    console.log('이미 로그인되어 있습니다.');
-    window.location.href = '/pages/posts.html';
-}
 
 // 유효성 검사 및 에러 표시
 function showError(input, errorElement, message) {
@@ -72,30 +54,32 @@ function validateField(input, errorElement, validateFn, ...args) {
     return true;
 }
 
+// 이메일 중복 체크
 async function checkEmailDuplication() {
-    const email = emailInput.value.trim();
+    const email = signupEmailInput.value.trim();
     if (!email) return;
     
-    if (!validateField(emailInput, emailError, validateEmail, email)) return;
+    if (!validateField(signupEmailInput, signupEmailError, validateEmail, email)) return;
     
     try {
         const isAvailable = await checkEmailDuplicate(email);
         
         if (isAvailable) {
-            clearError(emailInput, emailError);
+            clearError(signupEmailInput, signupEmailError);
             isEmailChecked = true;
         } else {
-            showError(emailInput, emailError, '이미 사용 중인 이메일입니다.');
+            showError(signupEmailInput, signupEmailError, '이미 사용 중인 이메일입니다.');
             isEmailChecked = false;
         }
         
         updateSignupButtonState();
     } catch (error) {
-        showError(emailInput, emailError, error.message);
+        showError(signupEmailInput, signupEmailError, error.message);
         isEmailChecked = false;
     }
 }
 
+// 닉네임 중복 체크
 async function checkNicknameDuplication() {
     const nickname = nicknameInput.value.trim();
     if (!nickname) return;
@@ -122,12 +106,11 @@ async function checkNicknameDuplication() {
 
 // 회원가입 버튼 활성화/비활성화
 function updateSignupButtonState() {
-    const email = emailInput.value.trim();
-    const password = passwordInput.value.trim();
+    const email = signupEmailInput.value.trim();
+    const password = signupPasswordInput.value.trim();
     const passwordConfirm = passwordConfirmInput.value.trim();
     const nickname = nicknameInput.value.trim();
     
-    // 모든 필수 필드 입력 + 유효성 검사 + 중복 체크 완료
     const allValid = email && password && passwordConfirm && nickname &&
                      validateEmail(email).isValid && isEmailChecked &&
                      validatePassword(password).isValid &&
@@ -135,10 +118,8 @@ function updateSignupButtonState() {
                      validateNickname(nickname).isValid && isNicknameChecked;
     
     signupButton.disabled = !allValid;
-    signupButton.classList.toggle('active', allValid);
 }
 
-// 이벤트 리스너 등록
 // 이미지 파일 선택
 fileSelectButton.addEventListener('click', () => {
     profileImageInput.click();
@@ -154,7 +135,6 @@ profileImageInput.addEventListener('change', async (event) => {
         return;
     }
     
-    // 파일 유효성 검사
     const result = validateImageFile(file);
     if (!result.isValid) {
         imageError.textContent = result.message;
@@ -165,7 +145,6 @@ profileImageInput.addEventListener('change', async (event) => {
     fileName.textContent = file.name;
     
     try {
-        // 서버에 임시 업로드
         uploadedImageUrl = await uploadImage(file);
         console.log('이미지 업로드 완료:', uploadedImageUrl);
     } catch (error) {
@@ -178,25 +157,25 @@ profileImageInput.addEventListener('change', async (event) => {
 });
 
 // 이메일 입력
-emailInput.addEventListener('input', () => {
+signupEmailInput.addEventListener('input', () => {
     isEmailChecked = false;
     updateSignupButtonState();
 });
 
-emailInput.addEventListener('blur', checkEmailDuplication);
+signupEmailInput.addEventListener('blur', checkEmailDuplication);
 
 // 비밀번호 입력
-passwordInput.addEventListener('input', () => {
+signupPasswordInput.addEventListener('input', () => {
     updateSignupButtonState();
     if (passwordConfirmInput.value.trim()) {
         validateField(passwordConfirmInput, passwordConfirmError, 
-                     validatePasswordConfirm, passwordInput.value, passwordConfirmInput.value);
+                     validatePasswordConfirm, signupPasswordInput.value, passwordConfirmInput.value);
     }
 });
 
-passwordInput.addEventListener('blur', () => {
-    if (passwordInput.value.trim()) {
-        validateField(passwordInput, passwordError, validatePassword, passwordInput.value);
+signupPasswordInput.addEventListener('blur', () => {
+    if (signupPasswordInput.value.trim()) {
+        validateField(signupPasswordInput, signupPasswordError, validatePassword, signupPasswordInput.value);
     }
 });
 
@@ -205,7 +184,7 @@ passwordConfirmInput.addEventListener('input', updateSignupButtonState);
 passwordConfirmInput.addEventListener('blur', () => {
     if (passwordConfirmInput.value.trim()) {
         validateField(passwordConfirmInput, passwordConfirmError, 
-                     validatePasswordConfirm, passwordInput.value, passwordConfirmInput.value);
+                     validatePasswordConfirm, signupPasswordInput.value, passwordConfirmInput.value);
     }
 });
 
@@ -221,12 +200,11 @@ nicknameInput.addEventListener('blur', checkNicknameDuplication);
 signupForm.addEventListener('submit', async (event) => {
     event.preventDefault();
     
-    // 최종 검증
     const isValid = 
-        validateField(emailInput, emailError, validateEmail, emailInput.value) && isEmailChecked &&
-        validateField(passwordInput, passwordError, validatePassword, passwordInput.value) &&
+        validateField(signupEmailInput, signupEmailError, validateEmail, signupEmailInput.value) && isEmailChecked &&
+        validateField(signupPasswordInput, signupPasswordError, validatePassword, signupPasswordInput.value) &&
         validateField(passwordConfirmInput, passwordConfirmError, 
-                     validatePasswordConfirm, passwordInput.value, passwordConfirmInput.value) &&
+                     validatePasswordConfirm, signupPasswordInput.value, passwordConfirmInput.value) &&
         validateField(nicknameInput, nicknameError, validateNickname, nicknameInput.value) && isNicknameChecked;
     
     if (!isValid) {
@@ -239,8 +217,8 @@ signupForm.addEventListener('submit', async (event) => {
     
     try {
         const result = await signup(
-            emailInput.value.trim(),
-            passwordInput.value.trim(),
+            signupEmailInput.value.trim(),
+            signupPasswordInput.value.trim(),
             passwordConfirmInput.value.trim(),
             nicknameInput.value.trim(),
             uploadedImageUrl
@@ -251,17 +229,15 @@ signupForm.addEventListener('submit', async (event) => {
         const { accessToken, refreshToken, userId } = result.data;
         saveLoginData(accessToken, refreshToken, userId);
         
-        window.location.href = '/pages/posts.html';
+        window.location.href = '/index.html';
         
     } catch (error) {
         console.error('회원가입 실패:', error);
         nicknameError.textContent = error.message;
         signupButton.disabled = false;
-        signupButton.textContent = '회원 가입';
+        signupButton.textContent = '회원가입';
     }
 });
 
 // 초기 상태
 signupButton.disabled = true;
-
-console.log('회원가입 페이지 로드 완료');
