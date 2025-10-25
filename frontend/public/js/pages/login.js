@@ -15,6 +15,14 @@ const passwordError = document.getElementById('passwordError');
 const loginButton = document.getElementById('loginButton');
 const loginForm = document.getElementById('loginForm');
 
+// 홈 버튼 클릭 이벤트
+const homeButton = document.getElementById('homeButton');
+if (homeButton) {
+    homeButton.addEventListener('click', () => {
+        window.location.href = '/index.html';
+    });
+}
+
 // 이메일 유효성 검사
 function checkEmailValidation() {
     const email = emailInput.value;

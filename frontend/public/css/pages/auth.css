@@ -90,6 +90,41 @@ img {
   -webkit-user-drag: none; /* Safari용 드래그 방지 */
 }
 
+/* 홈 버튼 스타일 */
+.home-button {
+    position: absolute;  /* fixed → absolute 변경 */
+    top: 20px;           /* 폼 내부 상단 기준 */
+    left: 20px;          /* 폼 내부 왼쪽 기준 */
+    width: 40px;         /* 조금 작게 */
+    height: 40px;
+    background: #fff;
+    border: 2px solid #fff;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    z-index: 10;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.home-button:hover {
+    background: var(--color-hover);
+    transform: scale(1.1);
+    box-shadow: 0 4px 12px rgba(74, 144, 226, 0.3);
+}
+
+.home-button i {
+    font-size: 20px;     /* 조금 작게 */
+    color: var(--color-hover);
+    transition: color 0.3s ease;
+}
+
+.home-button:hover i {
+    color: #fff;
+}
+
 /* 폼 영역 */
 .login__forms {
   position: relative;
