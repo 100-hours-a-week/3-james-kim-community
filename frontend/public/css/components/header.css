@@ -86,6 +86,9 @@
   object-fit: cover;
   border: 2px solid var(--gray-light);
   transition: border-color 0.3s;
+    pointer-events: none; /* 이미지 클릭 방지 */
+  user-select: none; /* 이미지 드래그 방지 */
+  -webkit-user-drag: none; /* Safari용 드래그 방지 */
 }
 
 .profile-button:hover .profile-image {

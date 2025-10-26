@@ -10,34 +10,19 @@ import { renderHeader } from '../components/headerTemplate.js';
 
 renderHeader('.mobile-container', { showBackButton: false });
 
-// DOM 요소 가져오기
-const postsList = document.getElementById('postsList');
-const loadingIndicator = document.getElementById('loadingIndicator');
-const noMorePosts = document.getElementById('noMorePosts');
-const writeButton = document.getElementById('writeButton');
-
 // 상태 관리
 let lastSeenId = null;
 let hasNext = true;
 let isLoading = false;
-const userLoggedIn = isLoggedIn(); // 로그인 여부 확인
+let userLoggedIn = isLoggedIn();
 
-// 프로필 드롭다운 초기화 (로그인 상태에 따라)
-initProfileDropdown({ isGuest: !userLoggedIn });
-
-setTimeout(() => {
-    const logoutBtn = document.getElementById('btnLogout');
-    console.log('로그아웃 버튼:', logoutBtn);
-    console.log('로그아웃 버튼 이벤트:', logoutBtn?._listeners);
-    
-    // 직접 클릭 이벤트 붙여보기
-    if (logoutBtn) {
-        logoutBtn.addEventListener('click', (e) => {
-            console.log('로그아웃 버튼 클릭됨!', e);
-            alert('로그아웃 버튼 클릭!');
-        });
-    }
-}, 1000);
+// DOM 요소
+let postsList;
+let loadingIndicator;
+let noMorePosts;
+let writeButton;
+let sentinel;
+let observer;
 
 // 게시글 목록 로드
 async function loadPosts() {
@@ -49,7 +34,6 @@ async function loadPosts() {
         isLoading = true;
         loadingIndicator.classList.remove('hidden');
         
-        // API 호출
         const data = await getPosts(lastSeenId, 10);
         
         // 안전성 체크
@@ -153,23 +137,26 @@ function createPostCard(post) {
         imgElement.addEventListener('error', () => handleImageError(imgElement));
     }
     
-    // 게시글 클릭 이벤트
     li.addEventListener('click', () => {
-        // 비로그인 사용자는 로그인 유도 모달 표시
-        if (!userLoggedIn) {
-            showLoginPrompt('게시글을 보려면<br>로그인이 필요합니다.');
-            return;
-        }
-        
-        // 로그인 사용자는 상세 페이지로 이동
-        window.location.href = `/pages/post-detail.html?id=${post.postId}`;
+        handlePostCardClick(post.postId);
     });
     
     return li;
 }
 
-// 게시글 작성 버튼
-writeButton.addEventListener('click', () => {
+// 이벤트 핸들러
+function handlePostCardClick(postId) {
+    // 비로그인 사용자는 로그인 유도 모달 표시
+    if (!userLoggedIn) {
+        showLoginPrompt('게시글을 보려면<br>로그인이 필요합니다.');
+        return;
+    }
+    
+    // 로그인 사용자는 상세 페이지로 이동
+    window.location.href = `/pages/post-detail.html?id=${postId}`;
+}
+
+function handleWriteButtonClick() {
     // 비로그인 사용자는 로그인 유도 모달 표시
     if (!userLoggedIn) {
         showLoginPrompt('게시글을 작성하려면<br>로그인이 필요합니다.');
@@ -178,20 +165,9 @@ writeButton.addEventListener('click', () => {
     
     // 로그인 사용자는 작성 페이지로 이동
     window.location.href = '/pages/post-write.html';
-});
+}
 
-// 인피니티 스크롤 (Intersection Observer 사용)
-// 스크롤 감시용 sentinel 요소 생성
-const sentinel = document.createElement('div');
-sentinel.id = 'scroll-sentinel';
-sentinel.style.height = '1px';
-sentinel.style.visibility = 'hidden';
-
-// sentinel을 loadingIndicator 바로 앞에 삽입
-loadingIndicator.parentNode.insertBefore(sentinel, loadingIndicator);
-
-// Intersection Observer 생성
-const observer = new IntersectionObserver((entries) => {
+function handleIntersection(entries) {
     entries.forEach(entry => {
         // sentinel이 화면에 보이고, 로딩 중이 아니고, 더 가져올 데이터가 있으면
         if (entry.isIntersecting && !isLoading && hasNext) {
@@ -199,16 +175,57 @@ const observer = new IntersectionObserver((entries) => {
             loadPosts();
         }
     });
-}, {
-    // 300px 전에 미리 로드 (더 빠른 반응)
-    rootMargin: '300px',
-    threshold: 0
-});
+}
 
-// sentinel 감시 시작
-observer.observe(sentinel);
+// 이벤트 리스너 설정
+function setupEventListeners() {
+    // 게시글 작성 버튼
+    writeButton.addEventListener('click', handleWriteButtonClick);
+    
+    // 무한 스크롤 설정
+    setupInfiniteScroll();
+}
 
-// 초기 로드
-loadPosts();
+// 무한 스크롤 설정
+function setupInfiniteScroll() {
+    // 스크롤 감시용 sentinel 요소 생성
+    sentinel = document.createElement('div');
+    sentinel.id = 'scroll-sentinel';
+    sentinel.style.height = '1px';
+    sentinel.style.visibility = 'hidden';
+    
+    loadingIndicator.parentNode.insertBefore(sentinel, loadingIndicator);
+    
+    // Intersection Observer 생성
+    observer = new IntersectionObserver(handleIntersection, {
+        // 300px 전에 미리 로드 (더 빠른 반응)
+        rootMargin: '300px',
+        threshold: 0
+    });
+    
+    // sentinel 감시 시작
+    observer.observe(sentinel);
+}
 
-console.log('게시글 목록 페이지 로드 완료', userLoggedIn ? '(로그인)' : '(비로그인)');
+// 초기화
+async function init() {    
+    // 1. DOM 요소 가져오기
+    postsList = document.getElementById('postsList');
+    loadingIndicator = document.getElementById('loadingIndicator');
+    noMorePosts = document.getElementById('noMorePosts');
+    writeButton = document.getElementById('writeButton');
+    
+    // 2. 프로필 드롭다운 초기화
+    initProfileDropdown({ isGuest: !userLoggedIn });
+    
+    // 3. 이벤트 리스너 설정
+    setupEventListeners();
+    
+    // 4. 초기 게시글 로드
+    await loadPosts();
+    
+    console.log('게시글 목록 페이지 로드 완료', userLoggedIn ? '(로그인)' : '(비로그인)');
+}
+
+// 페이지 로드 시 초기화
+document.addEventListener('DOMContentLoaded', init);

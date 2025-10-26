@@ -37,9 +37,7 @@ export async function initProfileDropdown(options = {}) {
     await setupLoggedInDropdown(profileButton, dropdownMenu, logoutButton);
 }
 
-/**
- * 비로그인 사용자용 드롭다운 설정
- */
+// 비로그인 사용자용 드롭다운 설정
 function setupGuestDropdown(profileButton, dropdownMenu) {
     // 드롭다운 메뉴를 로그인 버튼만 표시하도록 수정
     dropdownMenu.innerHTML = `
@@ -66,12 +64,8 @@ function setupGuestDropdown(profileButton, dropdownMenu) {
     }
 }
 
-/**
- * 로그인 사용자용 드롭다운 설정
- */
-// profileDropdown.js의 setupLoggedInDropdown 함수 수정
+// 로그인 사용자용 드롭다운 설정
 async function setupLoggedInDropdown(profileButton, dropdownMenu, logoutButton) {
-    // 프로필 이미지 로드
     await loadProfileImage(profileButton);
     
     // 프로필 버튼 클릭 시 드롭다운 토글
@@ -100,9 +94,7 @@ async function setupLoggedInDropdown(profileButton, dropdownMenu, logoutButton) 
     }
 }
 
-/**
- * 프로필 이미지 로드 및 설정
- */
+// 프로필 이미지 로드 및 설정
 async function loadProfileImage(profileButton) {
     try {
         const userInfo = await getUserInfo();

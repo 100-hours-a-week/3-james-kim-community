@@ -132,6 +132,8 @@
     border-radius: 50%;
     object-fit: cover;
     flex-shrink: 0;
+    user-select: none; /* 이미지 드래그 방지 */
+    -webkit-user-drag: none; /* Safari용 드래그 방지 */
 }
 
 /* placeholder가 있다면 제거하거나 숨김 처리 */

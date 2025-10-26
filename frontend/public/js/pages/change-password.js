@@ -8,65 +8,18 @@ import { validatePassword } from "../utils/validation.js";
 import { initProfileDropdown } from "../components/profileDropdown.js";
 import { renderHeader, initBackButton } from '../components/headerTemplate.js';
 
-renderHeader('.mobile-container');
-
-// DOM 요소 가져오기
-const passwordInput = document.getElementById('passwordInput');
-const passwordConfirmInput = document.getElementById('passwordConfirmInput');
-const passwordError = document.getElementById('passwordError');
-const passwordConfirmError = document.getElementById('passwordConfirmError');
-const btnSubmit = document.getElementById('btnSubmit');
-const changePasswordForm = document.getElementById('changePasswordForm');
-const toastMessage = document.getElementById('toastMessage');
-
-// 상태 관리 전역 변수
+// 상태 관리
 let isPasswordValid = false;
 let isPasswordConfirmValid = false;
 
-// 로그인 체크
-if (!isLoggedIn()) {
-    alert('로그인이 필요합니다.');
-    window.location.href = '/pages/login.html';
-}
-
-// 헤더 컴포넌트 초기화
-initBackButton('/index.html');
-
-// 프로필 드롭다운 초기화
-initProfileDropdown({
-    logoutButtonId: 'btnLogout'
-});
-
-// 비밀번호 입력 이벤트
-passwordInput.addEventListener('input', () => {
-    const password = passwordInput.value.trim();
-
-    // 비밀번호 검증
-    const passwordValidation = validatePassword(password);
-
-    if (!passwordValidation.isValid) {
-        passwordError.textContent = passwordValidation.message;
-        passwordError.classList.remove('hidden');
-        isPasswordValid = false;
-    } else {
-        passwordError.classList.add('hidden');
-        isPasswordValid = true;
-    }
-    
-    // 비밀번호 확인 필드가 이미 입력되어 있으면 재검증
-    if (passwordConfirmInput.value) {
-        checkPasswordMatch();
-    }
-
-    // 버튼 상태 업데이트
-    updateSubmitButtonState();
-});
-
-// 비밀번호 확인 입력 이벤트
-passwordConfirmInput.addEventListener('input', () => {
-    checkPasswordMatch();
-    updateSubmitButtonState();
-});
+// DOM 요소
+let passwordInput;
+let passwordConfirmInput;
+let passwordError;
+let passwordConfirmError;
+let btnSubmit;
+let changePasswordForm;
+let toastMessage;
 
 // 비밀번호 확인 검증 함수
 function checkPasswordMatch() {
@@ -94,8 +47,45 @@ function updateSubmitButtonState() {
     btnSubmit.disabled = !(isPasswordValid && isPasswordConfirmValid);
 }
 
-// 폼 제출 이벤트
-changePasswordForm.addEventListener('submit', async (event) => {
+// 토스트 메시지 표시
+function showToast() {
+    toastMessage.classList.remove('hidden');
+    
+    setTimeout(() => {
+        toastMessage.classList.add('hidden');
+    }, 2000);
+}
+
+// 이벤트 핸들러
+function handlePasswordInput() {
+    const password = passwordInput.value.trim();
+
+    // 비밀번호 검증
+    const passwordValidation = validatePassword(password);
+
+    if (!passwordValidation.isValid) {
+        passwordError.textContent = passwordValidation.message;
+        passwordError.classList.remove('hidden');
+        isPasswordValid = false;
+    } else {
+        passwordError.classList.add('hidden');
+        isPasswordValid = true;
+    }
+    
+    // 비밀번호 확인 필드가 이미 입력되어 있으면 재검증
+    if (passwordConfirmInput.value) {
+        checkPasswordMatch();
+    }
+
+    updateSubmitButtonState();
+}
+
+function handlePasswordConfirmInput() {
+    checkPasswordMatch();
+    updateSubmitButtonState();
+}
+
+async function handleFormSubmit(event) {
     event.preventDefault();
     
     const password = passwordInput.value.trim();
@@ -125,17 +115,15 @@ changePasswordForm.addEventListener('submit', async (event) => {
     try {
         console.log('비밀번호 수정 요청');
         
-        // userService의 updatePassword는 이미 두 파라미터를 받도록 구현되어 있음
         await updatePassword(password, passwordConfirm);
         
         console.log('비밀번호 수정 완료');
         
-        // 토스트 메시지 표시
         showToast();
         
         // 1초 후 로그아웃 처리 및 로그인 페이지로 이동
         setTimeout(async() => {
-            await logout();  
+            await logout();
             clearLoginData();
             window.location.href = '/pages/login.html';
         }, 1000);
@@ -152,15 +140,52 @@ changePasswordForm.addEventListener('submit', async (event) => {
         btnSubmit.disabled = false;
         btnSubmit.textContent = '수정하기';
     }
-});
-
-// 토스트 메시지 표시
-function showToast() {
-    toastMessage.classList.remove('hidden');
-    
-    setTimeout(() => {
-        toastMessage.classList.add('hidden');
-    }, 2000);
 }
 
-console.log('비밀번호 수정 페이지 로드 완료');
+// 이벤트 리스너 설정
+function setupEventListeners() {
+    passwordInput.addEventListener('input', handlePasswordInput);
+    
+    passwordConfirmInput.addEventListener('input', handlePasswordConfirmInput);
+    
+    // 폼 제출
+    changePasswordForm.addEventListener('submit', handleFormSubmit);
+}
+
+// 초기화
+function init() {
+    // 1. 로그인 체크
+    if (!isLoggedIn()) {
+        alert('로그인이 필요합니다.');
+        window.location.href = '/pages/login.html';
+        throw new Error('Unauthorized access');
+    }
+    
+    // 2. 헤더 생성
+    renderHeader('.mobile-container');
+    
+    // 3. DOM 요소 가져오기
+    passwordInput = document.getElementById('passwordInput');
+    passwordConfirmInput = document.getElementById('passwordConfirmInput');
+    passwordError = document.getElementById('passwordError');
+    passwordConfirmError = document.getElementById('passwordConfirmError');
+    btnSubmit = document.getElementById('btnSubmit');
+    changePasswordForm = document.getElementById('changePasswordForm');
+    toastMessage = document.getElementById('toastMessage');
+    
+    // 4. 헤더 컴포넌트 초기화
+    initBackButton('/index.html');
+    
+    // 5. 프로필 드롭다운 초기화
+    initProfileDropdown({
+        logoutButtonId: 'btnLogout'
+    });
+    
+    // 6. 이벤트 리스너 설정
+    setupEventListeners();
+    
+    console.log('비밀번호 수정 페이지 로드 완료');
+}
+
+// 페이지 로드 시 초기화
+document.addEventListener('DOMContentLoaded', init);

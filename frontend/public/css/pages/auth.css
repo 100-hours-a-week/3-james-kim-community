@@ -1,7 +1,6 @@
 /* ========================================
    통합 인증 페이지 전용 스타일 (public/css/pages/login.css)
    - 로그인/회원가입 통합
-   - 이후를 대비해 login.css, signup.css는 여전히 유지, 삭제X
    ======================================== */
 
 @import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap');
@@ -66,7 +65,7 @@ img {
   display: grid;
 }
 
-/* 이미지 영역 + KTB 커뮤니티 헤더 */
+/* 이미지 영역 + 커뮤니티 헤더 */
 .login__img {
   justify-self: center;
   text-align: center;
@@ -92,7 +91,7 @@ img {
 
 /* 홈 버튼 스타일 */
 .home-button {
-    position: absolute;  /* fixed → absolute 변경 */
+    position: absolute;  
     top: 20px;           /* 폼 내부 상단 기준 */
     left: 20px;          /* 폼 내부 왼쪽 기준 */
     width: 40px;         /* 조금 작게 */
@@ -157,7 +156,7 @@ img {
   column-gap: .5rem;
   padding: 1.125rem 1rem;
   background-color: #fff;
-  margin-top: 1.5rem; /* 1rem -> 1.5rem (간격 확대) */
+  margin-top: 1.5rem; 
   border-radius: .5rem;
   align-items: center;
 }

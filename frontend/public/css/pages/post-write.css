@@ -2,10 +2,6 @@
    게시글 작성 페이지 전용 스타일 (public/css/pages/post-write.css)
    ======================================== */
 
-/* (리팩토링) 삭제: .page-header, .btn-back, .icon-back, .profile-menu, .profile-button, 
-           .profile-placeholder, .profile-image (header.css로 이동) */
-/* (리팩토링) 삭제: .dropdown-menu, .dropdown-item (dropdown.css로 이동) */
-
 .main-content {
   padding: 0;
   background-color: #F5F5F5;

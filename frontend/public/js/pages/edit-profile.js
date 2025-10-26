@@ -9,46 +9,28 @@ import { initProfileDropdown } from "../components/profileDropdown.js";
 import { getImageUrl, handleImageError } from '../utils/imageHelper.js';
 import { renderHeader, initBackButton } from '../components/headerTemplate.js';
 
-renderHeader('.mobile-container');
-
-// DOM 요소 가져오기
-const profileImagePlaceholder = document.getElementById('profileImagePlaceholder');
-const profileImageContainer = document.getElementById('profileImageContainer');
-const btnChangeImage = document.getElementById('btnChangeImage');
-const imageInput = document.getElementById('imageInput');
-
-const emailDisplay = document.getElementById('emailDisplay');
-const nicknameInput = document.getElementById('nicknameInput');
-const nicknameError = document.getElementById('nicknameError');
-const btnSubmit = document.getElementById('btnSubmit');
-const editProfileForm = document.getElementById('editProfileForm');
-const btnWithdrawal = document.getElementById('btnWithdrawal');
-const withdrawalModal = document.getElementById('withdrawalModal');
-const btnCancelWithdrawal = document.getElementById('btnCancelWithdrawal');
-const btnConfirmWithdrawal = document.getElementById('btnConfirmWithdrawal');
-const toastMessage = document.getElementById('toastMessage');
-
-// 상태 관리 전역 변수
-let originalUserData = null;      
+// 상태 관리
+let originalUserData = null;
 let originalImageUrl = null;       // 원본 이미지 URL (백엔드 상대 경로)
 let uploadedImageUrl = null;       // 새로 업로드한 이미지 URL (백엔드 상대 경로)
-let isNicknameValid = true;  
+let isNicknameValid = true;
 let isNicknameChecked = true;
 
-// 로그인 체크
-if (!isLoggedIn()) {
-    alert('로그인이 필요합니다.');
-    window.location.replace('/pages/login.html');
-    throw new Error('Unauthorized access');
-}
-
-// 헤더 컴포넌트 초기화
-initBackButton('/index.html');
-
-// 프로필 드롭다운 초기화
-initProfileDropdown({
-    logoutButtonId: 'btnLogout'
-});
+// DOM 요소
+let profileImagePlaceholder;
+let profileImageContainer;
+let btnChangeImage;
+let imageInput;
+let emailDisplay;
+let nicknameInput;
+let nicknameError;
+let btnSubmit;
+let editProfileForm;
+let btnWithdrawal;
+let withdrawalModal;
+let btnCancelWithdrawal;
+let btnConfirmWithdrawal;
+let toastMessage;
 
 // 사용자 정보 로드 및 화면 초기화
 async function loadUserInfo() {
@@ -63,7 +45,7 @@ async function loadUserInfo() {
         originalUserData = {
             email: userInfo.email,
             nickname: userInfo.nickname,
-            imageUrl: userInfo.imageUrl  
+            imageUrl: userInfo.imageUrl
         };
         
         originalImageUrl = userInfo.imageUrl;
@@ -114,13 +96,48 @@ function displayProfileImage(imageUrl) {
     console.log('프로필 이미지 표시:', fullImageUrl);
 }
 
-// 프로필 이미지 변경 버튼 클릭
-btnChangeImage.addEventListener('click', () => {
-    imageInput.click();
-});
+// 수정 버튼 활성화 상태 업데이트
+function updateSubmitButtonState() {
+    const nickname = nicknameInput.value.trim();
+    
+    // 변경 사항 확인
+    const isNicknameChanged = nickname !== originalUserData.nickname;
+    const isImageChanged = uploadedImageUrl !== null;
+    
+    console.log('변경 사항:', { isNicknameChanged, isImageChanged, isNicknameValid, isNicknameChecked });
+    
+    // 닉네임이 변경되었는데 유효하지 않거나 중복 체크를 안 했으면 비활성화
+    if (isNicknameChanged && (!isNicknameValid || !isNicknameChecked)) {
+        btnSubmit.disabled = true;
+        btnSubmit.classList.remove('active');
+        return;
+    }
+    
+    // 닉네임 또는 이미지 중 하나라도 변경되면 활성화
+    if (isNicknameChanged || isImageChanged) {
+        btnSubmit.disabled = false;
+        btnSubmit.classList.add('active');
+    } else {
+        btnSubmit.disabled = true;
+        btnSubmit.classList.remove('active');
+    }
+}
 
-// 프로필 이미지 파일 선택
-imageInput.addEventListener('change', async (event) => {
+// 토스트 메시지 표시
+function showToast() {
+    toastMessage.classList.remove('hidden');
+    
+    setTimeout(() => {
+        toastMessage.classList.add('hidden');
+    }, 2000);
+}
+
+// 이벤트 핸들러
+function handleChangeImageClick() {
+    imageInput.click();
+}
+
+async function handleImageChange(event) {
     const file = event.target.files[0];
     
     if (!file) {
@@ -152,7 +169,6 @@ imageInput.addEventListener('change', async (event) => {
         
         displayProfileImage(uploadedUrl);
         
-        // 수정 버튼 상태 업데이트
         updateSubmitButtonState();
         
     } catch (error) {
@@ -169,20 +185,17 @@ imageInput.addEventListener('change', async (event) => {
         alert(error.message);
         imageInput.value = '';
     }
-});
+}
 
-// 닉네임 입력 이벤트
-nicknameInput.addEventListener('input', () => {
+function handleNicknameInput() {
     // 닉네임 변경 시 중복 체크 초기화
     isNicknameChecked = false;
     nicknameError.textContent = '';
     
-    // 수정 버튼 상태 업데이트
     updateSubmitButtonState();
-});
+}
 
-// 닉네임 포커스 아웃 이벤트 (유효성 검사 + 중복 체크)
-nicknameInput.addEventListener('blur', async () => {
+async function handleNicknameBlur() {
     const nickname = nicknameInput.value.trim();
     
     // 빈 값이면 검사하지 않음
@@ -237,41 +250,9 @@ nicknameInput.addEventListener('blur', async () => {
         isNicknameChecked = false;
         updateSubmitButtonState();
     }
-});
-
-/**
- *  수정 버튼 활성화 상태 업데이트
- * - 닉네임이 변경되었거나 이미지가 변경되었을 때만 활성화
- * - 닉네임이 유효하고 중복 체크를 통과해야 함
- */
-function updateSubmitButtonState() {
-    const nickname = nicknameInput.value.trim();
-    
-    // 변경 사항 확인
-    const isNicknameChanged = nickname !== originalUserData.nickname;
-    const isImageChanged = uploadedImageUrl !== null;
-    
-    console.log('변경 사항:', { isNicknameChanged, isImageChanged, isNicknameValid, isNicknameChecked });
-    
-    // 닉네임이 변경되었는데 유효하지 않거나 중복 체크를 안 했으면 비활성화
-    if (isNicknameChanged && (!isNicknameValid || !isNicknameChecked)) {
-        btnSubmit.disabled = true;
-        btnSubmit.classList.remove('active');
-        return;
-    }
-    
-    // 닉네임 또는 이미지 중 하나라도 변경되면 활성화
-    if (isNicknameChanged || isImageChanged) {
-        btnSubmit.disabled = false;
-        btnSubmit.classList.add('active');
-    } else {
-        btnSubmit.disabled = true;
-        btnSubmit.classList.remove('active');
-    }
 }
 
-// 회원정보 수정 폼 제출
-editProfileForm.addEventListener('submit', async (event) => {
+async function handleFormSubmit(event) {
     event.preventDefault();
     
     // 최종 유효성 검사
@@ -319,7 +300,6 @@ editProfileForm.addEventListener('submit', async (event) => {
         
         console.log('회원정보 수정 완료');
         
-        // 토스트 메시지 표시s
         showToast();
         
         // 원본 데이터 업데이트
@@ -347,29 +327,17 @@ editProfileForm.addEventListener('submit', async (event) => {
         btnSubmit.disabled = false;
         btnSubmit.textContent = '수정하기';
     }
-});
-
-// 토스트 메시지 표시
-function showToast() {
-    toastMessage.classList.remove('hidden');
-    
-    setTimeout(() => {
-        toastMessage.classList.add('hidden');
-    }, 2000);
 }
 
-// 회원탈퇴 버튼 클릭
-btnWithdrawal.addEventListener('click', () => {
+function handleWithdrawalClick() {
     withdrawalModal.classList.remove('hidden');
-});
+}
 
-// 회원탈퇴 모달 취소
-btnCancelWithdrawal.addEventListener('click', () => {
+function handleCancelWithdrawal() {
     withdrawalModal.classList.add('hidden');
-});
+}
 
-// 회원탈퇴 모달 확인
-btnConfirmWithdrawal.addEventListener('click', async () => {
+async function handleConfirmWithdrawal() {
     // 모달 닫기
     withdrawalModal.classList.add('hidden');
     
@@ -395,16 +363,80 @@ btnConfirmWithdrawal.addEventListener('click', async () => {
             window.location.href = '/pages/login.html';
         }
     }
-});
+}
 
-// 모달 외부 클릭 시 닫기
-withdrawalModal.addEventListener('click', (event) => {
+function handleModalOutsideClick(event) {
     if (event.target === withdrawalModal) {
         withdrawalModal.classList.add('hidden');
     }
-});
+}
 
-// 페이지 로드 시 사용자 정보 로드
-loadUserInfo();
+// 이벤트 리스너 설정
+function setupEventListeners() {
+    // 프로필 이미지 변경
+    btnChangeImage.addEventListener('click', handleChangeImageClick);
+    imageInput.addEventListener('change', handleImageChange);
+    
+    // 닉네임 입력
+    nicknameInput.addEventListener('input', handleNicknameInput);
+    nicknameInput.addEventListener('blur', handleNicknameBlur);
+    
+    // 회원정보 수정 폼 제출
+    editProfileForm.addEventListener('submit', handleFormSubmit);
+    
+    // 회원탈퇴
+    btnWithdrawal.addEventListener('click', handleWithdrawalClick);
+    btnCancelWithdrawal.addEventListener('click', handleCancelWithdrawal);
+    btnConfirmWithdrawal.addEventListener('click', handleConfirmWithdrawal);
+    
+    // 모달 외부 클릭 시 닫기
+    withdrawalModal.addEventListener('click', handleModalOutsideClick);
+}
 
-console.log('회원정보 수정 페이지 로드 완료');
+// 초기화
+async function init() {
+    // 1. 로그인 체크
+    if (!isLoggedIn()) {
+        alert('로그인이 필요합니다.');
+        window.location.replace('/pages/login.html');
+        throw new Error('Unauthorized access');
+    }
+    
+    // 2. 헤더 생성
+    renderHeader('.mobile-container');
+    
+    // 3. DOM 요소 가져오기
+    profileImagePlaceholder = document.getElementById('profileImagePlaceholder');
+    profileImageContainer = document.getElementById('profileImageContainer');
+    btnChangeImage = document.getElementById('btnChangeImage');
+    imageInput = document.getElementById('imageInput');
+    emailDisplay = document.getElementById('emailDisplay');
+    nicknameInput = document.getElementById('nicknameInput');
+    nicknameError = document.getElementById('nicknameError');
+    btnSubmit = document.getElementById('btnSubmit');
+    editProfileForm = document.getElementById('editProfileForm');
+    btnWithdrawal = document.getElementById('btnWithdrawal');
+    withdrawalModal = document.getElementById('withdrawalModal');
+    btnCancelWithdrawal = document.getElementById('btnCancelWithdrawal');
+    btnConfirmWithdrawal = document.getElementById('btnConfirmWithdrawal');
+    toastMessage = document.getElementById('toastMessage');
+    
+    // 4. 헤더 컴포넌트 초기화
+    initBackButton('/index.html');
+    
+    // 5. 프로필 드롭다운 초기화
+    initProfileDropdown({
+        logoutButtonId: 'btnLogout'
+    });
+    
+    // 6. 이벤트 리스너 설정
+    setupEventListeners();
+    
+    // 7. 페이지 로드 시 사용자 정보 로드
+    await loadUserInfo();
+    
+    console.log('회원정보 수정 페이지 로드 완료');
+}
+
+// 페이지 로드 시 초기화
+document.addEventListener('DOMContentLoaded', init);

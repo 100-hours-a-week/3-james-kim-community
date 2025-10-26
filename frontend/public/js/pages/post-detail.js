@@ -8,46 +8,7 @@ import { initProfileDropdown } from '../components/profileDropdown.js';
 import { getImageUrl, handleImageError } from '../utils/imageHelper.js';
 import { renderHeader, initBackButton } from '../components/headerTemplate.js';
 
-renderHeader('.mobile-container');
-
-// DOM 요소 가져오기
-// 게시글
-const postTitle = document.getElementById('postTitle');
-const authorImage = document.getElementById('authorImage');
-const authorName = document.getElementById('authorName');
-const postDate = document.getElementById('postDate');
-const postActions = document.getElementById('postActions');
-const btnEdit = document.getElementById('btnEdit');
-const btnDelete = document.getElementById('btnDelete');
-const postImageWrapper = document.getElementById('postImageWrapper');
-const postImage = document.getElementById('postImage');
-const postContent = document.getElementById('postContent');
-
-// 통계
-const likeButton = document.getElementById('likeButton');
-const likeIcon = document.getElementById('likeIcon');
-const likeCount = document.getElementById('likeCount');
-const viewCount = document.getElementById('viewCount');
-const commentCountElement = document.getElementById('commentCount');
-
-// 댓글 입력
-const commentTextarea = document.getElementById('commentTextarea');
-const btnCommentSubmit = document.getElementById('btnCommentSubmit');
-
-// 댓글 목록
-const commentsList = document.getElementById('commentsList');
-const commentsLoadingElement = document.getElementById('commentsLoading');
-const noMoreComments = document.getElementById('noMoreComments');
-
-// 모달
-const deletePostModal = document.getElementById('deletePostModal');
-const btnCancelDeletePost = document.getElementById('btnCancelDeletePost');
-const btnConfirmDeletePost = document.getElementById('btnConfirmDeletePost');
-const deleteCommentModal = document.getElementById('deleteCommentModal');
-const btnCancelDeleteComment = document.getElementById('btnCancelDeleteComment');
-const btnConfirmDeleteComment = document.getElementById('btnConfirmDeleteComment');
-
-//상태 관리
+// 상태 관리
 let currentPostId = null;
 let currentPostData = null;
 let commentsLastSeenId = null;
@@ -55,30 +16,46 @@ let commentsHasNext = true;
 let commentsIsLoading = false;
 let selectedCommentId = null;
 
-// 로그인 체크
-if (!isLoggedIn()) {
-    alert('로그인이 필요합니다.');
-    window.location.replace('/pages/login.html');
-    throw new Error('Unauthorized access');
-}
+// DOM 요소
+// 게시글
+let postTitle;
+let authorImage;
+let authorName;
+let postDate;
+let postActions;
+let btnEdit;
+let btnDelete;
+let postImageWrapper;
+let postImage;
+let postContent;
 
-// URL에서 postId 추출
-const urlParams = new URLSearchParams(window.location.search);
-currentPostId = urlParams.get('id');
+// 통계
+let likeButton;
+let likeIcon;
+let likeCount;
+let viewCount;
+let commentCountElement;
 
-if (!currentPostId) {
-    alert('잘못된 접근입니다.');
-    window.location.replace('/index.html');
-    throw new Error('Invalid post ID');
-}
+// 댓글 입력
+let commentTextarea;
+let btnCommentSubmit;
 
-// 헤더 컴포넌트 초기화
-initBackButton('/index.html');
+// 댓글 목록
+let commentsList;
+let commentsLoadingElement;
+let noMoreComments;
 
-// 프로필 드롭다운 초기화
-initProfileDropdown({
-    logoutButtonId: 'btnLogout'  
-});
+// 모달
+let deletePostModal;
+let btnCancelDeletePost;
+let btnConfirmDeletePost;
+let deleteCommentModal;
+let btnCancelDeleteComment;
+let btnConfirmDeleteComment;
+
+// 무한 스크롤
+let commentSentinel;
+let commentObserver;
 
 // 게시글 데이터 로드 및 렌더링
 async function loadPostDetail() {
@@ -138,7 +115,6 @@ function renderPostDetail(data) {
     viewCount.textContent = data.stats.viewCount;
     commentCountElement.textContent = data.stats.commentCount;
 
-    // 좋아요 상태 표시
     updateLikeButton(data.isLiked);
 }
 
@@ -146,145 +122,12 @@ function renderPostDetail(data) {
 function updateLikeButton(isLiked) {
     if (isLiked) {
         likeButton.classList.add('liked');
-        likeIcon.textContent = '♥';  // 꽉 찬 하트
+        likeIcon.textContent = '♥';  
     } else {
         likeButton.classList.remove('liked');
-        likeIcon.textContent = '♡';  // 빈 하트
+        likeIcon.textContent = '♡';  
     }
 }
-
-// 좋아요 이벤트 리스너
-likeButton.addEventListener('click', async (e) => {
-    e.stopPropagation();
-    
-    // 연속 클릭 방지
-    if (likeButton.disabled) return;
-    
-    try {
-        likeButton.disabled = true;
-        
-        console.log('좋아요 토글 요청:', currentPostId);
-        
-        // 좋아요 API 호출
-        const result = await toggleLike(currentPostId);
-        
-        console.log('좋아요 토글 성공:', result);
-        
-        likeCount.textContent = result.likeCount;
-        updateLikeButton(result.isLiked);
-        
-        // 현재 게시글 데이터 업데이트
-        if (currentPostData) {
-            currentPostData.isLiked = result.isLiked;
-            currentPostData.stats.likeCount = result.likeCount;
-        }
-        
-    } catch (error) {
-        console.error('좋아요 처리 실패:', error);
-        
-        // 인증 에러인 경우 로그인 페이지로
-        if (error.status === 401) {
-            alert(error.message || '로그인이 필요합니다.');
-            clearLoginData();
-            window.location.replace('/pages/login.html');
-            return;
-        }
-        
-        alert(error.message || '좋아요 처리에 실패했습니다.');
-    } finally {
-        likeButton.disabled = false;
-    }
-});
-
-// 게시글 수정/삭제
-btnEdit.addEventListener('click', () => {
-    window.location.href = `/pages/post-edit.html?postId=${currentPostId}`;
-});
-
-btnDelete.addEventListener('click', () => {
-    deletePostModal.classList.remove('hidden');
-});
-
-btnCancelDeletePost.addEventListener('click', () => {
-    deletePostModal.classList.add('hidden');
-});
-
-btnConfirmDeletePost.addEventListener('click', async () => {
-    try {
-        await deletePost(currentPostId);
-        window.location.href = '/index.html';
-    } catch (error) {
-        console.error('게시글 삭제 실패:', error);
-        
-        // 401 에러 시 로그아웃 처리
-        if (error.status === 401) {
-            alert('로그인이 만료되었습니다. 다시 로그인해주세요.');
-            clearLoginData();
-            window.location.replace('/pages/login.html');
-            return;
-        }
-        
-        alert(error.message || '게시글 삭제에 실패했습니다.');
-        deletePostModal.classList.add('hidden');
-    }
-});
-
-// 댓글 입력
-commentTextarea.addEventListener('input', () => {
-    const hasContent = commentTextarea.value.trim().length > 0;
-    btnCommentSubmit.disabled = !hasContent;
-    
-    if (hasContent) {
-        btnCommentSubmit.classList.add('active');
-    } else {
-        btnCommentSubmit.classList.remove('active');
-    }
-});
-
-btnCommentSubmit.addEventListener('click', async () => {
-    const content = commentTextarea.value.trim();
-    
-    if (!content) {
-        return;
-    }
-    
-    try {
-        btnCommentSubmit.disabled = true;
-        btnCommentSubmit.textContent = '등록 중...';
-        
-        const result = await createComment(currentPostId, content);
-        
-        commentCountElement.textContent = result.commentsCount;
-        commentTextarea.value = '';
-        
-        // 댓글 목록 초기화 및 재로드
-        commentsLastSeenId = null;
-        commentsHasNext = true;
-        commentsList.innerHTML = '';  
-        
-        // noMoreComments도 숨기기
-        noMoreComments.classList.add('hidden');
-        
-        await loadComments();
-        
-    } catch (error) {
-        console.error('댓글 작성 실패:', error);
-        
-        // 401 에러 시 로그아웃 처리
-        if (error.status === 401) {
-            alert('로그인이 만료되었습니다. 다시 로그인해주세요.');
-            clearLoginData();
-            window.location.replace('/pages/login.html');
-            return;
-        }
-        
-        alert(error.message || '댓글 작성에 실패했습니다.');
-    } finally {
-        btnCommentSubmit.disabled = false;
-        btnCommentSubmit.textContent = '댓글 등록';
-        btnCommentSubmit.classList.remove('active');
-    }
-});
 
 // 댓글 목록 로드
 async function loadComments() {
@@ -387,7 +230,135 @@ function createCommentCard(comment) {
     return li;
 }
 
-// 댓글 수정
+// 이벤트 핸들러 - 게시글
+async function handleLikeButtonClick(e) {
+    e.stopPropagation();
+    
+    // 연속 클릭 방지
+    if (likeButton.disabled) return;
+    
+    try {
+        likeButton.disabled = true;
+        
+        console.log('좋아요 토글 요청:', currentPostId);
+        
+        const result = await toggleLike(currentPostId);
+        
+        console.log('좋아요 토글 성공:', result);
+        
+        likeCount.textContent = result.likeCount;
+        updateLikeButton(result.isLiked);
+        
+        // 현재 게시글 데이터 업데이트
+        if (currentPostData) {
+            currentPostData.isLiked = result.isLiked;
+            currentPostData.stats.likeCount = result.likeCount;
+        }
+        
+    } catch (error) {
+        console.error('좋아요 처리 실패:', error);
+        
+        // 인증 에러인 경우 로그인 페이지로
+        if (error.status === 401) {
+            alert(error.message || '로그인이 필요합니다.');
+            clearLoginData();
+            window.location.replace('/pages/login.html');
+            return;
+        }
+        
+        alert(error.message || '좋아요 처리에 실패했습니다.');
+    } finally {
+        likeButton.disabled = false;
+    }
+}
+
+function handleEditButtonClick() {
+    window.location.href = `/pages/post-edit.html?postId=${currentPostId}`;
+}
+
+function handleDeleteButtonClick() {
+    deletePostModal.classList.remove('hidden');
+}
+
+function handleCancelDeletePost() {
+    deletePostModal.classList.add('hidden');
+}
+
+async function handleConfirmDeletePost() {
+    try {
+        await deletePost(currentPostId);
+        window.location.href = '/index.html';
+    } catch (error) {
+        console.error('게시글 삭제 실패:', error);
+        
+        // 401 에러 시 로그아웃 처리
+        if (error.status === 401) {
+            alert('로그인이 만료되었습니다. 다시 로그인해주세요.');
+            clearLoginData();
+            window.location.replace('/pages/login.html');
+            return;
+        }
+        
+        alert(error.message || '게시글 삭제에 실패했습니다.');
+        deletePostModal.classList.add('hidden');
+    }
+}
+
+// 이벤트 핸들러 - 댓글 입력
+function handleCommentInput() {
+    const hasContent = commentTextarea.value.trim().length > 0;
+    btnCommentSubmit.disabled = !hasContent;
+    
+    if (hasContent) {
+        btnCommentSubmit.classList.add('active');
+    } else {
+        btnCommentSubmit.classList.remove('active');
+    }
+}
+
+async function handleCommentSubmit() {
+    const content = commentTextarea.value.trim();
+    
+    if (!content) {
+        return;
+    }
+    
+    try {
+        btnCommentSubmit.disabled = true;
+        btnCommentSubmit.textContent = '등록 중...';
+        
+        const result = await createComment(currentPostId, content);
+        
+        commentCountElement.textContent = result.commentsCount;
+        commentTextarea.value = '';
+        
+        // 댓글 목록 새로고침
+        commentsList.innerHTML = '';
+        commentsLastSeenId = null;
+        commentsHasNext = true;
+        
+        await loadComments();
+        
+    } catch (error) {
+        console.error('댓글 등록 실패:', error);
+        
+        // 401 에러 시 로그아웃 처리
+        if (error.status === 401) {
+            alert('로그인이 만료되었습니다. 다시 로그인해주세요.');
+            clearLoginData();
+            window.location.replace('/pages/login.html');
+            return;
+        }
+        
+        alert(error.message || '댓글 등록에 실패했습니다.');
+    } finally {
+        btnCommentSubmit.disabled = false;
+        btnCommentSubmit.textContent = '댓글 등록';
+        btnCommentSubmit.classList.remove('active');
+    }
+}
+
+// 이벤트 핸들러 - 댓글 수정/삭제
 function handleCommentEdit(comment) {
     const commentCard = document.querySelector(`[data-comment-id="${comment.commentId}"]`);
     const commentContent = commentCard.querySelector('.comment-content');
@@ -464,18 +435,17 @@ function handleCommentEdit(comment) {
     });
 }
 
-// 댓글 삭제
 function handleCommentDelete(commentId) {
     selectedCommentId = commentId;
     deleteCommentModal.classList.remove('hidden');
 }
 
-btnCancelDeleteComment.addEventListener('click', () => {
+function handleCancelDeleteComment() {
     selectedCommentId = null;
     deleteCommentModal.classList.add('hidden');
-});
+}
 
-btnConfirmDeleteComment.addEventListener('click', async () => {
+async function handleConfirmDeleteComment() {
     if (!selectedCommentId) {
         return;
     }
@@ -506,36 +476,138 @@ btnConfirmDeleteComment.addEventListener('click', async () => {
         selectedCommentId = null;
         deleteCommentModal.classList.add('hidden');
     }
-});
+}
 
-// 인피니티 스크롤 (Intersection Observer 사용)
-// 댓글 스크롤 감시용 sentinel 요소 생성
-const commentSentinel = document.createElement('div');
-commentSentinel.id = 'comment-scroll-sentinel';
-commentSentinel.style.height = '1px';
-commentSentinel.style.visibility = 'hidden';
-
-commentsLoadingElement.parentNode.insertBefore(commentSentinel, commentsLoadingElement);
-
-// Intersection Observer 생성
-const commentObserver = new IntersectionObserver((entries) => {
+// 이벤트 핸들러 - 인피니티 스크롤
+function handleCommentIntersection(entries) {
     entries.forEach(entry => {
         // sentinel이 화면에 보이고, 로딩 중이 아니고, 더 가져올 댓글이 있으면
         if (entry.isIntersecting && !commentsIsLoading && commentsHasNext) {
-            console.log('📍 댓글 Sentinel 감지 - 다음 페이지 로드');
+            console.log('댓글 Sentinel 감지 - 다음 페이지 로드');
             loadComments();
         }
     });
-}, {
-    // 300px 전에 미리 로드 (빠른 반응)
-    rootMargin: '300px',
-    threshold: 0
-});
+}
 
-// sentinel 감시 시작
-commentObserver.observe(commentSentinel);
+// 이벤트 리스너 설정
+function setupEventListeners() {
+    // 좋아요 버튼
+    likeButton.addEventListener('click', handleLikeButtonClick);
+    
+    // 게시글 수정/삭제
+    btnEdit.addEventListener('click', handleEditButtonClick);
+    btnDelete.addEventListener('click', handleDeleteButtonClick);
+    btnCancelDeletePost.addEventListener('click', handleCancelDeletePost);
+    btnConfirmDeletePost.addEventListener('click', handleConfirmDeletePost);
+    
+    // 댓글 입력
+    commentTextarea.addEventListener('input', handleCommentInput);
+    btnCommentSubmit.addEventListener('click', handleCommentSubmit);
+    
+    // 댓글 삭제 모달
+    btnCancelDeleteComment.addEventListener('click', handleCancelDeleteComment);
+    btnConfirmDeleteComment.addEventListener('click', handleConfirmDeleteComment);
+    
+    // 인피니티 스크롤 설정
+    setupInfiniteScroll();
+}
 
-// 페이지 로드
-loadPostDetail();
+// 인피니티 스크롤 설정
+function setupInfiniteScroll() {
+    // 댓글 스크롤 감시용 sentinel 요소 생성
+    commentSentinel = document.createElement('div');
+    commentSentinel.id = 'comment-scroll-sentinel';
+    commentSentinel.style.height = '1px';
+    commentSentinel.style.visibility = 'hidden';
 
-console.log('게시글 상세 페이지 로드 완료');
+    commentsLoadingElement.parentNode.insertBefore(commentSentinel, commentsLoadingElement);
+
+    // Intersection Observer 생성
+    commentObserver = new IntersectionObserver(handleCommentIntersection, {
+        // 300px 전에 미리 로드 (빠른 반응)
+        rootMargin: '300px',
+        threshold: 0
+    });
+
+    // sentinel 감시 시작
+    commentObserver.observe(commentSentinel);
+}
+
+// 초기화
+async function init() {
+    // 1. 로그인 체크
+    if (!isLoggedIn()) {
+        alert('로그인이 필요합니다.');
+        window.location.replace('/pages/login.html');
+        throw new Error('Unauthorized access');
+    }
+    
+    // 2. URL에서 postId 추출
+    const urlParams = new URLSearchParams(window.location.search);
+    currentPostId = urlParams.get('id');
+    
+    if (!currentPostId) {
+        alert('잘못된 접근입니다.');
+        window.location.replace('/index.html');
+        throw new Error('Invalid post ID');
+    }
+    
+    // 3. 헤더 생성
+    renderHeader('.mobile-container');
+    
+    // 4. DOM 요소 가져오기
+    // 게시글
+    postTitle = document.getElementById('postTitle');
+    authorImage = document.getElementById('authorImage');
+    authorName = document.getElementById('authorName');
+    postDate = document.getElementById('postDate');
+    postActions = document.getElementById('postActions');
+    btnEdit = document.getElementById('btnEdit');
+    btnDelete = document.getElementById('btnDelete');
+    postImageWrapper = document.getElementById('postImageWrapper');
+    postImage = document.getElementById('postImage');
+    postContent = document.getElementById('postContent');
+    
+    // 통계
+    likeButton = document.getElementById('likeButton');
+    likeIcon = document.getElementById('likeIcon');
+    likeCount = document.getElementById('likeCount');
+    viewCount = document.getElementById('viewCount');
+    commentCountElement = document.getElementById('commentCount');
+    
+    // 댓글 입력
+    commentTextarea = document.getElementById('commentTextarea');
+    btnCommentSubmit = document.getElementById('btnCommentSubmit');
+    
+    // 댓글 목록
+    commentsList = document.getElementById('commentsList');
+    commentsLoadingElement = document.getElementById('commentsLoading');
+    noMoreComments = document.getElementById('noMoreComments');
+    
+    // 모달
+    deletePostModal = document.getElementById('deletePostModal');
+    btnCancelDeletePost = document.getElementById('btnCancelDeletePost');
+    btnConfirmDeletePost = document.getElementById('btnConfirmDeletePost');
+    deleteCommentModal = document.getElementById('deleteCommentModal');
+    btnCancelDeleteComment = document.getElementById('btnCancelDeleteComment');
+    btnConfirmDeleteComment = document.getElementById('btnConfirmDeleteComment');
+    
+    // 5. 헤더 컴포넌트 초기화
+    initBackButton('/index.html');
+    
+    // 6. 프로필 드롭다운 초기화
+    initProfileDropdown({
+        logoutButtonId: 'btnLogout'  
+    });
+    
+    // 7. 이벤트 리스너 설정
+    setupEventListeners();
+    
+    // 8. 게시글 데이터 로드
+    await loadPostDetail();
+    
+    console.log('게시글 상세 페이지 로드 완료');
+}
+
+// 페이지 로드 시 초기화
+document.addEventListener('DOMContentLoaded', init);

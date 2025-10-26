@@ -1,4 +1,7 @@
 // public/js/components/headerTemplate.js
+// 공통 레이아웃.html js로 주입
+
+// 공통 레이아웃.html 생성
 export function createHeader(options = {}) {
     const {
         showBackButton = true,
@@ -21,7 +24,7 @@ export function createHeader(options = {}) {
                 <!-- 프로필 메뉴 드롭다운 -->
                 <div class="profile-menu">
                     <button class="profile-button" id="profileButton" aria-label="프로필 메뉴">
-                        <!-- ✅ 기본 프로필 이미지 -->
+                        <!-- 기본 프로필 이미지 -->
                         <img src="/assets/images/default-profile.png" 
                              alt="프로필" 
                              class="profile-image"
@@ -56,10 +59,7 @@ export function renderHeader(selector = '.mobile-container', options = {}) {
     container.insertAdjacentHTML('afterbegin', headerHTML);
 }
 
-/**
- * 뒤로가기 버튼 초기화
- * @param {string} backUrl - 뒤로가기 시 이동할 URL (기본값: 없음)
- */
+// 뒤로가기 버튼 초기화
 export function initBackButton(backUrl = null) {
     const btnBack = document.getElementById('btnBack');
     

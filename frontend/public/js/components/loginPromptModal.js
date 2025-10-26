@@ -1,10 +1,7 @@
 // public/js/components/loginPromptModal.js
 // 로그인 유도 모달 컴포넌트
 
-/**
- * 로그인 유도 모달 표시
- * @param {string} message - 표시할 메시지 (선택)
- */
+// 로그인 유도 모달 표시
 export function showLoginPrompt(message = '로그인이 필요한 서비스입니다.') {
     // 기존 모달이 있다면 제거
     const existingModal = document.querySelector('.login-prompt-overlay');
@@ -27,11 +24,9 @@ export function showLoginPrompt(message = '로그인이 필요한 서비스입�
     // body에 추가
     document.body.insertAdjacentHTML('beforeend', modalHTML);
 
-    // 요소 가져오기
     const modal = document.getElementById('loginPromptModal');
     const loginButton = document.getElementById('btnLoginPrompt');
 
-    // 로그인 버튼 클릭 이벤트
     loginButton.addEventListener('click', () => {
         window.location.href = '/pages/login.html';
     });
@@ -53,9 +48,7 @@ export function showLoginPrompt(message = '로그인이 필요한 서비스입�
     document.addEventListener('keydown', handleEscape);
 }
 
-/**
- * 로그인 유도 모달 닫기
- */
+// 로그인 유도 모달 닫기
 export function closeLoginPrompt() {
     const modal = document.getElementById('loginPromptModal');
     if (modal) {

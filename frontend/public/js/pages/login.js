@@ -1,27 +1,18 @@
 // public/js/pages/login.js
-// 로그인 폼 로직 (원본 그대로)
+// 로그인 폼 로직 
 
 import { validateEmail, validatePassword } from "../utils/validation.js";
 import { login } from "../services/authService.js";
 import { saveLoginData } from "../utils/storage.js";
 
-// ========================================
-// 로그인 폼 로직 (기존 auth.js에서 그대로 복사)
-// ========================================
+// 로그인 폼 로직 
 const emailInput = document.getElementById('email');
 const passwordInput = document.getElementById('password');
 const emailError = document.getElementById('emailError');
 const passwordError = document.getElementById('passwordError');
 const loginButton = document.getElementById('loginButton');
 const loginForm = document.getElementById('loginForm');
-
-// 홈 버튼 클릭 이벤트
 const homeButton = document.getElementById('homeButton');
-if (homeButton) {
-    homeButton.addEventListener('click', () => {
-        window.location.href = '/index.html';
-    });
-}
 
 // 이메일 유효성 검사
 function checkEmailValidation() {
@@ -134,6 +125,14 @@ loginForm.addEventListener('submit', async (event) => {
         loginButton.textContent = 'Sign In';
     }
 });
+
+if (homeButton) {
+    homeButton.addEventListener('click', (e) => {
+        e.preventDefault();  
+        e.stopPropagation(); 
+        window.location.href = '/index.html';
+    });
+}
 
 // 초기 상태
 loginButton.disabled = true;

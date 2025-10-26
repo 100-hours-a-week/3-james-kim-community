@@ -1,5 +1,5 @@
 // public/js/pages/signup.js
-// 회원가입 폼 로직 (원본 그대로)
+// 회원가입 폼 로직 
 
 import { validateEmail, validatePassword, validatePasswordConfirm, validateNickname, validateImageFile } from "../utils/validation.js";
 import { checkEmailDuplicate, checkNicknameDuplicate } from "../services/authService.js";
@@ -7,9 +7,7 @@ import { uploadImage } from "../services/imageService.js";
 import { signup } from "../services/userService.js";
 import { saveLoginData } from "../utils/storage.js";
 
-// ========================================
-// 회원가입 폼 로직 (기존 auth.js에서 그대로 복사)
-// ========================================
+// 회원가입 폼 로직 
 const signupEmailInput = document.getElementById('signupEmail');
 const signupPasswordInput = document.getElementById('signupPassword');
 const passwordConfirmInput = document.getElementById('passwordConfirm');

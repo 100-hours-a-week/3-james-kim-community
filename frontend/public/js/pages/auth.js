@@ -22,7 +22,6 @@ signUpButton.addEventListener('click', async () => {
     loginForm.classList.add('none');
     signupForm.classList.remove('none');
     
-    // 회원가입 모듈 로드
     await import('./signup.js');
 });
 
@@ -31,7 +30,6 @@ signInButton.addEventListener('click', async () => {
     signupForm.classList.add('none');
     loginForm.classList.remove('none');
     
-    // 로그인 모듈 로드
     await import('./login.js');
 });
 

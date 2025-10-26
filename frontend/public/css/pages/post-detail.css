@@ -2,12 +2,6 @@
    게시글 상세 페이지 전용 스타일 (public/css/pages/post-detail.css)
    ======================================== */
 
-/* (리팩토링) 삭제: .page-header, .btn-back, .icon-back, .profile-menu, .profile-button, 
-           .profile-placeholder, .profile-image (header.css로 이동) */
-/* (리팩토링) 삭제: .dropdown-menu, .dropdown-item (dropdown.css로 이동) */
-/* (리팩토링) 삭제: .modal-overlay, .modal-container, .modal-title, .modal-message, 
-           .modal-buttons, .btn-modal, .btn-cancel, .btn-confirm (modal.css로 이동) */
-
 /* 메인 콘텐츠 */
 .main-content {
   padding: 0;
@@ -55,6 +49,9 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
+  pointer-events: none; /* 이미지 클릭 방지 */
+  user-select: none; /* 이미지 드래그 방지 */
+  -webkit-user-drag: none; /* Safari용 드래그 방지 */
 }
 
 .author-details {
@@ -138,6 +135,8 @@
   width: 70%;
   border-radius: 8px;
   object-fit: cover;
+  user-select: none; /* 이미지 드래그 방지 */
+  -webkit-user-drag: none; /* Safari용 드래그 방지 */
 }
 
 .post-content {

@@ -7,27 +7,6 @@ import { isLoggedIn, clearLoginData } from '../utils/storage.js';
 import { initProfileDropdown } from '../components/profileDropdown.js';
 import { renderHeader, initBackButton } from '../components/headerTemplate.js';
 
-renderHeader('.mobile-container');
-
-// DOM 요소 가져오기
-// 폼 요소
-const postEditForm = document.getElementById('postEditForm');
-const postTitle = document.getElementById('postTitle');
-const postContent = document.getElementById('postContent');
-const titleHelperText = document.getElementById('titleHelperText');
-const btnSubmit = document.getElementById('btnSubmit');
-
-// 이미지 업로드
-const imageInput = document.getElementById('imageInput');
-const btnFileSelect = document.getElementById('btnFileSelect');
-const fileName = document.getElementById('fileName');
-
-// 기존 이미지 관리
-const currentImageArea = document.getElementById('currentImageArea');
-const currentImageName = document.getElementById('currentImageName');
-const btnRemoveImage = document.getElementById('btnRemoveImage');
-const btnRestoreImage = document.getElementById('btnRestoreImage');
-
 // 상태 관리
 let currentPostId = null;
 let originalData = null;
@@ -36,42 +15,26 @@ let originalData = null;
 let originalImageUrl = null;    
 let currentImageUrl = null;     
 let newUploadedImageUrl = null; 
-let imageChanged = false;       
+let imageChanged = false;
 
-// 로그인 체크
-if (!isLoggedIn()) {
-    alert('로그인이 필요합니다.');
-    window.location.replace('/pages/login.html');
-    throw new Error('Unauthorized access');
-}
+// DOM 요소
+// 폼 요소
+let postEditForm;
+let postTitle;
+let postContent;
+let titleHelperText;
+let btnSubmit;
 
-// URL에서 postId 추출
-const urlParams = new URLSearchParams(window.location.search);
-currentPostId = urlParams.get('postId');
+// 이미지 업로드
+let imageInput;
+let btnFileSelect;
+let fileName;
 
-if (!currentPostId) {
-    alert('잘못된 접근입니다.');
-    window.location.replace('/index.html');
-    throw new Error('Invalid post ID');
-}
-
-// 뒤로가기 버튼 (커스텀 처리 - 수정 중 확인)
-const btnBack = document.getElementById('btnBack');
-btnBack.addEventListener('click', () => {
-    if (hasChanges()) {
-        if (confirm('수정 중인 내용이 사라집니다. 뒤로 가시겠습니까?')) {
-            window.location.href = `/pages/post-detail.html?id=${currentPostId}`;
-        }
-    } else {
-        window.location.href = `/pages/post-detail.html?id=${currentPostId}`;
-    }
-});
-
-// 헤더 컴포넌트 초기화
-initBackButton(`/pages/post-detail.html?id=${currentPostId}`);
-
-// 프로필 드롭다운 초기화
-initProfileDropdown();
+// 기존 이미지 관리
+let currentImageArea;
+let currentImageName;
+let btnRemoveImage;
+let btnRestoreImage;
 
 // 기존 게시글 데이터 로드
 async function loadPostData() {
@@ -126,18 +89,6 @@ async function loadPostData() {
     }
 }
 
-// 제목 글자 수 카운터
-postTitle.addEventListener('input', () => {
-    const length = postTitle.value.length;
-    titleHelperText.textContent = `${length}/26`;
-    checkFormValid();
-});
-
-// 내용 입력 시 유효성 체크
-postContent.addEventListener('input', () => {
-    checkFormValid();
-});
-
 // 폼 유효성 검사 및 버튼 활성화/비활성화
 function checkFormValid() {
     const title = postTitle.value.trim();
@@ -168,12 +119,32 @@ function hasChanges() {
            imageChanged;
 }
 
-// 이미지 파일 선택
-btnFileSelect.addEventListener('click', () => {
-    imageInput.click();
-});
+// 이벤트 핸들러
+function handleBackButtonClick() {
+    if (hasChanges()) {
+        if (confirm('수정 중인 내용이 사라집니다. 뒤로 가시겠습니까?')) {
+            window.location.href = `/pages/post-detail.html?id=${currentPostId}`;
+        }
+    } else {
+        window.location.href = `/pages/post-detail.html?id=${currentPostId}`;
+    }
+}
 
-imageInput.addEventListener('change', async (e) => {
+function handleTitleInput() {
+    const length = postTitle.value.length;
+    titleHelperText.textContent = `${length}/26`;
+    checkFormValid();
+}
+
+function handleContentInput() {
+    checkFormValid();
+}
+
+function handleFileSelectClick() {
+    imageInput.click();
+}
+
+async function handleImageChange(e) {
     const file = e.target.files[0];
     
     // 파일 선택 취소 시 - 아무 동작 안 함
@@ -250,10 +221,9 @@ imageInput.addEventListener('change', async (e) => {
         btnFileSelect.textContent = '파일 선택';
         imageInput.value = '';
     }
-});
+}
 
-// 기존 이미지 삭제 버튼 (임시 삭제 - 취소 가능)
-btnRemoveImage.addEventListener('click', () => {
+function handleRemoveImage() {
     // 이미지 삭제 예정 상태로 변경
     currentImageUrl = "";
     imageChanged = true;
@@ -268,10 +238,9 @@ btnRemoveImage.addEventListener('click', () => {
     newUploadedImageUrl = null;
     
     console.log('이미지 삭제 예정 (임시)');
-});
+}
 
-// 기존 이미지 복구 버튼 (삭제 취소)
-btnRestoreImage.addEventListener('click', () => {
+function handleRestoreImage() {
     // 원본 이미지로 복구
     currentImageUrl = originalImageUrl;
     imageChanged = false;
@@ -286,10 +255,9 @@ btnRestoreImage.addEventListener('click', () => {
     newUploadedImageUrl = null;
     
     console.log('이미지 삭제 취소 (원본 복구)');
-});
+}
 
-// 게시글 수정 제출
-postEditForm.addEventListener('submit', async (e) => {
+async function handleFormSubmit(e) {
     e.preventDefault();
     
     const title = postTitle.value.trim();
@@ -361,9 +329,87 @@ postEditForm.addEventListener('submit', async (e) => {
         btnSubmit.disabled = false;
         btnSubmit.textContent = '수정하기';
     }
-});
+}
 
-// 페이지 로드 시 기존 데이터 불러오기
-loadPostData();
+// 이벤트 리스너 설정
+function setupEventListeners() {
+    // 뒤로가기 버튼 (커스텀 처리 - 수정 중 확인)
+    const btnBack = document.getElementById('btnBack');
+    btnBack.addEventListener('click', handleBackButtonClick);
+    
+    // 제목 글자 수 카운터
+    postTitle.addEventListener('input', handleTitleInput);
+    
+    // 내용 입력 시 유효성 체크
+    postContent.addEventListener('input', handleContentInput);
+    
+    // 이미지 파일 선택
+    btnFileSelect.addEventListener('click', handleFileSelectClick);
+    imageInput.addEventListener('change', handleImageChange);
+    
+    // 기존 이미지 삭제/복구
+    btnRemoveImage.addEventListener('click', handleRemoveImage);
+    btnRestoreImage.addEventListener('click', handleRestoreImage);
+    
+    // 게시글 수정 제출
+    postEditForm.addEventListener('submit', handleFormSubmit);
+}
 
-console.log('게시글 수정 페이지 로드 완료');
+// 초기화
+async function init() {
+    // 1. 로그인 체크
+    if (!isLoggedIn()) {
+        alert('로그인이 필요합니다.');
+        window.location.replace('/pages/login.html');
+        throw new Error('Unauthorized access');
+    }
+    
+    // 2. URL에서 postId 추출
+    const urlParams = new URLSearchParams(window.location.search);
+    currentPostId = urlParams.get('postId');
+    
+    if (!currentPostId) {
+        alert('잘못된 접근입니다.');
+        window.location.replace('/index.html');
+        throw new Error('Invalid post ID');
+    }
+    
+    // 3. 헤더 생성
+    renderHeader('.mobile-container');
+    
+    // 4. DOM 요소 가져오기
+    // 폼 요소
+    postEditForm = document.getElementById('postEditForm');
+    postTitle = document.getElementById('postTitle');
+    postContent = document.getElementById('postContent');
+    titleHelperText = document.getElementById('titleHelperText');
+    btnSubmit = document.getElementById('btnSubmit');
+    
+    // 이미지 업로드
+    imageInput = document.getElementById('imageInput');
+    btnFileSelect = document.getElementById('btnFileSelect');
+    fileName = document.getElementById('fileName');
+    
+    // 기존 이미지 관리
+    currentImageArea = document.getElementById('currentImageArea');
+    currentImageName = document.getElementById('currentImageName');
+    btnRemoveImage = document.getElementById('btnRemoveImage');
+    btnRestoreImage = document.getElementById('btnRestoreImage');
+    
+    // 5. 헤더 컴포넌트 초기화
+    initBackButton(`/pages/post-detail.html?id=${currentPostId}`);
+    
+    // 6. 프로필 드롭다운 초기화
+    initProfileDropdown();
+    
+    // 7. 이벤트 리스너 설정
+    setupEventListeners();
+    
+    // 8. 페이지 로드 시 기존 데이터 불러오기
+    await loadPostData();
+    
+    console.log('게시글 수정 페이지 로드 완료');
+}
+
+// 페이지 로드 시 초기화
+document.addEventListener('DOMContentLoaded', init);

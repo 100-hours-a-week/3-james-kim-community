@@ -8,9 +8,7 @@ import { API_ENDPOINTS } from "../config/api.js";
 let isRefreshing = false; 
 let failedRequestsQueue = []; // 갱신 대기 중 요청들
 
-/**
- * Refresh Token으로 Access Token 갱신
- */
+// Refresh Token으로 Access Token 갱신
 async function refreshAccessToken() {
     const refreshToken = getRefreshToken();
 

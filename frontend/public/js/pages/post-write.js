@@ -7,48 +7,21 @@ import { isLoggedIn, clearLoginData } from '../utils/storage.js';
 import { initProfileDropdown } from '../components/profileDropdown.js';
 import { renderHeader, initBackButton } from '../components/headerTemplate.js';
 
-renderHeader('.mobile-container');
-
-// DOM 요소 가져오기
-// 폼 요소
-const postWriteForm = document.getElementById('postWriteForm');
-const postTitle = document.getElementById('postTitle');
-const postContent = document.getElementById('postContent');
-const titleHelperText = document.getElementById('titleHelperText');
-const btnSubmit = document.getElementById('btnSubmit');
-
-// 이미지 업로드
-const imageInput = document.getElementById('imageInput');
-const btnFileSelect = document.getElementById('btnFileSelect');
-const fileName = document.getElementById('fileName');
-
 // 상태 관리
 let uploadedImageUrl = null;
 
-// 로그인 체크
-if (!isLoggedIn()) {
-    alert('로그인이 필요합니다.');
-    window.location.replace('/pages/login.html');
-    throw new Error('Unauthorized access');
-}
+// DOM 요소
+// 폼 요소
+let postWriteForm;
+let postTitle;
+let postContent;
+let titleHelperText;
+let btnSubmit;
 
-// 헤더 컴포넌트 초기화
-initBackButton('/index.html');
-
-// 프로필 드롭다운 초기화
-initProfileDropdown();
-
-// 제목 글자 수 카운터
-postTitle.addEventListener('input', () => {
-    const length = postTitle.value.length;
-    titleHelperText.textContent = `${length}/26`;
-    checkFormValid();
-});
-
-// 내용 입력 시 유효성 체크
-postContent.addEventListener('input', () => {
-    checkFormValid();
-});
+// 이미지 업로드
+let imageInput;
+let btnFileSelect;
+let fileName;
 
 // 폼 유효성 검사 및 버튼 활성화/비활성화
 function checkFormValid() {
@@ -68,12 +41,22 @@ function checkFormValid() {
     }
 }
 
-// 이미지 파일 선택
-btnFileSelect.addEventListener('click', () => {
-    imageInput.click();
-});
+// 이벤트 핸들러
+function handleTitleInput() {
+    const length = postTitle.value.length;
+    titleHelperText.textContent = `${length}/26`;
+    checkFormValid();
+}
 
-imageInput.addEventListener('change', async (e) => {
+function handleContentInput() {
+    checkFormValid();
+}
+
+function handleFileSelectClick() {
+    imageInput.click();
+}
+
+async function handleImageChange(e) {
     const file = e.target.files[0];
     
     // 파일 선택 취소 처리 (파일이 없으면)
@@ -136,10 +119,9 @@ imageInput.addEventListener('change', async (e) => {
         btnFileSelect.disabled = false;
         btnFileSelect.textContent = '파일 선택';
     }
-});
+}
 
-// 게시글 작성 제출
-postWriteForm.addEventListener('submit', async (e) => {
+async function handleFormSubmit(e) {
     e.preventDefault();
     
     const title = postTitle.value.trim();
@@ -191,6 +173,59 @@ postWriteForm.addEventListener('submit', async (e) => {
         btnSubmit.disabled = false;
         btnSubmit.textContent = '완료';
     }
-});
+}
 
-console.log('게시글 작성 페이지 로드 완료');
+// 이벤트 리스너 설정
+function setupEventListeners() {
+    // 제목 글자 수 카운터
+    postTitle.addEventListener('input', handleTitleInput);
+    
+    // 내용 입력 시 유효성 체크
+    postContent.addEventListener('input', handleContentInput);
+    
+    // 이미지 파일 선택
+    btnFileSelect.addEventListener('click', handleFileSelectClick);
+    imageInput.addEventListener('change', handleImageChange);
+    
+    // 게시글 작성 제출
+    postWriteForm.addEventListener('submit', handleFormSubmit);
+}
+
+// 초기화
+function init() {
+    // 1. 로그인 체크
+    if (!isLoggedIn()) {
+        alert('로그인이 필요합니다.');
+        window.location.replace('/pages/login.html');
+        throw new Error('Unauthorized access');
+    }
+    
+    // 2. 헤더 생성
+    renderHeader('.mobile-container');
+    
+    // 3. DOM 요소 가져오기
+    postWriteForm = document.getElementById('postWriteForm');
+    postTitle = document.getElementById('postTitle');
+    postContent = document.getElementById('postContent');
+    titleHelperText = document.getElementById('titleHelperText');
+    btnSubmit = document.getElementById('btnSubmit');
+    
+    // 이미지 업로드
+    imageInput = document.getElementById('imageInput');
+    btnFileSelect = document.getElementById('btnFileSelect');
+    fileName = document.getElementById('fileName');
+    
+    // 4. 헤더 컴포넌트 초기화
+    initBackButton('/index.html');
+    
+    // 5. 프로필 드롭다운 초기화
+    initProfileDropdown();
+    
+    // 6. 이벤트 리스너 설정
+    setupEventListeners();
+    
+    console.log('게시글 작성 페이지 로드 완료');
+}
+
+// 페이지 로드 시 초기화
+document.addEventListener('DOMContentLoaded', init);
