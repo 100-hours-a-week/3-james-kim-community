@@ -3,7 +3,6 @@
 
 import { getPostDetail, deletePost, toggleLike } from '../services/postService.js';
 import { getComments, createComment, updateComment, deleteComment } from '../services/commentService.js';
-import { isLoggedIn, clearLoginData } from '../utils/storage.js';
 import { initProfileDropdown } from '../components/profileDropdown.js';  
 import { getImageUrl, handleImageError } from '../utils/imageHelper.js';
 import { renderHeader, initBackButton } from '../components/headerTemplate.js';
@@ -65,14 +64,6 @@ async function loadPostDetail() {
         loadComments();
     } catch (error) {
         console.error('게시글 로드 실패:', error);
-        
-        // 401 에러 시 로그아웃 처리
-        if (error.status === 401) {
-            alert('로그인이 만료되었습니다. 다시 로그인해주세요.');
-            clearLoginData();
-            window.location.replace('/pages/login.html');
-            return;
-        }
         
         alert(error.message || '게시글을 불러올 수 없습니다.');
         window.location.replace('/index.html');
@@ -162,14 +153,6 @@ async function loadComments() {
     } catch (error) {
         console.error('댓글 목록 로드 실패:', error);
         
-        // 401 에러 시 로그아웃 처리
-        if (error.status === 401) {
-            alert('로그인이 만료되었습니다. 다시 로그인해주세요.');
-            clearLoginData();
-            window.location.replace('/pages/login.html');
-            return;
-        }
-        
     } finally {
         commentsIsLoading = false;
         commentsLoadingElement.classList.add('hidden');
@@ -258,14 +241,6 @@ async function handleLikeButtonClick(e) {
     } catch (error) {
         console.error('좋아요 처리 실패:', error);
         
-        // 인증 에러인 경우 로그인 페이지로
-        if (error.status === 401) {
-            alert(error.message || '로그인이 필요합니다.');
-            clearLoginData();
-            window.location.replace('/pages/login.html');
-            return;
-        }
-        
         alert(error.message || '좋아요 처리에 실패했습니다.');
     } finally {
         likeButton.disabled = false;
@@ -290,14 +265,6 @@ async function handleConfirmDeletePost() {
         window.location.href = '/index.html';
     } catch (error) {
         console.error('게시글 삭제 실패:', error);
-        
-        // 401 에러 시 로그아웃 처리
-        if (error.status === 401) {
-            alert('로그인이 만료되었습니다. 다시 로그인해주세요.');
-            clearLoginData();
-            window.location.replace('/pages/login.html');
-            return;
-        }
         
         alert(error.message || '게시글 삭제에 실패했습니다.');
         deletePostModal.classList.add('hidden');
@@ -341,14 +308,6 @@ async function handleCommentSubmit() {
         
     } catch (error) {
         console.error('댓글 등록 실패:', error);
-        
-        // 401 에러 시 로그아웃 처리
-        if (error.status === 401) {
-            alert('로그인이 만료되었습니다. 다시 로그인해주세요.');
-            clearLoginData();
-            window.location.replace('/pages/login.html');
-            return;
-        }
         
         alert(error.message || '댓글 등록에 실패했습니다.');
     } finally {
@@ -420,14 +379,6 @@ function handleCommentEdit(comment) {
         } catch (error) {
             console.error('댓글 수정 실패:', error);
             
-            // 401 에러 시 로그아웃 처리
-            if (error.status === 401) {
-                alert('로그인이 만료되었습니다. 다시 로그인해주세요.');
-                clearLoginData();
-                window.location.replace('/pages/login.html');
-                return;
-            }
-            
             alert(error.message || '댓글 수정에 실패했습니다.');
             btnSave.disabled = false;
             btnSave.textContent = '저장';
@@ -462,14 +413,6 @@ async function handleConfirmDeleteComment() {
         
     } catch (error) {
         console.error('댓글 삭제 실패:', error);
-        
-        // 401 에러 시 로그아웃 처리
-        if (error.status === 401) {
-            alert('로그인이 만료되었습니다. 다시 로그인해주세요.');
-            clearLoginData();
-            window.location.replace('/pages/login.html');
-            return;
-        }
         
         alert(error.message || '댓글 삭제에 실패했습니다.');
     } finally {
@@ -535,13 +478,6 @@ function setupInfiniteScroll() {
 
 // 초기화
 async function init() {
-    // 1. 로그인 체크
-    if (!isLoggedIn()) {
-        alert('로그인이 필요합니다.');
-        window.location.replace('/pages/login.html');
-        throw new Error('Unauthorized access');
-    }
-    
     // 2. URL에서 postId 추출
     const urlParams = new URLSearchParams(window.location.search);
     currentPostId = urlParams.get('id');

@@ -3,7 +3,6 @@
 
 import { uploadImage } from '../services/imageService.js';
 import { createPost } from '../services/postService.js';
-import { isLoggedIn, clearLoginData } from '../utils/storage.js';
 import { initProfileDropdown } from '../components/profileDropdown.js';
 import { renderHeader, initBackButton } from '../components/headerTemplate.js';
 
@@ -103,14 +102,6 @@ async function handleImageChange(e) {
     } catch (error) {
         console.error('이미지 업로드 실패:', error);
         
-        // 401 에러 시 로그아웃 처리
-        if (error.status === 401) {
-            alert('로그인이 만료되었습니다. 다시 로그인해주세요.');
-            clearLoginData();
-            window.location.replace('/pages/login.html');
-            return;
-        }
-        
         alert(error.message || '이미지 업로드에 실패했습니다.');
         imageInput.value = '';
         fileName.textContent = '선택된 파일 없음';
@@ -159,14 +150,6 @@ async function handleFormSubmit(e) {
     } catch (error) {
         console.error('게시글 작성 실패:', error);
         
-        // 401 에러 시 로그아웃 처리
-        if (error.status === 401) {
-            alert('로그인이 만료되었습니다. 다시 로그인해주세요.');
-            clearLoginData();
-            window.location.replace('/pages/login.html');
-            return;
-        }
-        
         alert(error.message || '게시글 작성에 실패했습니다.');
         
         // 버튼 원래대로
@@ -193,12 +176,6 @@ function setupEventListeners() {
 
 // 초기화
 function init() {
-    // 1. 로그인 체크
-    if (!isLoggedIn()) {
-        alert('로그인이 필요합니다.');
-        window.location.replace('/pages/login.html');
-        throw new Error('Unauthorized access');
-    }
     
     // 2. 헤더 생성
     renderHeader('.mobile-container');

@@ -12,7 +12,6 @@ const API_ENDPOINTS = {
     // 인증 관련
     LOGIN: `${API_BASE_URL}/auth`,
     LOGOUT: `${API_BASE_URL}/auth`,
-    TOKEN_REFRESH: `${API_BASE_URL}/auth/refresh`,
     CHECK_EMAIL: `${API_BASE_URL}/auth/check-email`,
     CHECK_NICKNAME: `${API_BASE_URL}/auth/check-nickname`,
 

@@ -3,7 +3,6 @@
 
 import { getPostDetail, updatePost } from '../services/postService.js';
 import { uploadImage } from '../services/imageService.js';
-import { isLoggedIn, clearLoginData } from '../utils/storage.js';
 import { initProfileDropdown } from '../components/profileDropdown.js';
 import { renderHeader, initBackButton } from '../components/headerTemplate.js';
 
@@ -75,14 +74,6 @@ async function loadPostData() {
         
     } catch (error) {
         console.error('게시글 데이터 로드 실패:', error);
-        
-        // 401 에러 시 로그아웃 처리
-        if (error.status === 401) {
-            alert('로그인이 만료되었습니다. 다시 로그인해주세요.');
-            clearLoginData();
-            window.location.replace('/pages/login.html');
-            return;
-        }
         
         alert(error.message || '게시글을 불러올 수 없습니다.');
         window.location.replace('/index.html');
@@ -204,14 +195,6 @@ async function handleImageChange(e) {
     } catch (error) {
         console.error('이미지 업로드 실패:', error);
         
-        // 401 에러 시 로그아웃 처리
-        if (error.status === 401) {
-            alert('로그인이 만료되었습니다. 다시 로그인해주세요.');
-            clearLoginData();
-            window.location.replace('/pages/login.html');
-            return;
-        }
-        
         alert(error.message || '이미지 업로드에 실패했습니다.');
         imageInput.value = '';
         fileName.textContent = originalImageUrl ? '파일을 선택하거나 기존 이미지 사용' : '선택된 파일 없음';
@@ -315,14 +298,6 @@ async function handleFormSubmit(e) {
     } catch (error) {
         console.error('게시글 수정 실패:', error);
         
-        // 401 에러 시 로그아웃 처리
-        if (error.status === 401) {
-            alert('로그인이 만료되었습니다. 다시 로그인해주세요.');
-            clearLoginData();
-            window.location.replace('/pages/login.html');
-            return;
-        }
-        
         alert(error.message || '게시글 수정에 실패했습니다.');
         
         // 버튼 원래대로
@@ -357,12 +332,6 @@ function setupEventListeners() {
 
 // 초기화
 async function init() {
-    // 1. 로그인 체크
-    if (!isLoggedIn()) {
-        alert('로그인이 필요합니다.');
-        window.location.replace('/pages/login.html');
-        throw new Error('Unauthorized access');
-    }
     
     // 2. URL에서 postId 추출
     const urlParams = new URLSearchParams(window.location.search);

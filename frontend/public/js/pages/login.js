@@ -3,7 +3,6 @@
 
 import { validateEmail, validatePassword } from "../utils/validation.js";
 import { login } from "../services/authService.js";
-import { saveLoginData } from "../utils/storage.js";
 
 // 로그인 폼 로직 
 const emailInput = document.getElementById('email');
@@ -109,13 +108,12 @@ loginForm.addEventListener('submit', async (event) => {
         const password = passwordInput.value.trim();
     
         console.log('로그인 시도:', email);
-        const result = await login(email, password);
+        
+        // 세션 쿠키가 자동으로 설정됨
+        await login(email, password);
     
-        console.log('로그인 성공:', result);
-    
-        const { accessToken, refreshToken, userId } = result.data;
-        saveLoginData(accessToken, refreshToken, userId);
-    
+        console.log('로그인 성공 (세션 생성됨)');
+        
         window.location.href = '/index.html';
     
     } catch (error) {
@@ -136,3 +134,5 @@ if (homeButton) {
 
 // 초기 상태
 loginButton.disabled = true;
+
+console.log('로그인 모듈 로드 완료');

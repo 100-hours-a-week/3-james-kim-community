@@ -3,7 +3,6 @@
 
 import { updatePassword } from "../services/userService.js";
 import { logout } from "../services/authService.js";
-import { isLoggedIn, clearLoginData } from "../utils/storage.js";
 import { validatePassword } from "../utils/validation.js";
 import { initProfileDropdown } from "../components/profileDropdown.js";
 import { renderHeader, initBackButton } from '../components/headerTemplate.js';
@@ -124,18 +123,13 @@ async function handleFormSubmit(event) {
         // 1초 후 로그아웃 처리 및 로그인 페이지로 이동
         setTimeout(async() => {
             await logout();
-            clearLoginData();
+            alert('비밀번호가 변경되었습니다. 다시 로그인해주세요.');
             window.location.href = '/pages/login.html';
         }, 1000);
         
     } catch (error) {
         console.error('비밀번호 수정 실패:', error);
         alert(error.message);
-        
-        if (error.status === 401) {
-            clearLoginData();
-            window.location.href = '/pages/login.html';
-        }
         
         btnSubmit.disabled = false;
         btnSubmit.textContent = '수정하기';
@@ -154,12 +148,6 @@ function setupEventListeners() {
 
 // 초기화
 function init() {
-    // 1. 로그인 체크
-    if (!isLoggedIn()) {
-        alert('로그인이 필요합니다.');
-        window.location.href = '/pages/login.html';
-        throw new Error('Unauthorized access');
-    }
     
     // 2. 헤더 생성
     renderHeader('.mobile-container');

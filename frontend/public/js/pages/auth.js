@@ -1,14 +1,6 @@
 // public/js/pages/auth.js
 // 통합 인증 페이지 - 폼 전환만 담당
 
-import { isLoggedIn } from "../utils/storage.js";
-
-// 이미 로그인되어 있으면 리다이렉트
-if (isLoggedIn()) {
-    console.log('이미 로그인되어 있습니다.');
-    window.location.href = '/index.html';
-}
-
 // ========================================
 // 폼 전환 (Sign In <-> Sign Up)
 // ========================================

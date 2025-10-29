@@ -2,7 +2,6 @@
 // 게시글 목록 페이지 메인 로직
 
 import { getPosts } from '../services/postService.js';
-import { isLoggedIn, clearLoginData } from '../utils/storage.js';
 import { initProfileDropdown } from '../components/profileDropdown.js'; 
 import { getImageUrl, handleImageError } from '../utils/imageHelper.js';
 import { showLoginPrompt } from '../components/loginPromptModal.js';
@@ -14,7 +13,7 @@ renderHeader('.mobile-container', { showBackButton: false });
 let lastSeenId = null;
 let hasNext = true;
 let isLoading = false;
-let userLoggedIn = isLoggedIn();
+let userLoggedIn = false;
 
 // DOM 요소
 let postsList;
@@ -23,6 +22,28 @@ let noMorePosts;
 let writeButton;
 let sentinel;
 let observer;
+
+// 로그인 상태 확인 함수 -
+async function checkLoginStatus() {
+    try {
+        // 별도의 세션 체크 없이 프로필 API를 조용히 호출
+        const response = await fetch('http://localhost:8080/api/users/me', {
+            method: 'GET',
+            credentials: 'include'
+        });
+        
+        if (response.ok) {
+            userLoggedIn = true;
+            console.log('로그인 상태');
+        } else {
+            userLoggedIn = false;
+            console.log('비로그인 상태');
+        }
+    } catch (error) {
+        userLoggedIn = false;
+        console.log('비로그인 상태 (에러)');
+    }
+}
 
 // 게시글 목록 로드
 async function loadPosts() {
@@ -66,15 +87,6 @@ async function loadPosts() {
         
     } catch (error) {
         console.error('게시글 목록 로드 실패:', error);
-        
-        // 401 에러 시 로그아웃 처리 (로그인한 사용자만)
-        if (error.status === 401 && userLoggedIn) {
-            alert('로그인이 만료되었습니다. 다시 로그인해주세요.');
-            clearLoginData();
-            window.location.replace('/pages/login.html');
-            return;
-        }
-        
         alert(error.message || '게시글을 불러오는데 실패했습니다.');
         
         // 첫 로딩 실패 시 에러 메시지 표시
@@ -169,7 +181,6 @@ function handleWriteButtonClick() {
 
 function handleIntersection(entries) {
     entries.forEach(entry => {
-        // sentinel이 화면에 보이고, 로딩 중이 아니고, 더 가져올 데이터가 있으면
         if (entry.isIntersecting && !isLoading && hasNext) {
             console.log('📍 Sentinel 감지 - 다음 페이지 로드');
             loadPosts();
@@ -179,16 +190,12 @@ function handleIntersection(entries) {
 
 // 이벤트 리스너 설정
 function setupEventListeners() {
-    // 게시글 작성 버튼
     writeButton.addEventListener('click', handleWriteButtonClick);
-    
-    // 무한 스크롤 설정
     setupInfiniteScroll();
 }
 
 // 무한 스크롤 설정
 function setupInfiniteScroll() {
-    // 스크롤 감시용 sentinel 요소 생성
     sentinel = document.createElement('div');
     sentinel.id = 'scroll-sentinel';
     sentinel.style.height = '1px';
@@ -196,14 +203,11 @@ function setupInfiniteScroll() {
     
     loadingIndicator.parentNode.insertBefore(sentinel, loadingIndicator);
     
-    // Intersection Observer 생성
     observer = new IntersectionObserver(handleIntersection, {
-        // 300px 전에 미리 로드 (더 빠른 반응)
         rootMargin: '300px',
         threshold: 0
     });
     
-    // sentinel 감시 시작
     observer.observe(sentinel);
 }
 
@@ -215,13 +219,16 @@ async function init() {
     noMorePosts = document.getElementById('noMorePosts');
     writeButton = document.getElementById('writeButton');
     
-    // 2. 프로필 드롭다운 초기화
+    // 2. 로그인 상태 확인 (조용히 - 리다이렉트 없음)
+    await checkLoginStatus();
+    
+    // 3. 프로필 드롭다운 초기화
     initProfileDropdown({ isGuest: !userLoggedIn });
     
-    // 3. 이벤트 리스너 설정
+    // 4. 이벤트 리스너 설정
     setupEventListeners();
     
-    // 4. 초기 게시글 로드
+    // 5. 초기 게시글 로드
     await loadPosts();
     
     console.log('게시글 목록 페이지 로드 완료', userLoggedIn ? '(로그인)' : '(비로그인)');

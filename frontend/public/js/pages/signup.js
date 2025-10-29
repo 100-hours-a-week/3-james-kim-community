@@ -5,7 +5,6 @@ import { validateEmail, validatePassword, validatePasswordConfirm, validateNickn
 import { checkEmailDuplicate, checkNicknameDuplicate } from "../services/authService.js";
 import { uploadImage } from "../services/imageService.js";
 import { signup } from "../services/userService.js";
-import { saveLoginData } from "../utils/storage.js";
 
 // 회원가입 폼 로직 
 const signupEmailInput = document.getElementById('signupEmail');
@@ -214,6 +213,7 @@ signupForm.addEventListener('submit', async (event) => {
     signupButton.textContent = '회원가입 중...';
     
     try {
+        // 회원가입 (백엔드에서 자동으로 세션 생성됨)
         const result = await signup(
             signupEmailInput.value.trim(),
             signupPasswordInput.value.trim(),
@@ -222,11 +222,11 @@ signupForm.addEventListener('submit', async (event) => {
             uploadedImageUrl
         );
         
-        console.log('회원가입 성공:', result);
+        console.log('회원가입 성공 (세션 자동 생성됨):', result);
         
-        const { accessToken, refreshToken, userId } = result.data;
-        saveLoginData(accessToken, refreshToken, userId);
+        alert('회원가입이 완료되었습니다!');
         
+        // 바로 메인 페이지로 이동 (이미 로그인 상태)
         window.location.href = '/index.html';
         
     } catch (error) {
@@ -239,3 +239,5 @@ signupForm.addEventListener('submit', async (event) => {
 
 // 초기 상태
 signupButton.disabled = true;
+
+console.log('회원가입 모듈 로드 완료');

@@ -3,7 +3,6 @@
 
 import { getUserInfo, checkNicknameForUpdate, updateUserInfo, deleteUser } from "../services/userService.js";
 import { uploadImage } from "../services/imageService.js";
-import { isLoggedIn, clearLoginData } from "../utils/storage.js";
 import { validateNickname } from "../utils/validation.js";
 import { initProfileDropdown } from "../components/profileDropdown.js";
 import { getImageUrl, handleImageError } from '../utils/imageHelper.js';
@@ -62,11 +61,6 @@ async function loadUserInfo() {
     } catch (error) {
         console.error('사용자 정보 로드 실패:', error);
         alert(error.message);
-        
-        if (error.status === 401) {
-            clearLoginData();
-            window.location.href = '/pages/login.html';
-        }
     }
 }
 
@@ -173,14 +167,6 @@ async function handleImageChange(event) {
         
     } catch (error) {
         console.error('이미지 업로드 실패:', error);
-        
-        // 401 에러 시 로그아웃 처리
-        if (error.status === 401) {
-            alert('로그인이 만료되었습니다. 다시 로그인해주세요.');
-            clearLoginData();
-            window.location.replace('/pages/login.html');
-            return;
-        }
         
         alert(error.message);
         imageInput.value = '';
@@ -319,11 +305,6 @@ async function handleFormSubmit(event) {
         console.error('회원정보 수정 실패:', error);
         alert(error.message);
         
-        if (error.status === 401) {
-            clearLoginData();
-            window.location.href = '/pages/login.html';
-        }
-        
         btnSubmit.disabled = false;
         btnSubmit.textContent = '수정하기';
     }
@@ -348,8 +329,6 @@ async function handleConfirmWithdrawal() {
         
         console.log('회원 탈퇴 완료');
         
-        clearLoginData();
-        
         alert('회원 탈퇴가 완료되었습니다.');
         
         window.location.href = '/pages/login.html';
@@ -357,11 +336,6 @@ async function handleConfirmWithdrawal() {
     } catch (error) {
         console.error('회원 탈퇴 실패:', error);
         alert(error.message);
-        
-        if (error.status === 401) {
-            clearLoginData();
-            window.location.href = '/pages/login.html';
-        }
     }
 }
 
@@ -395,13 +369,7 @@ function setupEventListeners() {
 
 // 초기화
 async function init() {
-    // 1. 로그인 체크
-    if (!isLoggedIn()) {
-        alert('로그인이 필요합니다.');
-        window.location.replace('/pages/login.html');
-        throw new Error('Unauthorized access');
-    }
-    
+
     // 2. 헤더 생성
     renderHeader('.mobile-container');
     

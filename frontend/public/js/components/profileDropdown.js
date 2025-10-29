@@ -2,7 +2,6 @@
 // 프로필 드롭다운 메뉴 컴포넌트
 
 import { logout } from '../services/authService.js';
-import { clearLoginData } from '../utils/storage.js';
 import { getUserInfo } from '../services/userService.js';
 import { getImageUrl, handleImageError } from '../utils/imageHelper.js';
 
@@ -87,9 +86,14 @@ async function setupLoggedInDropdown(profileButton, dropdownMenu, logoutButton) 
     // 로그아웃 버튼
     if (logoutButton) {
         logoutButton.addEventListener('click', async () => {
-            await logout();
-            clearLoginData();
-            window.location.href = '/index.html';
+            try {
+                await logout(); // 서버 세션 무효화
+                window.location.href = '/index.html';
+            } catch (error) {
+                console.error('로그아웃 실패:', error);
+                // 실패해도 로그인 페이지로 이동
+                window.location.href = '/pages/login.html';
+            }
         });
     }
 }
@@ -142,12 +146,5 @@ async function loadProfileImage(profileButton) {
         
     } catch (error) {
         console.error('프로필 이미지 로드 실패:', error);
-        
-        // 401 에러 시 로그아웃 처리
-        if (error.status === 401) {
-            clearLoginData();
-            alert('로그인이 만료되었습니다.');
-            window.location.href = '/pages/login.html';
-        }
     }
 }
