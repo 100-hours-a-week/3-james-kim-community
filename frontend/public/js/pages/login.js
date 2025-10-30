@@ -113,8 +113,8 @@ loginForm.addEventListener('submit', async (event) => {
     
         console.log('로그인 성공:', result);
     
-        const { accessToken, refreshToken, userId } = result.data;
-        saveLoginData(accessToken, refreshToken, userId);
+        const { accessToken } = result.data;
+        saveLoginData(accessToken);
     
         window.location.href = '/index.html';
     

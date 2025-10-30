@@ -2,18 +2,13 @@
 // 토큰 관리용
 
 const STORAGE_KEYS = {
-    ACCESS_TOKEN: 'accessToken',
-    REFRESH_TOKEN: 'refreshToken',
-    USER_ID: 'userId',
+    ACCESS_TOKEN: 'accessToken'
 };
 
 // 로그인 정보 저장 (토큰 + 사용자 ID)
 function saveLoginData(accessToken, refreshToken, userId) {
     try {
-        localStorage.setItem(STORAGE_KEYS.ACCESS_TOKEN, accessToken);
-        localStorage.setItem(STORAGE_KEYS.REFRESH_TOKEN, refreshToken);
-        localStorage.setItem(STORAGE_KEYS.USER_ID, userId.toString());
-    
+        sessionStorage.setItem(STORAGE_KEYS.ACCESS_TOKEN, accessToken);
         console.log('로그인 정보 저장 완료');
     } catch (error) {
         console.error('로그인 정보 저장 실패:', error);
@@ -22,16 +17,7 @@ function saveLoginData(accessToken, refreshToken, userId) {
 }
 
 function getAccessToken() {
-    return localStorage.getItem(STORAGE_KEYS.ACCESS_TOKEN);
-}
-
-function getRefreshToken() {
-    return localStorage.getItem(STORAGE_KEYS.REFRESH_TOKEN);
-}
-
-function getUserId() {
-    const userId = localStorage.getItem(STORAGE_KEYS.USER_ID);
-    return userId ? parseInt(userId, 10) : null;
+    return sessionStorage.getItem(STORAGE_KEYS.ACCESS_TOKEN);
 }
 
 function isLoggedIn() {
@@ -42,7 +28,7 @@ function isLoggedIn() {
 // accessToken 갱신
 function updateAccessToken(newAccessToken) {
     try {
-        localStorage.setItem(STORAGE_KEYS.ACCESS_TOKEN, newAccessToken);
+        sessionStorage.setItem(STORAGE_KEYS.ACCESS_TOKEN, newAccessToken);
         console.log("Access Token 갱신 완료");
     } catch (error) {
         console.log("Access Token 갱신 실패", error);
@@ -53,10 +39,7 @@ function updateAccessToken(newAccessToken) {
 // 로그아웃 (모든 로그인 정보 삭제)
 function clearLoginData() {
     try {
-        localStorage.removeItem(STORAGE_KEYS.ACCESS_TOKEN);
-        localStorage.removeItem(STORAGE_KEYS.REFRESH_TOKEN);
-        localStorage.removeItem(STORAGE_KEYS.USER_ID);
-    
+        sessionStorage.removeItem(STORAGE_KEYS.ACCESS_TOKEN);
         console.log('로그인 정보 삭제 완료');
     } catch (error) {
         console.error('로그인 정보 삭제 실패:', error);
@@ -66,8 +49,6 @@ function clearLoginData() {
 export {
     saveLoginData,
     getAccessToken,
-    getRefreshToken,
-    getUserId,
     isLoggedIn,
     updateAccessToken,
     clearLoginData,

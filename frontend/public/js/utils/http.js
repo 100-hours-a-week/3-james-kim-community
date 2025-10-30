@@ -1,7 +1,7 @@
 // public/js/utils/http.js
 // HTTP 요청 함수 (fetch)
 
-import { getAccessToken, getRefreshToken, clearLoginData, updateAccessToken } from "./storage.js";
+import { getAccessToken, clearLoginData, updateAccessToken } from "./storage.js";
 import { API_ENDPOINTS } from "../config/api.js";
 
 // token 상태 관리
@@ -10,18 +10,14 @@ let failedRequestsQueue = []; // 갱신 대기 중 요청들
 
 // Refresh Token으로 Access Token 갱신
 async function refreshAccessToken() {
-    const refreshToken = getRefreshToken();
-
-    if (!refreshToken) {
-        throw new Error('REFRESH_TOKEN_MISSING');
-    }
+    // refresh token은 쿠키로 자동 전송
 
     console.log('Access Token 갱신 시도');
 
     const response = await fetch(API_ENDPOINTS.TOKEN_REFRESH, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({refreshToken}),
+        credentials: 'include'
     });
 
     const result = await response.json();
@@ -152,7 +148,8 @@ async function request(url, options = {}) {
         // 2. Fetch 옵션 구성
         const fetchOptions = {
             method: method,
-            headers: headers
+            headers: headers, 
+            credentials: 'include'
         };
 
         // Body 추가 (GET, HEAD 메서드는 body 없음)
@@ -258,5 +255,5 @@ export {
     postFormData,
     putWithAuth,
     patchWithAuth,
-    deleteWithAuth 
+    deleteWithAuth
 };
