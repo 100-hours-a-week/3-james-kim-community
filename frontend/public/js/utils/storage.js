@@ -6,9 +6,9 @@ const STORAGE_KEYS = {
 };
 
 // 로그인 정보 저장 (토큰 + 사용자 ID)
-function saveLoginData(accessToken, refreshToken, userId) {
+function saveLoginData(accessToken) {
     try {
-        sessionStorage.setItem(STORAGE_KEYS.ACCESS_TOKEN, accessToken);
+        localStorage.setItem(STORAGE_KEYS.ACCESS_TOKEN, accessToken);
         console.log('로그인 정보 저장 완료');
     } catch (error) {
         console.error('로그인 정보 저장 실패:', error);
@@ -17,7 +17,7 @@ function saveLoginData(accessToken, refreshToken, userId) {
 }
 
 function getAccessToken() {
-    return sessionStorage.getItem(STORAGE_KEYS.ACCESS_TOKEN);
+    return localStorage.getItem(STORAGE_KEYS.ACCESS_TOKEN);
 }
 
 function isLoggedIn() {
@@ -28,7 +28,7 @@ function isLoggedIn() {
 // accessToken 갱신
 function updateAccessToken(newAccessToken) {
     try {
-        sessionStorage.setItem(STORAGE_KEYS.ACCESS_TOKEN, newAccessToken);
+        localStorage.setItem(STORAGE_KEYS.ACCESS_TOKEN, newAccessToken);
         console.log("Access Token 갱신 완료");
     } catch (error) {
         console.log("Access Token 갱신 실패", error);
@@ -39,7 +39,7 @@ function updateAccessToken(newAccessToken) {
 // 로그아웃 (모든 로그인 정보 삭제)
 function clearLoginData() {
     try {
-        sessionStorage.removeItem(STORAGE_KEYS.ACCESS_TOKEN);
+        localStorage.removeItem(STORAGE_KEYS.ACCESS_TOKEN);
         console.log('로그인 정보 삭제 완료');
     } catch (error) {
         console.error('로그인 정보 삭제 실패:', error);
