@@ -2,10 +2,11 @@
 // 백엔드 API 엔드포인트 URL 관리
 
 // API 기본 URL (스프링부트 서버)
-const API_BASE_URL = 'http://ec2-43-200-174-164.ap-northeast-2.compute.amazonaws.com:8080/api';
+const API_BASE_URL = '/api';
 
-// 이미지 파일 접근용 (로컬 파일 시스템이라서 임시 - s3 전환 후 수정 예정)
-const BACKEND_BASE_URL = 'http://ec2-43-200-174-164.ap-northeast-2.compute.amazonaws.com:8080:8080';
+// API Gateway URL (환경변수 또는 설정 파일에서 관리)
+// 실제 배포 시 Lambda API Gateway URL로 변경 필요
+const API_GATEWAY_URL = 'https://xxxxx.execute-api.ap-northeast-2.amazonaws.com/prod';
 
 // 로그인 API 엔드포인트
 const API_ENDPOINTS = {
@@ -25,7 +26,7 @@ const API_ENDPOINTS = {
     CHECK_NICKNAME_UPDATE: `${API_BASE_URL}/users/check-nickname`,
 
     // 이미지 관련
-    UPLOAD_IMAGE: `${API_BASE_URL}/images`,
+    UPLOAD_IMAGE: `${API_GATEWAY_URL}/images/upload`,
 
     // 게시글 관련
     POSTS: `${API_BASE_URL}/posts`,
