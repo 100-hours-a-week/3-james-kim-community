@@ -6,7 +6,7 @@ const API_BASE_URL = '/api';
 
 // API Gateway URL (환경변수 또는 설정 파일에서 관리)
 // 실제 배포 시 Lambda API Gateway URL로 변경 필요
-const API_GATEWAY_URL = 'https://xxxxx.execute-api.ap-northeast-2.amazonaws.com/prod';
+const API_GATEWAY_URL = 'https://community-alb-641604100.ap-northeast-2.elb.amazonaws.com';
 
 // 로그인 API 엔드포인트
 const API_ENDPOINTS = {
