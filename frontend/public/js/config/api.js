@@ -4,9 +4,8 @@
 // API 기본 URL (스프링부트 서버)
 const API_BASE_URL = '/api';
 
-// API Gateway URL (환경변수 또는 설정 파일에서 관리)
-// 실제 배포 시 Lambda API Gateway URL로 변경 필요
-const API_GATEWAY_URL = 'https://community-alb-641604100.ap-northeast-2.elb.amazonaws.com';
+// 이미지 람다함수
+const IMAGE_UPLOAD_URL = 'https://an0sxmp7he.execute-api.ap-northeast-2.amazonaws.com/prod/images/upload';
 
 // 로그인 API 엔드포인트
 const API_ENDPOINTS = {
@@ -26,7 +25,7 @@ const API_ENDPOINTS = {
     CHECK_NICKNAME_UPDATE: `${API_BASE_URL}/users/check-nickname`,
 
     // 이미지 관련
-    UPLOAD_IMAGE: `${API_GATEWAY_URL}/images/upload`,
+    UPLOAD_IMAGE: IMAGE_UPLOAD_URL,
 
     // 게시글 관련
     POSTS: `${API_BASE_URL}/posts`,
@@ -40,4 +39,4 @@ const API_ENDPOINTS = {
 
 };
 
-export { API_BASE_URL, API_ENDPOINTS, BACKEND_BASE_URL };
+export { API_BASE_URL, API_ENDPOINTS };
