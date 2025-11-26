@@ -1,0 +1,63 @@
+# Node.js 관련
+node_modules/
+npm-debug.log
+
+# IDE 설정
+.idea/
+.vscode/
+*.swp
+*.swo
+*.swn
+
+# Git 관련
+.git/
+.gitignore
+.gitattributes
+.github/
+
+# OS 생성 파일
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# 로그 파일
+logs/
+*.log
+npm-debug.log*
+
+# 빌드 결과물 
+dist/
+build/
+.cache/
+
+# 문서
+README.md
+CHANGELOG.md
+LICENSE
+docs/
+
+# Docker 관련 (재귀 방지)
+Dockerfile
+.dockerignore
+docker-compose*.yml
+
+# 환경 변수 파일
+.env
+.env.*
+
+# 임시 파일
+*.tmp
+*.temp
+.temp/
+tmp/
+
+# package-lock 관련
+# npm ci 쓰니까 yarn.lock은 제외
+yarn.lock
+pnpm-lock.yaml
