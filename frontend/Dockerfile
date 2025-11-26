@@ -1,5 +1,5 @@
 # Dependencies Stage
-FROM node:18-alpine AS builder
+FROM node:22-alpine AS builder
 
 # Work Directory
 WORKDIR /app
@@ -13,7 +13,7 @@ RUN npm ci --omit-dev
 # =======================================
 
 # Runtime Stage 
-FROM node:18-alpine
+FROM node:22-alpine
 
 # Work Directory
 WORKDIR /app
