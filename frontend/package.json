@@ -9,7 +9,7 @@
   "scripts": {
     "start": "node app.js",
     "dev": "node app.js",
-    "test": "ndoe --test test/*.test.js"
+    "test": "node --test test/*.test.js"
   },
   "repository": {
     "type": "git",
