@@ -30,7 +30,7 @@ jobs:
         with:
           path: ~/.npm
           key: ${{ runner.os }}-node-${{ hashFiles('frontend/**/package-lock.json') }}
-          restore-key: |
+          restore-keys: |
             ${{ runner.os }}-node-
     
       - name: Install dependencies
@@ -42,7 +42,7 @@ jobs:
   deploy:
     needs: test
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main'
+    # if: github.ref == 'refs/heads/main'
 
     defaults:
       run:
