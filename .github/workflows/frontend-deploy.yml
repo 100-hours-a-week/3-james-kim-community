@@ -92,7 +92,7 @@ jobs:
           sleep 5
 
           for i in {1..10}; do
-            if curl -f http://${{ secrets.FRONTEND_PUBLIC_IP }} > /dev/null 2>&1; then
+            if curl -f http://${{ secrets.FRONTEND_ALB_DNS }} > /dev/null 2>&1; then
               echo "Healthy!"
               exit 0
             fi
