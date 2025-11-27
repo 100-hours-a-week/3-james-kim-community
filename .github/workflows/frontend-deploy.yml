@@ -82,7 +82,7 @@ jobs:
             cd ~/docker-compose
 
             docker load < /tmp/frontend.tar.gz
-            docker-compose up -d
+            docker compose up -d
 
             rm /tmp/frontend.tar.gz
           EOF
