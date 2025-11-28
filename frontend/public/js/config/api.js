@@ -5,7 +5,7 @@
 const API_BASE_URL = '/api';
 
 // 이미지 람다함수
-const IMAGE_UPLOAD_URL = 'https://an0sxmp7he.execute-api.ap-northeast-2.amazonaws.com/prod/images/upload';
+const IMAGE_UPLOAD_URL = 'https://api.jmin-community.store/images/upload';
 
 // 로그인 API 엔드포인트
 const API_ENDPOINTS = {

@@ -1,0 +1,110 @@
+name: Frontend CD
+
+on:
+  push:
+    branches:
+      - feature/update-image-upload
+    paths:
+      - 'frontend/**'
+      - '.github/workflows/frontend-deploy.yml'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: ./frontend
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+    
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+        
+      - name: Cache npm packages
+        uses: actions/cache@v3
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('frontend/**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+    
+      - name: Install dependencies
+        run: npm ci
+    
+      - name: Run tests
+        run: npm test
+  
+  deploy:
+    needs: test
+    runs-on: ubuntu-latest
+    # if: github.ref == 'refs/heads/main'
+
+    defaults:
+      run:
+        working-directory: ./frontend
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+    
+      - name: Build docker image
+        run: |
+          docker build --platform linux/amd64 \
+          -t frontend:${{ github.sha }} .
+
+          docker save frontend:${{ github.sha }} | gzip > /tmp/frontend.tar.gz
+
+      - name: Setup SSH key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -H ${{ secrets.FRONTEND_PUBLIC_IP }} >> ~/.ssh/known_hosts
+      
+      - name: Transfer Docker image
+        run: |
+          scp -i ~/.ssh/deploy_key \
+          /tmp/frontend.tar.gz \
+          ubuntu@${{ secrets.FRONTEND_PUBLIC_IP }}:/tmp/frontend.tar.gz
+        
+      - name: Deploy on FrontEnd EC2
+        env:
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          ssh -i ~/.ssh/deploy_key ubuntu@${{ secrets.FRONTEND_PUBLIC_IP }} << EOF
+            sed -i "s/^IMAGE_TAG=.*/IMAGE_TAG=$IMAGE_TAG/" ~/docker-compose/.env
+
+            cd ~/docker-compose
+
+            docker load < /tmp/frontend.tar.gz
+            docker compose up -d
+
+            rm /tmp/frontend.tar.gz
+          EOF
+        
+      - name: Health Check
+        run: |
+          sleep 5
+
+          for i in {1..10}; do
+            if curl -f http://${{ secrets.FRONTEND_ALB_DNS }} > /dev/null 2>&1; then
+              echo "Healthy!"
+              exit 0
+            fi
+            echo "⏳ $i/10..."
+            sleep 2
+          done
+
+          echo "Failed"
+          exit 1
+
+      - name: Clean up
+        if: always()
+        run: |
+          rm -f ~/.ssh/deploy_key
+          rm -f /tmp/frontend.tar.gz
