@@ -7,13 +7,19 @@ on:
     paths:
       - 'frontend/**'
       - '.github/workflows/frontend-deploy.yml'
+  pull_request:
+    branches:
+      - feature/update-image-upload
+    paths:
+      - 'frontend/**'
+      - '.github/workflows/frontend-deploy.yml'
 
 env:
   AWS_REGION: ap-northeast-2
   ECR_REPOSITORY: frontend 
 
 jobs:
-  build:
+  build: # Test and Build Job
     runs-on: ubuntu-latest
 
     defaults:
@@ -27,6 +33,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      # Version Tracking
       - name: Generate image tag
         id: image-tag
         run: |
@@ -37,6 +44,7 @@ jobs:
         with:
           node-version: '22'
 
+      # npm Caching -> Build Speed up
       - name: Cache npm packages
         uses: actions/cache@v3
         with:
@@ -51,6 +59,7 @@ jobs:
       - name: Run tests
         run: npm test
 
+      # AWS Credentials For ECR Push
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -62,6 +71,8 @@ jobs:
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
 
+      # Docker Image Build and ECR Push
+      # Tag: Rollback and Latest version
       - name: Build and push Docker image
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
@@ -77,6 +88,7 @@ jobs:
   deploy:
     needs: build
     runs-on: ubuntu-latest  
+    if: github.event_name == 'push' # PR Deploy X
 
     outputs:
       new_env: ${{ steps.determine-env.outputs.new_env }}
@@ -89,6 +101,14 @@ jobs:
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/deploy_key
           chmod 600 ~/.ssh/deploy_key
           ssh-keyscan -H ${{ secrets.FRONTEND_PUBLIC_IP }} >> ~/.ssh/known_hosts
+
+      # AWS Credentials for Modifying ALB Role
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
 
       - name: Determine current environment
         id: determine-env
@@ -111,13 +131,17 @@ jobs:
           
           echo "current: $CURRENT, deploy: $([ "$CURRENT" = "blue" ] && echo "green" || echo "blue")"
 
-      - name: Deploy new version
+      - name: Update image tag and Deploy new version
         env:
           IMAGE_TAG: ${{ needs.build.outputs.image_tag }}
           NEW_ENV: ${{ steps.determine-env.outputs.new_env }}
         run: |
           ssh -i ~/.ssh/deploy_key ubuntu@${{ secrets.FRONTEND_PUBLIC_IP }} << EOF
-            # .env 업데이트
+            # ECR login (in Frontend EC2)
+            REGISTRY="${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${AWS_REGION}.amazonaws.com"
+            aws ecr get-login-password --region ${AWS_REGION} \
+              | docker login --username AWS --password-stdin \$REGISTRY
+
             cd ~/docker-compose
             if [ "$NEW_ENV" = "blue" ]; then
               sed -i "s/^BLUE_TAG=.*/BLUE_TAG=$IMAGE_TAG/" .env
@@ -125,7 +149,6 @@ jobs:
               sed -i "s/^GREEN_TAG=.*/GREEN_TAG=$IMAGE_TAG/" .env
             fi
             
-            # ECR에서 pull & 배포 (백엔드와 동일!)
             docker compose pull frontend-$NEW_ENV
             docker compose up -d frontend-$NEW_ENV
           EOF
@@ -133,50 +156,50 @@ jobs:
       - name: Health check
         env:
           NEW_PORT: ${{ steps.determine-env.outputs.new_port }}
+          NEW_ENV: ${{ steps.determine-env.outputs.new_env }}
         run: |
           sleep 10
           
           for i in {1..30}; do
             if ssh -i ~/.ssh/deploy_key ubuntu@${{ secrets.FRONTEND_PUBLIC_IP }} \
               "curl -f http://localhost:$NEW_PORT > /dev/null 2>&1"; then
-              echo " New version healthy!"
+              echo "New version successful!"
               exit 0
             fi
-            echo "⏳ $i/30..."
+            echo "$i/30..."
             sleep 2
           done
           
-          echo " Health check failed!"
+          echo "Health check failed!"
           ssh -i ~/.ssh/deploy_key ubuntu@${{ secrets.FRONTEND_PUBLIC_IP }} \
             "docker logs frontend-$NEW_ENV --tail 50"
           exit 1
 
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ env.AWS_REGION }}
-
+      # ALB Traffic (Blue <-> Green)
+      # Using TG of Listener Rule
       - name: Switch ALB traffic
         env:
           NEW_ENV: ${{ steps.determine-env.outputs.new_env }}
         run: |
+          # ALB ARN
           ALB_ARN=$(aws elbv2 describe-load-balancers \
             --names community-alb \
             --query 'LoadBalancers[0].LoadBalancerArn' \
             --output text)
-          
+
+          # Listener ARN (HTTP:443)
           LISTENER_ARN=$(aws elbv2 describe-listeners \
             --load-balancer-arn $ALB_ARN \
             --query 'Listeners[?Port==`443`].ListenerArn' \
             --output text)
           
+          # Rule ARN (Priority 2: frontend /*)
           RULE_ARN=$(aws elbv2 describe-rules \
             --listener-arn $LISTENER_ARN \
             --query 'Rules[?Priority==`"2"`].RuleArn' \
             --output text)
           
+          # Target Group ARN
           if [ "$NEW_ENV" = "green" ]; then
             TG_ARN=$(aws elbv2 describe-target-groups \
               --names community-frontend-green-tg \
@@ -189,32 +212,23 @@ jobs:
               --output text)
           fi
           
+          # switch traffic 
           aws elbv2 modify-rule \
             --rule-arn $RULE_ARN \
             --actions Type=forward,TargetGroupArn=$TG_ARN
           
           sleep 5
 
-      - name: Stop old version
+      - name: Stop old version and Update current environment
         env:
           OLD_ENV: ${{ steps.determine-env.outputs.old_env }}
-        run: |
-          ssh -i ~/.ssh/deploy_key ubuntu@${{ secrets.FRONTEND_PUBLIC_IP }} << EOF
-            cd ~/docker-compose
-            docker compose stop frontend-$OLD_ENV
-          EOF
-
-      - name: Update current environment
-        env:
           NEW_ENV: ${{ steps.determine-env.outputs.new_env }}
         run: |
           ssh -i ~/.ssh/deploy_key ubuntu@${{ secrets.FRONTEND_PUBLIC_IP }} << EOF
             cd ~/docker-compose
-            sed -i "s/CURRENT_ENV=.*/CURRENT_ENV=$NEW_ENV/" .env
-          EOF
+            docker compose stop frontend-$OLD_ENV
 
-      - name: Clean up old images
-        if: success()
-        run: |
-          ssh -i ~/.ssh/deploy_key ubuntu@${{ secrets.FRONTEND_PUBLIC_IP }} \
-            "docker image prune -f"
+            sed -i "s/CURRENT_ENV=.*/CURRENT_ENV=$NEW_ENV/" .env
+
+            docker image prune -f
+          EOF
