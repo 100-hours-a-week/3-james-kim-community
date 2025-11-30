@@ -163,7 +163,7 @@ jobs:
           NEW_ENV: ${{ steps.determine-env.outputs.new_env }}
         run: |
           ALB_ARN=$(aws elbv2 describe-load-balancers \
-            --names frontend-alb \
+            --names community-alb \
             --query 'LoadBalancers[0].LoadBalancerArn' \
             --output text)
           
