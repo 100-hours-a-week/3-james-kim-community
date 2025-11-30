@@ -116,7 +116,7 @@ jobs:
           IMAGE_TAG: ${{ needs.build.outputs.image_tag }}
           NEW_ENV: ${{ steps.determine-env.outputs.new_env }}
         run: |
-          ssh -i ~/.ssh/deploy_key ubuntu@${{ secrets.FRONTEND_PUBLIC_IP }} << 'EOF'
+          ssh -i ~/.ssh/deploy_key ubuntu@${{ secrets.FRONTEND_PUBLIC_IP }} << EOF
             # .env 업데이트
             cd ~/docker-compose
             if [ "$NEW_ENV" = "blue" ]; then
@@ -199,7 +199,7 @@ jobs:
         env:
           OLD_ENV: ${{ steps.determine-env.outputs.old_env }}
         run: |
-          ssh -i ~/.ssh/deploy_key ubuntu@${{ secrets.FRONTEND_PUBLIC_IP }} << 'EOF'
+          ssh -i ~/.ssh/deploy_key ubuntu@${{ secrets.FRONTEND_PUBLIC_IP }} << EOF
             cd ~/docker-compose
             docker compose stop frontend-$OLD_ENV
           EOF
@@ -208,7 +208,7 @@ jobs:
         env:
           NEW_ENV: ${{ steps.determine-env.outputs.new_env }}
         run: |
-          ssh -i ~/.ssh/deploy_key ubuntu@${{ secrets.FRONTEND_PUBLIC_IP }} << 'EOF'
+          ssh -i ~/.ssh/deploy_key ubuntu@${{ secrets.FRONTEND_PUBLIC_IP }} << EOF
             cd ~/docker-compose
             sed -i "s/CURRENT_ENV=.*/CURRENT_ENV=$NEW_ENV/" .env
           EOF
