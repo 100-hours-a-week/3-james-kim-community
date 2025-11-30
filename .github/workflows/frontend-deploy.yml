@@ -3,7 +3,7 @@ name: Frontend Blue/Green Deploy
 on:
   push:
     branches:
-      - main
+      - feature/update-image-upload
     paths:
       - 'frontend/**'
       - '.github/workflows/frontend-deploy.yml'
