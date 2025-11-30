@@ -1,30 +1,42 @@
-name: Frontend CD
+name: Frontend Blue/Green Deploy
 
 on:
   push:
     branches:
-      - feature/update-image-upload
+      - main
     paths:
       - 'frontend/**'
       - '.github/workflows/frontend-deploy.yml'
 
+env:
+  AWS_REGION: ap-northeast-2
+  ECR_REPOSITORY: frontend 
+
 jobs:
-  test:
+  build:
     runs-on: ubuntu-latest
 
     defaults:
       run:
         working-directory: ./frontend
-    
+
+    outputs:
+      image_tag: ${{ steps.image-tag.outputs.tag }}
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-    
+
+      - name: Generate image tag
+        id: image-tag
+        run: |
+          echo "tag=${{ github.sha }}" >> $GITHUB_OUTPUT
+
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '22'
-        
+
       - name: Cache npm packages
         uses: actions/cache@v3
         with:
@@ -32,79 +44,177 @@ jobs:
           key: ${{ runner.os }}-node-${{ hashFiles('frontend/**/package-lock.json') }}
           restore-keys: |
             ${{ runner.os }}-node-
-    
+
       - name: Install dependencies
         run: npm ci
-    
+
       - name: Run tests
         run: npm test
-  
-  deploy:
-    needs: test
-    runs-on: ubuntu-latest
-    # if: github.ref == 'refs/heads/main'
 
-    defaults:
-      run:
-        working-directory: ./frontend
-    
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-    
-      - name: Build docker image
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build and push Docker image
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          IMAGE_TAG: ${{ steps.image-tag.outputs.tag }}
         run: |
           docker build --platform linux/amd64 \
-          -t frontend:${{ github.sha }} .
+            -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG \
+            -t $ECR_REGISTRY/$ECR_REPOSITORY:latest .
+          
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
 
-          docker save frontend:${{ github.sha }} | gzip > /tmp/frontend.tar.gz
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest  
 
+    outputs:
+      new_env: ${{ steps.determine-env.outputs.new_env }}
+      old_env: ${{ steps.determine-env.outputs.old_env }}
+
+    steps:
       - name: Setup SSH key
         run: |
           mkdir -p ~/.ssh
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/deploy_key
           chmod 600 ~/.ssh/deploy_key
           ssh-keyscan -H ${{ secrets.FRONTEND_PUBLIC_IP }} >> ~/.ssh/known_hosts
-      
-      - name: Transfer Docker image
+
+      - name: Determine current environment
+        id: determine-env
         run: |
-          scp -i ~/.ssh/deploy_key \
-          /tmp/frontend.tar.gz \
-          ubuntu@${{ secrets.FRONTEND_PUBLIC_IP }}:/tmp/frontend.tar.gz
-        
-      - name: Deploy on FrontEnd EC2
+          CURRENT=$(ssh -i ~/.ssh/deploy_key \
+            ubuntu@${{ secrets.FRONTEND_PUBLIC_IP }} \
+            "grep CURRENT_ENV ~/docker-compose/.env | cut -d '=' -f2")
+          
+          if [ "$CURRENT" = "blue" ]; then
+            echo "new_env=green" >> $GITHUB_OUTPUT
+            echo "new_port=3001" >> $GITHUB_OUTPUT
+            echo "old_env=blue" >> $GITHUB_OUTPUT
+            echo "old_port=3000" >> $GITHUB_OUTPUT
+          else
+            echo "new_env=blue" >> $GITHUB_OUTPUT
+            echo "new_port=3000" >> $GITHUB_OUTPUT
+            echo "old_env=green" >> $GITHUB_OUTPUT
+            echo "old_port=3001" >> $GITHUB_OUTPUT
+          fi
+          
+          echo "current: $CURRENT, deploy: $([ "$CURRENT" = "blue" ] && echo "green" || echo "blue")"
+
+      - name: Deploy new version
         env:
-          IMAGE_TAG: ${{ github.sha }}
+          IMAGE_TAG: ${{ needs.build.outputs.image_tag }}
+          NEW_ENV: ${{ steps.determine-env.outputs.new_env }}
         run: |
-          ssh -i ~/.ssh/deploy_key ubuntu@${{ secrets.FRONTEND_PUBLIC_IP }} << EOF
-            sed -i "s/^IMAGE_TAG=.*/IMAGE_TAG=$IMAGE_TAG/" ~/docker-compose/.env
-
+          ssh -i ~/.ssh/deploy_key ubuntu@${{ secrets.FRONTEND_PUBLIC_IP }} << 'EOF'
+            # .env 업데이트
             cd ~/docker-compose
-
-            docker load < /tmp/frontend.tar.gz
-            docker compose up -d
-
-            rm /tmp/frontend.tar.gz
+            if [ "$NEW_ENV" = "blue" ]; then
+              sed -i "s/^BLUE_TAG=.*/BLUE_TAG=$IMAGE_TAG/" .env
+            else
+              sed -i "s/^GREEN_TAG=.*/GREEN_TAG=$IMAGE_TAG/" .env
+            fi
+            
+            # ECR에서 pull & 배포 (백엔드와 동일!)
+            docker compose pull frontend-$NEW_ENV
+            docker compose up -d frontend-$NEW_ENV
           EOF
-        
-      - name: Health Check
-        run: |
-          sleep 5
 
-          for i in {1..10}; do
-            if curl -f http://${{ secrets.FRONTEND_ALB_DNS }} > /dev/null 2>&1; then
-              echo "Healthy!"
+      - name: Health check
+        env:
+          NEW_PORT: ${{ steps.determine-env.outputs.new_port }}
+        run: |
+          sleep 10
+          
+          for i in {1..30}; do
+            if ssh -i ~/.ssh/deploy_key ubuntu@${{ secrets.FRONTEND_PUBLIC_IP }} \
+              "curl -f http://localhost:$NEW_PORT > /dev/null 2>&1"; then
+              echo " New version healthy!"
               exit 0
             fi
-            echo "⏳ $i/10..."
+            echo "⏳ $i/30..."
             sleep 2
           done
-
-          echo "Failed"
+          
+          echo " Health check failed!"
+          ssh -i ~/.ssh/deploy_key ubuntu@${{ secrets.FRONTEND_PUBLIC_IP }} \
+            "docker logs frontend-$NEW_ENV --tail 50"
           exit 1
 
-      - name: Clean up
-        if: always()
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Switch ALB traffic
+        env:
+          NEW_ENV: ${{ steps.determine-env.outputs.new_env }}
         run: |
-          rm -f ~/.ssh/deploy_key
-          rm -f /tmp/frontend.tar.gz
+          ALB_ARN=$(aws elbv2 describe-load-balancers \
+            --names frontend-alb \
+            --query 'LoadBalancers[0].LoadBalancerArn' \
+            --output text)
+          
+          LISTENER_ARN=$(aws elbv2 describe-listeners \
+            --load-balancer-arn $ALB_ARN \
+            --query 'Listeners[?Port==`443`].ListenerArn' \
+            --output text)
+          
+          RULE_ARN=$(aws elbv2 describe-rules \
+            --listener-arn $LISTENER_ARN \
+            --query 'Rules[?Priority==`"2"`].RuleArn' \
+            --output text)
+          
+          if [ "$NEW_ENV" = "green" ]; then
+            TG_ARN=$(aws elbv2 describe-target-groups \
+              --names community-frontend-green-tg \
+              --query 'TargetGroups[0].TargetGroupArn' \
+              --output text)
+          else
+            TG_ARN=$(aws elbv2 describe-target-groups \
+              --names community-frontend-tg \
+              --query 'TargetGroups[0].TargetGroupArn' \
+              --output text)
+          fi
+          
+          aws elbv2 modify-rule \
+            --rule-arn $RULE_ARN \
+            --actions Type=forward,TargetGroupArn=$TG_ARN
+          
+          sleep 5
+
+      - name: Stop old version
+        env:
+          OLD_ENV: ${{ steps.determine-env.outputs.old_env }}
+        run: |
+          ssh -i ~/.ssh/deploy_key ubuntu@${{ secrets.FRONTEND_PUBLIC_IP }} << 'EOF'
+            cd ~/docker-compose
+            docker compose stop frontend-$OLD_ENV
+          EOF
+
+      - name: Update current environment
+        env:
+          NEW_ENV: ${{ steps.determine-env.outputs.new_env }}
+        run: |
+          ssh -i ~/.ssh/deploy_key ubuntu@${{ secrets.FRONTEND_PUBLIC_IP }} << 'EOF'
+            cd ~/docker-compose
+            sed -i "s/CURRENT_ENV=.*/CURRENT_ENV=$NEW_ENV/" .env
+          EOF
+
+      - name: Clean up old images
+        if: success()
+        run: |
+          ssh -i ~/.ssh/deploy_key ubuntu@${{ secrets.FRONTEND_PUBLIC_IP }} \
+            "docker image prune -f"
