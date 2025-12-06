@@ -128,6 +128,7 @@ jobs:
             # ECR login (in Frontend EC2)
             REGISTRY="${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${AWS_REGION}.amazonaws.com"
             aws ecr get-login-password --region ${AWS_REGION} \
+            --endpoint-url https://api.ecr.ap-northeast-2.amazonaws.com \
               | docker login --username AWS --password-stdin \$REGISTRY
 
             cd ~/docker-compose
