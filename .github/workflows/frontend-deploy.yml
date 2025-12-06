@@ -130,27 +130,15 @@ jobs:
             aws ecr get-login-password --region ${AWS_REGION} \
               | docker login --username AWS --password-stdin \$REGISTRY
 
-            echo "test1"
-
             cd ~/docker-compose
-
-            echo "test2"
-
             if [ "$NEW_ENV" = "blue" ]; then
               sed -i "s/^BLUE_TAG=.*/BLUE_TAG=$IMAGE_TAG/" .env
             else
               sed -i "s/^GREEN_TAG=.*/GREEN_TAG=$IMAGE_TAG/" .env
             fi
-
-            echo "test3"
             
             docker compose pull frontend-$NEW_ENV
-
-            echo "test4"
-
             docker compose up -d frontend-$NEW_ENV
-
-            echo "test5"
           EOF
 
       - name: Health check
