@@ -103,7 +103,7 @@ jobs:
         run: |
           CURRENT=$(ssh -i ~/.ssh/deploy_key \
             ubuntu@${{ secrets.FRONTEND_PUBLIC_IP }} \
-            "grep CURRNET_ENV ~/docker-compose/.env | cut -d '=' -f2")
+            "grep CURRENT_ENV ~/docker-compose/.env | cut -d '=' -f2")
           
           if [ "$CURRENT" = "blue" ]; then
             echo "new_env=green" >> $GITHUB_OUTPUT
