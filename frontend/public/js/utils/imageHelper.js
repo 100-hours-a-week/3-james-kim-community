@@ -1,8 +1,6 @@
 // public/js/utils/imageHelper.js
 // 이미지 URL 헬퍼 함수
 
-import { BACKEND_BASE_URL } from '../config/api.js';
-
 /**
  * 백엔드 이미지 URL을 완전한 URL로 변환
  * @param {string|null} imageUrl - 백엔드에서 받은 이미지 URL
@@ -19,11 +17,6 @@ export function getImageUrl(imageUrl) {
     // 이미 완전한 URL이면 그대로 반환 (S3 URL 등)
     if (imageUrl.startsWith('http://') || imageUrl.startsWith('https://')) {
         return imageUrl;
-    }
-    
-    // 상대 경로면 백엔드 서버 URL 붙이기
-    if (imageUrl.startsWith('/images') || imageUrl.startsWith('/temp/')) {
-        return `${BACKEND_BASE_URL}${imageUrl}`;
     }
     
     return DEFAULT_IMAGE;

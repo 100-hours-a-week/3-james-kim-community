@@ -4,8 +4,8 @@
 // API 기본 URL (스프링부트 서버)
 const API_BASE_URL = '/api';
 
-// 이미지 파일 접근용 (로컬 파일 시스템이라서 임시 - s3 전환 후 수정 예정)
-const BACKEND_BASE_URL = '';
+// 이미지 람다함수
+const IMAGE_UPLOAD_URL = 'https://api.jmin-community.store/images/upload';
 
 // 로그인 API 엔드포인트
 const API_ENDPOINTS = {
@@ -25,7 +25,7 @@ const API_ENDPOINTS = {
     CHECK_NICKNAME_UPDATE: `${API_BASE_URL}/users/check-nickname`,
 
     // 이미지 관련
-    UPLOAD_IMAGE: `${API_BASE_URL}/images`,
+    UPLOAD_IMAGE: IMAGE_UPLOAD_URL,
 
     // 게시글 관련
     POSTS: `${API_BASE_URL}/posts`,
@@ -39,4 +39,4 @@ const API_ENDPOINTS = {
 
 };
 
-export { API_BASE_URL, API_ENDPOINTS, BACKEND_BASE_URL };
+export { API_BASE_URL, API_ENDPOINTS };
