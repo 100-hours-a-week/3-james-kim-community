@@ -171,7 +171,7 @@ jobs:
           ssh -i ~/.ssh/deploy_key ubuntu@${{ secrets.FRONTEND_PUBLIC_IP }} << EOF
             cd ~/docker-compose/nginx
             ln -sf nginx-$NEW_ENV.conf nginx.conf
-            docker exec nginx nginx -s reload
+            docker compose restart nginx
           EOF
           
           sleep 2
