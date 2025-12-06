@@ -125,6 +125,7 @@ jobs:
           NEW_ENV: ${{ steps.determine-env.outputs.new_env }}
         run: |
           ssh -i ~/.ssh/deploy_key ubuntu@${{ secrets.FRONTEND_PUBLIC_IP }} << EOF
+            # ECR login (in Frontend EC2)
             REGISTRY="${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${AWS_REGION}.amazonaws.com"
             aws ecr get-login-password --region ${AWS_REGION} \
               | docker login --username AWS --password-stdin \$REGISTRY
