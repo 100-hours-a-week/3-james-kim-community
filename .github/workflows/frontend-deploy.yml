@@ -7,12 +7,6 @@ on:
     paths:
       - 'frontend/**'
       - '.github/workflows/frontend-deploy.yml'
-  pull_request:
-    branches:
-      - feature/update-image-upload
-    paths:
-      - 'frontend/**'
-      - '.github/workflows/frontend-deploy.yml'
 
 env:
   AWS_REGION: ap-northeast-2
