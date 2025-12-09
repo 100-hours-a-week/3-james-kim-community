@@ -25,6 +25,9 @@
 <br/>
 
 ## 폴더 구조
+<details>
+<summary>📁 폴더 구조 보기 / 접기</summary>
+   
 ```
 ├── app.js                 # Express 서버 진입점
 ├── package.json
@@ -90,6 +93,7 @@
             ├── logo.png
             └── default-profile.png
 ```
+</details>
 
 ---
 
